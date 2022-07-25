@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Introduction</title>
+    <url>/2022/07/21/Introduction/</url>
+    <content><![CDATA[
+        <h1 id="第一篇Blog-前言"   >
+          <a href="#第一篇Blog-前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#第一篇Blog-前言" class="headerlink" title="第一篇Blog(前言)"></a>第一篇Blog(前言)</h1>
+      <p>其實我想寫Blog好耐，但一直冇開始到(<del>懶</del>)，由於最近開始學Web，諗住學點寫網站，同時都想寫下Blog做下筆記，記錄下自己學習過程。</p>
+<span id="more"></span>
+<p>從2019年開始接觸Program，在一開始學習coding既道路裏面，其實并不是一帆風順(<del>諗起當時可以因爲Java漏了一個分號stuck左成個下午</del>)。</p>
+<p>正如小弟既升學之路都不係一帆風順 <del>捂臉</del>，從DSE坡腳，一路從基礎文憑升讀副學士，最後先升到City既Degree (<del>雖然最想升既都係UST</del>) </p>
+<blockquote>
+<p>DSE結束只是另一個開始，最重要的是找到自己生命的命定。<br>「你若能信，在信的人，凡事都能。」    ——致最近DSE放榜學生們</p>
+</blockquote>
+<hr>
+<p>期間都一直地有睇人地既Blog不斷學習成長，受到甘多網上既Big Bro(<strong>大佬</strong>)恩惠，都想寫返個Blog回饋返自己學過既野，呢個都係其中一個寫Blog既原因。其次，見到香港好少人寫Blog，都係大陸同台灣比較多，最主要都想鼓勵更多香港人去突破自己舒適區，去嘗試更加多既野。</p>
+<p>我一直都覺得自己寫網站好差，唔識UI，唔識Design，所以黎緊會開一個新篇章關於<strong>從0開始學前端</strong>，記錄我係呢個領域，從乜都唔識，成長到可以寫呢個網站教&#x2F;同新手(就係講緊你地)分享。</p>
+<p>之後都可能開多幾個系列教下C++，Java，Python應用（如有興趣同心力的話）<del>咕咕咕</del></p>
+]]></content>
+      <tags>
+        <tag>前言</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>前端介紹</title>
+    <url>/2022/07/25/%E5%89%8D%E7%AB%AF%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[
+        <h1 id="引言"   >
+          <a href="#引言" class="heading-link"><i class="fas fa-link"></i></a><a href="#引言" class="headerlink" title="引言"></a>引言</h1>
+      <p>前後端分離是目前Web開發的主流模式，所謂的Web前端開發(Front-End Development)就是我們常指的網站或者網頁所展示的，包括内容，樣式以及交互部分。</p>
+<span id="more"></span>
+
+
+        <h1 id="網頁的組成"   >
+          <a href="#網頁的組成" class="heading-link"><i class="fas fa-link"></i></a><a href="#網頁的組成" class="headerlink" title="網頁的組成"></a>網頁的組成</h1>
+      <p>網站主要由3個部分組成，分別是<code>HTML</code>, <code>CSS</code> 和 <code>JavaScript</code>。</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th>組件</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTML:</td>
+<td>負責網站的内容以及架構</td>
+</tr>
+<tr>
+<td>CSS:</td>
+<td>負責網站的樣式，我們稱之爲UI</td>
+</tr>
+<tr>
+<td>JavaScript:</td>
+<td>負責網站的動作，例如點擊跳轉，點擊按鈕功能等等</td>
+</tr>
+</tbody></table></div>
+
+        <h1 id="瀏覽器内核"   >
+          <a href="#瀏覽器内核" class="heading-link"><i class="fas fa-link"></i></a><a href="#瀏覽器内核" class="headerlink" title="瀏覽器内核"></a>瀏覽器内核</h1>
+      <p>瀏覽器内核是瀏覽器的核心，也是<strong>渲染引擎</strong>。</p>
+<blockquote>
+<p>瀏覽器内核的作用是在於解析代碼、排版和渲染（render）頁面。不同的瀏覽器對網頁渲染不同，如果同一個網頁在不同的瀏覽器中打開，呈現的效果也有可能不同。</p>
+</blockquote>
+
+        <h2 id="瀏覽器對應的内核"   >
+          <a href="#瀏覽器對應的内核" class="heading-link"><i class="fas fa-link"></i></a><a href="#瀏覽器對應的内核" class="headerlink" title="瀏覽器對應的内核"></a>瀏覽器對應的内核</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>内核</th>
+<th>瀏覽器</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Trident</code> &#x2F; <code>EdgeHTML</code></td>
+<td>IE &#x2F; Edge</td>
+<td>IE内核，是微软开发的一种排版引擎。</td>
+</tr>
+<tr>
+<td><code>Gecko</code></td>
+<td>FireFox</td>
+<td>Gecko是当年最流行的排版引擎之一，仅次于Trident。</td>
+</tr>
+<tr>
+<td><code>WebKit</code></td>
+<td>Safari</td>
+<td>WebKit特点在于源码结构清晰、渲染速度极快。缺点是对网页代码的兼容性不高</td>
+</tr>
+<tr>
+<td><code>Chromium</code></td>
+<td>Chrome(2008)</td>
+<td>fork自Apple的Webkit内核，但把Webkit梳理得更有条理可读性更高</td>
+</tr>
+<tr>
+<td><code>Blink</code></td>
+<td>Chrome(v28+) &#x2F; Opera(v15+)</td>
+<td>Blink内核是WebKit内核中的WebCore组件的一个分支，即在WebCore的基础上进行二次开发</td>
+</tr>
+</tbody></table></div>
+<p>參考： <span class="exturl"><a class="exturl__link"   href="https://www.zguangju.com/Other/browserKernel.html#%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84%E5%86%85%E6%A0%B8" >浏览器和内核</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+
+        <h1 id="前端開發工具"   >
+          <a href="#前端開發工具" class="heading-link"><i class="fas fa-link"></i></a><a href="#前端開發工具" class="headerlink" title="前端開發工具"></a>前端開發工具</h1>
+      <p>開發工具是一個程序員重要的武器，挑選一個合適自己的開發工具真的很重要，極大的提升代碼效率，而我推薦的開發工具是 <strong>VS code</strong>。</p>
+<blockquote>
+<p>工欲善其事，必先利其器。</p>
+</blockquote>
+
+        <h2 id="VS-code-優點："   >
+          <a href="#VS-code-優點：" class="heading-link"><i class="fas fa-link"></i></a><a href="#VS-code-優點：" class="headerlink" title="VS code 優點："></a>VS code 優點：</h2>
+      <ol>
+<li>非常容易安裝插件</li>
+<li>有一個龐大的社區支持幫助實現新功能</li>
+<li>黑色主題很有高級感 （<del>很重要</del>）</li>
+</ol>
+<p>可能也有些人喜歡功能齊全的IDE,例如 Jet 公司的 <strong>Intellij IDEA</strong> 和 <strong>Webstorm</strong>，或者更輕量化的Edictor 如 <strong>Vim</strong>(<del>膜拜大佬</del>)和<strong>Sublime</strong>。<br>這些可以自行比對，最重要的是自己用得順手。</p>
+
+        <h2 id="VS-code-快捷鍵："   >
+          <a href="#VS-code-快捷鍵：" class="heading-link"><i class="fas fa-link"></i></a><a href="#VS-code-快捷鍵：" class="headerlink" title="VS code 快捷鍵："></a>VS code 快捷鍵：</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>快捷鍵</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Ctrl</code> + <code>Shift</code> + <code>N</code></td>
+<td>開啟編輯器新視窗</td>
+</tr>
+<tr>
+<td><code>Shift</code> + <code>Alt</code> + <code>F</code></td>
+<td>代碼格式化</td>
+</tr>
+<tr>
+<td><code>Alt</code> + <code>Up</code>&#x2F;<code>Down</code></td>
+<td>向 上&#x2F;下 移動一行</td>
+</tr>
+<tr>
+<td><code>Shift</code> + <code>Alt</code> + <code>Up</code>&#x2F;<code>Down</code></td>
+<td>快速複製向 上&#x2F;下 一行代碼</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> + <code>S</code></td>
+<td>儲存(<strong>很重要</strong>)</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> + <code>F</code></td>
+<td>快速查找</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> + <code>H</code></td>
+<td>快速替換</td>
+</tr>
+</tbody></table></div>
+]]></content>
+      <categories>
+        <category>從0開始學前端</category>
+      </categories>
+      <tags>
+        <tag>Front-end</tag>
+      </tags>
+  </entry>
+</search>

@@ -1,0 +1,197 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.7.0" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.7.0" type="image/png" sizes="32x32"><meta name="description" content="引言       前後端分離是目前Web開發的主流模式，所謂的Web前端開發(Front-End Development)就是我們常指的網站或者網頁所展示的，包括内容，樣式以及交互部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端介紹">
+<meta property="og:url" content="https://lemonkai.github.io/2022/07/25/%E5%89%8D%E7%AB%AF%E4%BB%8B%E7%B4%B9/index.html">
+<meta property="og:site_name" content="KAI Blog">
+<meta property="og:description" content="引言       前後端分離是目前Web開發的主流模式，所謂的Web前端開發(Front-End Development)就是我們常指的網站或者網頁所展示的，包括内容，樣式以及交互部分。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2022-07-25T07:32:59.000Z">
+<meta property="article:modified_time" content="2022-07-25T14:50:24.619Z">
+<meta property="article:author" content="KAI">
+<meta property="article:tag" content="Front-end">
+<meta name="twitter:card" content="summary"><title>前端介紹 | KAI Blog</title><link ref="canonical" href="https://lemonkai.github.io/2022/07/25/%E5%89%8D%E7%AB%AF%E4%BB%8B%E7%B4%B9/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.7.0"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":false,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 6.2.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/reading/"><span class="header-nav-menu-item__icon"><i class="fas fa-book"></i></span><span class="header-nav-menu-item__text">Reading</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">前端介紹</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2022-07-25</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2022-07-25</span></span></div></header><div class="post-body">
+        <h1 id="引言"   >
+          <a href="#引言" class="heading-link"><i class="fas fa-link"></i></a><a href="#引言" class="headerlink" title="引言"></a>引言</h1>
+      <p>前後端分離是目前Web開發的主流模式，所謂的Web前端開發(Front-End Development)就是我們常指的網站或者網頁所展示的，包括内容，樣式以及交互部分。</p>
+<span id="more"></span>
+
+
+        <h1 id="網頁的組成"   >
+          <a href="#網頁的組成" class="heading-link"><i class="fas fa-link"></i></a><a href="#網頁的組成" class="headerlink" title="網頁的組成"></a>網頁的組成</h1>
+      <p>網站主要由3個部分組成，分別是<code>HTML</code>, <code>CSS</code> 和 <code>JavaScript</code>。</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th>組件</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTML:</td>
+<td>負責網站的内容以及架構</td>
+</tr>
+<tr>
+<td>CSS:</td>
+<td>負責網站的樣式，我們稱之爲UI</td>
+</tr>
+<tr>
+<td>JavaScript:</td>
+<td>負責網站的動作，例如點擊跳轉，點擊按鈕功能等等</td>
+</tr>
+</tbody></table></div>
+
+        <h1 id="瀏覽器内核"   >
+          <a href="#瀏覽器内核" class="heading-link"><i class="fas fa-link"></i></a><a href="#瀏覽器内核" class="headerlink" title="瀏覽器内核"></a>瀏覽器内核</h1>
+      <p>瀏覽器内核是瀏覽器的核心，也是<strong>渲染引擎</strong>。</p>
+<blockquote>
+<p>瀏覽器内核的作用是在於解析代碼、排版和渲染（render）頁面。不同的瀏覽器對網頁渲染不同，如果同一個網頁在不同的瀏覽器中打開，呈現的效果也有可能不同。</p>
+</blockquote>
+
+        <h2 id="瀏覽器對應的内核"   >
+          <a href="#瀏覽器對應的内核" class="heading-link"><i class="fas fa-link"></i></a><a href="#瀏覽器對應的内核" class="headerlink" title="瀏覽器對應的内核"></a>瀏覽器對應的内核</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>内核</th>
+<th>瀏覽器</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Trident</code> &#x2F; <code>EdgeHTML</code></td>
+<td>IE &#x2F; Edge</td>
+<td>IE内核，是微软开发的一种排版引擎。</td>
+</tr>
+<tr>
+<td><code>Gecko</code></td>
+<td>FireFox</td>
+<td>Gecko是当年最流行的排版引擎之一，仅次于Trident。</td>
+</tr>
+<tr>
+<td><code>WebKit</code></td>
+<td>Safari</td>
+<td>WebKit特点在于源码结构清晰、渲染速度极快。缺点是对网页代码的兼容性不高</td>
+</tr>
+<tr>
+<td><code>Chromium</code></td>
+<td>Chrome(2008)</td>
+<td>fork自Apple的Webkit内核，但把Webkit梳理得更有条理可读性更高</td>
+</tr>
+<tr>
+<td><code>Blink</code></td>
+<td>Chrome(v28+) &#x2F; Opera(v15+)</td>
+<td>Blink内核是WebKit内核中的WebCore组件的一个分支，即在WebCore的基础上进行二次开发</td>
+</tr>
+</tbody></table></div>
+<p>參考： <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.zguangju.com/Other/browserKernel.html#%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84%E5%86%85%E6%A0%B8" >浏览器和内核</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+
+        <h1 id="前端開發工具"   >
+          <a href="#前端開發工具" class="heading-link"><i class="fas fa-link"></i></a><a href="#前端開發工具" class="headerlink" title="前端開發工具"></a>前端開發工具</h1>
+      <p>開發工具是一個程序員重要的武器，挑選一個合適自己的開發工具真的很重要，極大的提升代碼效率，而我推薦的開發工具是 <strong>VS code</strong>。</p>
+<blockquote>
+<p>工欲善其事，必先利其器。</p>
+</blockquote>
+
+        <h2 id="VS-code-優點："   >
+          <a href="#VS-code-優點：" class="heading-link"><i class="fas fa-link"></i></a><a href="#VS-code-優點：" class="headerlink" title="VS code 優點："></a>VS code 優點：</h2>
+      <ol>
+<li>非常容易安裝插件</li>
+<li>有一個龐大的社區支持幫助實現新功能</li>
+<li>黑色主題很有高級感 （<del>很重要</del>）</li>
+</ol>
+<p>可能也有些人喜歡功能齊全的IDE,例如 Jet 公司的 <strong>Intellij IDEA</strong> 和 <strong>Webstorm</strong>，或者更輕量化的Edictor 如 <strong>Vim</strong>(<del>膜拜大佬</del>)和<strong>Sublime</strong>。<br>這些可以自行比對，最重要的是自己用得順手。</p>
+
+        <h2 id="VS-code-快捷鍵："   >
+          <a href="#VS-code-快捷鍵：" class="heading-link"><i class="fas fa-link"></i></a><a href="#VS-code-快捷鍵：" class="headerlink" title="VS code 快捷鍵："></a>VS code 快捷鍵：</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>快捷鍵</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Ctrl</code> + <code>Shift</code> + <code>N</code></td>
+<td>開啟編輯器新視窗</td>
+</tr>
+<tr>
+<td><code>Shift</code> + <code>Alt</code> + <code>F</code></td>
+<td>代碼格式化</td>
+</tr>
+<tr>
+<td><code>Alt</code> + <code>Up</code>&#x2F;<code>Down</code></td>
+<td>向 上&#x2F;下 移動一行</td>
+</tr>
+<tr>
+<td><code>Shift</code> + <code>Alt</code> + <code>Up</code>&#x2F;<code>Down</code></td>
+<td>快速複製向 上&#x2F;下 一行代碼</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> + <code>S</code></td>
+<td>儲存(<strong>很重要</strong>)</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> + <code>F</code></td>
+<td>快速查找</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> + <code>H</code></td>
+<td>快速替換</td>
+</tr>
+</tbody></table></div>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://lemonkai.github.io/tags/Front-end/">Front-end</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2022/07/21/Introduction/"><span class="paginator-prev__text">Introduction</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">
+          引言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B6%B2%E9%A0%81%E7%9A%84%E7%B5%84%E6%88%90"><span class="toc-number">2.</span> <span class="toc-text">
+          網頁的組成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%80%8F%E8%A6%BD%E5%99%A8%E5%86%85%E6%A0%B8"><span class="toc-number">3.</span> <span class="toc-text">
+          瀏覽器内核</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%80%8F%E8%A6%BD%E5%99%A8%E5%B0%8D%E6%87%89%E7%9A%84%E5%86%85%E6%A0%B8"><span class="toc-number">3.1.</span> <span class="toc-text">
+          瀏覽器對應的内核</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%E9%96%8B%E7%99%BC%E5%B7%A5%E5%85%B7"><span class="toc-number">4.</span> <span class="toc-text">
+          前端開發工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#VS-code-%E5%84%AA%E9%BB%9E%EF%BC%9A"><span class="toc-number">4.1.</span> <span class="toc-text">
+          VS code 優點：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VS-code-%E5%BF%AB%E6%8D%B7%E9%8D%B5%EF%BC%9A"><span class="toc-number">4.2.</span> <span class="toc-text">
+          VS code 快捷鍵：</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">Seize the Day</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">1</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>KAI</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function loadUtterances() {
+  var d = document, s = d.createElement('script');
+  var container = d.getElementById('utterances-container');
+
+  if (!container) {
+    return;
+  }
+  s.src = 'https://utteranc.es/client.js';
+  s.setAttribute('repo', 'LemonKAI/KAIBlogComment');
+  s.setAttribute('issue-term', 'title');
+  s.setAttribute('label', 'utterances');
+  s.setAttribute('theme', 'github-light');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.setAttribute('async', '');
+  if (false) {
+    s.setAttribute('data-pjax-rm', '');
+  }
+  container.append(s);
+}
+
+if (false) {
+  loadUtterances();
+} else {
+  window.addEventListener('DOMContentLoaded', loadUtterances, false);
+}</script><script src="/js/utils.js?v=2.7.0"></script><script src="/js/stun-boot.js?v=2.7.0"></script><script src="/js/scroll.js?v=2.7.0"></script><script src="/js/header.js?v=2.7.0"></script><script src="/js/sidebar.js?v=2.7.0"></script></body></html>
