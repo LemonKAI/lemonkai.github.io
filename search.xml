@@ -103,7 +103,7 @@
 
         <h1 id="前端開發工具"   >
           <a href="#前端開發工具" class="heading-link"><i class="fas fa-link"></i></a><a href="#前端開發工具" class="headerlink" title="前端開發工具"></a>前端開發工具</h1>
-      <p>開發工具是一個程序員重要的武器，挑選一個合適自己的開發工具真的很重要，極大的提升代碼效率，而我推薦的開發工具是 <strong>VS code</strong>。</p>
+      <p>開發工具是一個程序員重要的武器，挑選一個合適自己的開發工具真的很重要，極大的提升代碼效率，而我推薦的開發工具是 <strong>VS code</strong>。:thumbsup:</p>
 <blockquote>
 <p>工欲善其事，必先利其器。</p>
 </blockquote>
@@ -155,6 +155,47 @@
 <td>快速替換</td>
 </tr>
 </tbody></table></div>
+]]></content>
+      <categories>
+        <category>從0開始學前端</category>
+      </categories>
+      <tags>
+        <tag>Front-end</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTML5簡介</title>
+    <url>/2022/07/26/HTML5%E8%AA%8D%E8%AD%98/</url>
+    <content><![CDATA[
+        <h1 id="HTML5介紹"   >
+          <a href="#HTML5介紹" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5介紹" class="headerlink" title="HTML5介紹"></a>HTML5介紹</h1>
+      <p>HTML5是HTML（HyperText Markup Language）最新的標準。HTML稱為超文本標記語言。我這裏將其解讀為『<strong>超文本</strong>』與『<strong>標記</strong>』的語言。</p>
+<span id="more"></span>
+
+
+        <h2 id="超文本"   >
+          <a href="#超文本" class="heading-link"><i class="fas fa-link"></i></a><a href="#超文本" class="headerlink" title="超文本"></a>超文本</h2>
+      <p>上篇有提到HTML是負責內容和架構，『<strong>超文本</strong>』則是內容，所謂的文本是我們平時所見的<strong>文字</strong>。<br>『<strong>超文本</strong>』則令內容不僅限于<strong>文字</strong>。如下</p>
+<ul>
+<li><strong>文字 (Text)</strong></li>
+<li><strong>圖片 (Image)</strong></li>
+<li><strong>音頻 (Audio)</strong></li>
+<li><strong>視頻 (Video)</strong></li>
+<li><strong>超鏈接 （Link）</strong></li>
+</ul>
+
+        <h2 id="標記"   >
+          <a href="#標記" class="heading-link"><i class="fas fa-link"></i></a><a href="#標記" class="headerlink" title="標記"></a>標記</h2>
+      <p>『<strong>標記</strong>』則是負責整個文章的架構，所有的內容都離不開標記。且標記有兩種表現形式：</p>
+<ul>
+<li>單標籤 <code>&lt;img&gt;</code></li>
+<li>雙標籤 <code>&lt;head&gt;&lt;/head&gt;</code></li>
+</ul>
+
+        <h2 id="HTML5的-lt-DOCTYPE-gt-聲明"   >
+          <a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="headerlink" title="HTML5的&lt;!DOCTYPE&gt; 聲明"></a>HTML5的&lt;!DOCTYPE&gt; 聲明</h2>
+      <p>HTML也有不同的版本，為了讓瀏覽器正確解析HTML版本，需要在HTML中聲明&lt;!DOCTYPE&gt;</p>
+<p><img src="/../../assets/first_html.gif"></p>
 ]]></content>
       <categories>
         <category>從0開始學前端</category>
