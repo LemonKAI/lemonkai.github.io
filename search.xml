@@ -164,8 +164,8 @@
       </tags>
   </entry>
   <entry>
-    <title>HTML5簡介</title>
-    <url>/2022/07/26/HTML5%E8%AA%8D%E8%AD%98/</url>
+    <title>HTML5簡介(1)</title>
+    <url>/2022/07/26/HTML5%E7%B0%A1%E4%BB%8B(1)/</url>
     <content><![CDATA[
         <h1 id="HTML5介紹"   >
           <a href="#HTML5介紹" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5介紹" class="headerlink" title="HTML5介紹"></a>HTML5介紹</h1>
@@ -194,8 +194,37 @@
 
         <h1 id="HTML5的-lt-DOCTYPE-gt-聲明"   >
           <a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="headerlink" title="HTML5的&lt;!DOCTYPE&gt;聲明"></a>HTML5的&lt;!DOCTYPE&gt;聲明</h1>
-      <p>HTML也有不同的版本，為了讓瀏覽器正確解析HTML版本，需要在HTML中聲明&lt;!DOCTYPE&gt;</p>
+      <p>HTML也有不同的版本，為了讓瀏覽器正確解析HTML版本，需要在HTML中聲明&lt;!DOCTYPE&gt;。</p>
+<p><strong>VS code中輸入 <code>!</code> + <code>Enter</code> 可以快速建立HTML架構，如下：</strong></p>
 <p><img src="/../../../../images/first_html.gif"></p>
+
+        <h1 id="HTML標籤及架構"   >
+          <a href="#HTML標籤及架構" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML標籤及架構" class="headerlink" title="HTML標籤及架構"></a>HTML標籤及架構</h1>
+      <figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;X-UA-Compatible&quot;</span> <span class="attr">content</span>=<span class="string">&quot;IE=edge&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width, initial-scale=1.0&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    </span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<blockquote>
+<p><code>&lt;!DOCTYPE html&gt;</code>代表着HTML5的聲明。<code>&lt;html lang=&quot;en&quot;&gt; ... &lt;/html&gt;</code>則表示為整個HTML所呈現的網頁。</p>
+</blockquote>
+<blockquote>
+<p><code>lang = &quot;en&quot;</code> 則是<code>&lt;html&gt;</code><strong>標記</strong>里的屬性。意思是網頁的語言為英文，如果中文則是zh-CN，zh-TW，zh-HK。</p>
+</blockquote>
+<blockquote>
+<p><code>&lt;meta&gt;</code> 标签提供了HTML文档的元数据。 元数据不会显示在客户端，但是会被浏览器解析。</p>
+</blockquote>
+<p>這裏有兩個重要標記分別是<code>&lt;head&gt;&lt;/head&gt;</code>和<code>&lt;body&gt;&lt;/body&gt;</code>，這兩個標記才是負責內容的主要核心。</p>
+
+        <h1 id="第一個HTML實例"   >
+          <a href="#第一個HTML實例" class="heading-link"><i class="fas fa-link"></i></a><a href="#第一個HTML實例" class="headerlink" title="第一個HTML實例"></a>第一個HTML實例</h1>
+      <p>我們來建立第一個HTML頁面：</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;X-UA-Compatible&quot;</span> <span class="attr">content</span>=<span class="string">&quot;IE=edge&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width, initial-scale=1.0&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>這是title標記<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    這是body</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="效果如下："   >
+          <a href="#效果如下：" class="heading-link"><i class="fas fa-link"></i></a><a href="#效果如下：" class="headerlink" title="效果如下："></a>效果如下：</h2>
+      <p><img src="/../../../../images/first_html_page.jpg"></p>
+<blockquote>
+<p><code>&lt;head&gt;&lt;/head&gt;</code>標籤決定了在瀏覽器上方顯示的內容<br><code>&lt;body&gt;&lt;/body&gt;</code>標籤決定了網頁裏面的顯示的內容</p>
+</blockquote>
+<p>今天先水到這麽多，下一篇再介紹一下HTML的標題標籤，段落標籤，音頻標籤等等。</p>
 ]]></content>
       <categories>
         <category>從0開始學前端</category>
