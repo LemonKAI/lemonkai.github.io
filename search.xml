@@ -192,10 +192,10 @@
 <li>雙標籤 <code>&lt;head&gt;&lt;/head&gt;</code></li>
 </ul>
 
-        <h2 id="HTML5的-lt-DOCTYPE-gt-聲明"   >
-          <a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="headerlink" title="HTML5的&lt;!DOCTYPE&gt; 聲明"></a>HTML5的&lt;!DOCTYPE&gt; 聲明</h2>
+        <h1 id="HTML5的-lt-DOCTYPE-gt-聲明"   >
+          <a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="headerlink" title="HTML5的&lt;!DOCTYPE&gt;聲明"></a>HTML5的&lt;!DOCTYPE&gt;聲明</h1>
       <p>HTML也有不同的版本，為了讓瀏覽器正確解析HTML版本，需要在HTML中聲明&lt;!DOCTYPE&gt;</p>
-<p><img src="/../../assets/first_html.gif"></p>
+<p><img src="/../../../../images/first_html.gif"></p>
 ]]></content>
       <categories>
         <category>從0開始學前端</category>
