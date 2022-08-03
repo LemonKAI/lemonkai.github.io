@@ -196,7 +196,7 @@
           <a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5的-lt-DOCTYPE-gt-聲明" class="headerlink" title="HTML5的&lt;!DOCTYPE&gt;聲明"></a>HTML5的&lt;!DOCTYPE&gt;聲明</h1>
       <p>HTML也有不同的版本，為了讓瀏覽器正確解析HTML版本，需要在HTML中聲明&lt;!DOCTYPE&gt;。</p>
 <p><strong>VS code中輸入 <code>!</code> + <code>Enter</code> 可以快速建立HTML架構，如下：</strong></p>
-<p><img src="/../../../../images/first_html.gif"></p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/first_html.gif"></p>
 
         <h1 id="HTML標籤及架構"   >
           <a href="#HTML標籤及架構" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML標籤及架構" class="headerlink" title="HTML標籤及架構"></a>HTML標籤及架構</h1>
@@ -209,7 +209,7 @@
 <p><code>lang = &quot;en&quot;</code> 則是<code>&lt;html&gt;</code><strong>標記</strong>里的屬性。意思是網頁的語言為英文，如果中文則是zh-CN，zh-TW，zh-HK。</p>
 </blockquote>
 <blockquote>
-<p><code>&lt;meta&gt;</code> 标签提供了HTML文档的元数据。 元数据不会显示在客户端，但是会被浏览器解析。</p>
+<p><code>&lt;meta&gt;</code> 标签提供了HTML文档的元数据。 元数据不会显示在客户端，但是会被浏览器解析，一般用来做SEO。</p>
 </blockquote>
 <p>這裏有兩個重要標記分別是<code>&lt;head&gt;&lt;/head&gt;</code>和<code>&lt;body&gt;&lt;/body&gt;</code>，這兩個標記才是負責內容的主要核心。</p>
 
@@ -220,11 +220,199 @@
 
         <h2 id="效果如下："   >
           <a href="#效果如下：" class="heading-link"><i class="fas fa-link"></i></a><a href="#效果如下：" class="headerlink" title="效果如下："></a>效果如下：</h2>
-      <p><img src="/../../../../images/first_html_page.jpg"></p>
+      <p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/first_html_page.jpg"></p>
 <blockquote>
 <p><code>&lt;head&gt;&lt;/head&gt;</code>標籤決定了在瀏覽器上方顯示的內容<br><code>&lt;body&gt;&lt;/body&gt;</code>標籤決定了網頁裏面的顯示的內容</p>
 </blockquote>
 <p>今天先水到這麽多，下一篇再介紹一下HTML的標題標籤，段落標籤，音頻標籤等等。</p>
+]]></content>
+      <categories>
+        <category>從0開始學前端</category>
+      </categories>
+      <tags>
+        <tag>Front-end</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTML5簡介(2)</title>
+    <url>/2022/07/30/HTML5%E7%B0%A1%E4%BB%8B(2)/</url>
+    <content><![CDATA[
+        <h1 id="前言"   >
+          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
+      <p>最近實習有點忙，只能週末才有空去寫寫Blog。個人感覺以上一篇的形式去介紹前端，好像是有點枯燥，可能之後想寫blog的形式儘可能多的互動。</p>
+<span id="more"></span>
+
+
+        <h1 id="HTML5-標籤"   >
+          <a href="#HTML5-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTML5-標籤" class="headerlink" title="HTML5 標籤"></a>HTML5 標籤</h1>
+      <p>上一篇中我們完成了第一個HTML實例，我們這次主要來講講網頁內容的標籤。<br>我們說過HTML主要由『<strong>超文本</strong>』組成，<br>這裏有6個基本內容標籤：</p>
+<ul>
+<li><strong>標題(Heading)標籤</strong>     :<code>&lt;h1~6&gt;&lt;/h1~6&gt;</code></li>
+<li><strong>段落(Paragraph)標籤</strong>   :<code>&lt;p&gt;&lt;/p&gt;</code></li>
+<li><strong>圖片(Image)標籤</strong>       :<code>&lt;img&gt;</code></li>
+<li><strong>音頻(Audio)標籤</strong>       :<code>&lt;audio&gt;&lt;/audio&gt;</code></li>
+<li><strong>視頻(Video)標籤</strong>       :<code>&lt;video&gt;&lt;/video&gt;</code></li>
+<li><strong>超鏈接(Link)標籤</strong>      :<code>&lt;a&gt;&lt;/a&gt;</code></li>
+</ul>
+
+        <h2 id="文本標籤"   >
+          <a href="#文本標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#文本標籤" class="headerlink" title="文本標籤"></a>文本標籤</h2>
+      
+        <h3 id="標題-Heading-標籤"   >
+          <a href="#標題-Heading-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#標題-Heading-標籤" class="headerlink" title="標題(Heading)標籤"></a>標題(Heading)標籤</h3>
+      <p>在HTML5網頁中，標題是必不可少的。<br>標題標籤有如下：</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>一級標籤<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>二級標籤<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h3</span>&gt;</span>三級標籤<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h4</span>&gt;</span>四級標籤<span class="tag">&lt;/<span class="name">h4</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h5</span>&gt;</span>五級標籤<span class="tag">&lt;/<span class="name">h5</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h6</span>&gt;</span>六級標籤<span class="tag">&lt;/<span class="name">h6</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>效果如下：<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220802014202.png"></p>
+<blockquote>
+<p>標題大小由 1 - 6排序， 1 為最大，6為最小。如果想要再大點，後期可以通過CSS樣式去更改。</p>
+</blockquote>
+
+        <h3 id="段落-Paragraph-標籤"   >
+          <a href="#段落-Paragraph-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#段落-Paragraph-標籤" class="headerlink" title="段落(Paragraph)標籤"></a>段落(Paragraph)標籤</h3>
+      <p>段落標籤故名思意就是段落，如下：</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>這是段落標籤<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+<p>效果如下：<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220802014816.png"></p>
+<blockquote>
+<p>段落就是文字內容啦，感覺沒啥好說的。</p>
+</blockquote>
+<p>除了段落標籤，還有兩個標籤經常跟本文一起用<br><code>&lt;br&gt;</code>和<code>&lt;hr&gt;</code>分別代表換行和水平綫</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>這是第一段<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 分割綫 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">hr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>這是第二段<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 換行 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>這是第三段<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>效果如下：</p>
+<p>這是第一段</p>
+<!-- 分割綫 -->
+<hr>
+<p>這是第二段</p>
+<!-- 換行 -->
+<br>
+<p>這是第三段</p>
+<br>
+
+<blockquote>
+<p>這樣就能做到簡單的換行和分割樣式啦</p>
+</blockquote>
+
+        <h2 id="非文本標籤"   >
+          <a href="#非文本標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#非文本標籤" class="headerlink" title="非文本標籤"></a>非文本標籤</h2>
+      <p>非文本標籤有點不同，需要在標籤內添加一些屬性如<code>src</code>來實現非文本展示。</p>
+
+        <h3 id="圖片-Image-標籤"   >
+          <a href="#圖片-Image-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#圖片-Image-標籤" class="headerlink" title="圖片(Image)標籤"></a>圖片(Image)標籤</h3>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>屬性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>src</td>
+<td>圖片來源的路徑（可以是本地路徑或者是網絡URL路徑）</td>
+</tr>
+<tr>
+<td>alt</td>
+<td>當圖片來源的路徑失效后，所顯示的文字替代</td>
+</tr>
+</tbody></table></div>
+<p>圖片是<strong>單標籤！單標籤！單標籤！</strong></p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;圖片來源的路徑&quot;</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+<p>效果如下：<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220802020436.png"></p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;圖片來源的路徑&quot;</span> <span class="attr">alt</span> = <span class="string">&quot;圖片鏈接失效&quot;</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+<p>如果鏈接失效的話，效果如下（反面教材）：<br><img src="https://github.com/LemonKAI/image/main/20220802020436.png" alt="圖片鏈接失效"></p>
+<blockquote>
+<p>這個是我最近搞的Github圖床，之前的章節都是用的本地路徑Orz。真實URL就不放出來，可以自己去找找圖片放進src屬性裏面就能看到啦。</p>
+</blockquote>
+
+        <h3 id="音頻-Audio-標籤"   >
+          <a href="#音頻-Audio-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#音頻-Audio-標籤" class="headerlink" title="音頻(Audio)標籤"></a>音頻(Audio)標籤</h3>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>屬性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>src</td>
+<td>音頻來源的路徑（可以是本地路徑或者是網絡URL路徑）</td>
+</tr>
+<tr>
+<td>controls</td>
+<td><strong>可以不賦值</strong>，為音頻提供操作面板</td>
+</tr>
+</tbody></table></div>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">audio</span> <span class="attr">src</span>=<span class="string">&quot;音頻來源的路徑&quot;</span> <span class="attr">controls</span>&gt;</span><span class="tag">&lt;/<span class="name">audio</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>效果如下：</p>
+<p><audio src="../../../../../audios/KissTheHeavens.mp3" controls></audio></p>
+<blockquote>
+<p>這裏我隨便上網找了首歌。如果我們在這<strong>不加controls</strong>這個屬性，就看不到這個控制臺啦。</p>
+</blockquote>
+
+        <h3 id="視頻-Video-標籤"   >
+          <a href="#視頻-Video-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#視頻-Video-標籤" class="headerlink" title="視頻(Video)標籤"></a>視頻(Video)標籤</h3>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>屬性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>src</td>
+<td>視頻來源的路徑（可以是本地路徑或者是網絡URL路徑）</td>
+</tr>
+<tr>
+<td>controls</td>
+<td><strong>可以不賦值</strong>，為視頻提供操作面板</td>
+</tr>
+</tbody></table></div>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">video</span> <span class="attr">src</span>=<span class="string">&quot;視頻來源的路徑&quot;</span> <span class="attr">controls</span>&gt;</span><span class="tag">&lt;/<span class="name">video</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>效果如下：</p>
+<p><video src="../../../../../video/videoplayback.mp4" controls><video></p>
+<blockquote>
+<p>感覺沒啥好說的，記得個大概就行了，除了上面的屬性以外還有許多其他控制詳細屬性，這裏就不一一敘述了。</p>
+</blockquote>
+
+        <h3 id="超鏈接-Link-標籤"   >
+          <a href="#超鏈接-Link-標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#超鏈接-Link-標籤" class="headerlink" title="超鏈接(Link)標籤"></a>超鏈接(Link)標籤</h3>
+      <p>HTML5使用<code>&lt;a&gt;</code>標籤來設置超鏈接。URL就是網站的地址，超鏈接的意思就是跳轉到另一個網站的地址。</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th>屬性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>herf</td>
+<td>需要跳轉的URL</td>
+</tr>
+<tr>
+<td>target</td>
+<td>指定在什麼地方打開鏈接</td>
+</tr>
+<tr>
+<td>rel</td>
+<td>指定當前頁面和鏈接目標彼此之間的關係</td>
+</tr>
+</tbody></table></div>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://www.google.com/&quot;</span>&gt;</span>這個谷歌鏈接<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://lemonkai.github.io/&quot;</span>&gt;</span>這個KAI Blog鏈接<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+<p>效果如下：</p>
+<p><span class="exturl"><a class="exturl__link"   href="https://www.google.com/" >這個谷歌鏈接</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span><br><a href="https://lemonkai.github.io/">這個KAI Blog鏈接</a></p>
+<blockquote>
+<p>小知識：如果當鏈接寫到一半，還沒決定好跳轉到哪個鏈接，可以把href屬性設置為<code>&quot;#&quot;</code><br>如<code>&lt;a href=&quot;#&quot;&gt;這個空鏈接&lt;/a&gt;</code><br><a href="#">這個空鏈接</a> 它會跳轉回當前頁面，之後可以通過<code>Ctrl</code> + <code>F</code> 去搜索<code>#</code>就能再把鏈接設置成自己想要跳轉的地址啦。</p>
+</blockquote>
+
+        <h1 id="后言"   >
+          <a href="#后言" class="heading-link"><i class="fas fa-link"></i></a><a href="#后言" class="headerlink" title="后言"></a>后言</h1>
+      <p>想留個作業，如果想練習的話，可以先使用今天學習的基本標籤完成以下效果。看看之後能不能弄個提交功課的板塊，讓大家一起記録學習過程。</p>
+
+        <h2 id="作業"   >
+          <a href="#作業" class="heading-link"><i class="fas fa-link"></i></a><a href="#作業" class="headerlink" title="作業"></a>作業</h2>
+      <p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220804014121.png"></p>
 ]]></content>
       <categories>
         <category>從0開始學前端</category>
