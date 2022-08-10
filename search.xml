@@ -421,4 +421,120 @@
         <tag>Front-end</tag>
       </tags>
   </entry>
+  <entry>
+    <title>HTML文本格式標籤和路徑</title>
+    <url>/2022/08/10/HTML%E6%96%87%E6%9C%AC%E6%A0%BC%E5%BC%8F%E6%A8%99%E7%B1%A4%E5%92%8C%E8%B7%AF%E5%BE%91/</url>
+    <content><![CDATA[<p>今天來講講HTML文本格式標籤和路徑，路徑的一些小知識還是挺重要的。</p>
+<span id="more"></span>
+
+        <h1 id="文本格式標籤"   >
+          <a href="#文本格式標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#文本格式標籤" class="headerlink" title="文本格式標籤"></a>文本格式標籤</h1>
+      <p>需要給某些文字加上一些格式例如，<strong>粗體</strong>，<em>斜體</em>，<u>下劃綫</u>，<del>刪除綫</del>，我們可以加上一些文本格式標籤。</p>
+<p>文本格式有兩種：</p>
+<p>非強調性：</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th align="center">格式標籤</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">b</td>
+<td align="center">粗體</td>
+</tr>
+<tr>
+<td align="center">i</td>
+<td align="center">斜體</td>
+</tr>
+<tr>
+<td align="center">u</td>
+<td align="center">下劃綫</td>
+</tr>
+<tr>
+<td align="center">s</td>
+<td align="center">刪除綫</td>
+</tr>
+</tbody></table></div>
+<p>強調性：</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th align="center">格式標籤</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">strong</td>
+<td align="center">粗體</td>
+</tr>
+<tr>
+<td align="center">em</td>
+<td align="center">斜體</td>
+</tr>
+<tr>
+<td align="center">ins</td>
+<td align="center">下劃綫</td>
+</tr>
+<tr>
+<td align="center">del</td>
+<td align="center">刪除綫</td>
+</tr>
+</tbody></table></div>
+<p>寫法如下：</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b</span>&gt;</span>粗體<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">strong</span>&gt;</span>粗體<span class="tag">&lt;/<span class="name">strong</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">i</span>&gt;</span>斜體<span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">em</span>&gt;</span>斜體<span class="tag">&lt;/<span class="name">em</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">u</span>&gt;</span>下劃綫<span class="tag">&lt;/<span class="name">u</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ins</span>&gt;</span>下劃綫<span class="tag">&lt;/<span class="name">ins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">s</span>&gt;</span>刪除綫<span class="tag">&lt;/<span class="name">s</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">del</span>&gt;</span>刪除綫<span class="tag">&lt;/<span class="name">del</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>效果如下：</p>
+<p><b>粗體</b><br><strong>粗體</strong><br><i>斜體</i><br><em>斜體</em><br><u>下劃綫</u><br><ins>下劃綫</ins><br><s>刪除綫</s><br><del>刪除綫</del></p>
+
+        <h1 id="資源路徑"   >
+          <a href="#資源路徑" class="heading-link"><i class="fas fa-link"></i></a><a href="#資源路徑" class="headerlink" title="資源路徑"></a>資源路徑</h1>
+      <p>上一篇我們講到src屬性，這裏順便補充一下src 賦值的路徑。</p>
+<ol>
+<li>絶對路徑</li>
+<li>相對路徑</li>
+</ol>
+
+        <h2 id="絶對路徑"   >
+          <a href="#絶對路徑" class="heading-link"><i class="fas fa-link"></i></a><a href="#絶對路徑" class="headerlink" title="絶對路徑"></a>絶對路徑</h2>
+      <p>絶對路徑可以是本地磁盤的路徑，例如<code>C:\Users\KAI\Pictures\image\first_html_page.jpg</code>或者是網上的URL<code>https://raw.githubusercontent.com/LemonKAI/image/main/first_html_page.jpg</code></p>
+<p>通常使用絶對路徑都是建立一個網上圖床，再使用URL去調用圖床裏面的圖片，可以減少本地渲染的開銷吧（暫時這麽理解）</p>
+
+        <h2 id="相對路徑"   >
+          <a href="#相對路徑" class="heading-link"><i class="fas fa-link"></i></a><a href="#相對路徑" class="headerlink" title="相對路徑"></a>相對路徑</h2>
+      <p>相對路徑是指，從<strong>當前文件（.html文件）</strong>開始，出發找目標文件的過程。</p>
+<p>相對路徑分類：</p>
+<ul>
+<li>同級目録</li>
+<li>下級目録</li>
+<li>上級目録</li>
+</ul>
+
+        <h3 id="同級目録"   >
+          <a href="#同級目録" class="heading-link"><i class="fas fa-link"></i></a><a href="#同級目録" class="headerlink" title="同級目録"></a>同級目録</h3>
+      <p>同級目録下我們使用<code>./</code>找其他同級目録下的文件</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811000915.png"></p>
+<p>像上面我們可以使用<code>&lt;img src = &quot;./Droom.jpg&quot;&gt;</code>把Droom.jpg插入HTML中。</p>
+
+        <h3 id="下級目録"   >
+          <a href="#下級目録" class="heading-link"><i class="fas fa-link"></i></a><a href="#下級目録" class="headerlink" title="下級目録"></a>下級目録</h3>
+      <p>下級目録，我們想要在<code>下級目録.html</code>裏面調用Droom.jpg的話，我們首先需要進入<code>下級目録</code>文件夾，再調用圖片。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811001703.png"></p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811001730.png"></p>
+<p>使用<code>&lt;img src = &quot;./下級目録/Droom.jpg&quot;&gt;</code>，這樣就可以調用圖片Droom.jpg了。</p>
+
+        <h3 id="上級目録"   >
+          <a href="#上級目録" class="heading-link"><i class="fas fa-link"></i></a><a href="#上級目録" class="headerlink" title="上級目録"></a>上級目録</h3>
+      <p>上級目録，則需要使用到<code>../</code>。<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811002213.png"></p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811002226.png"></p>
+<p>這就像是我們需要點擊，返回上一個文件夾，然後再調用圖片Droom.jpg一樣。</p>
+<p>寫法就是<code>&lt;img src = &quot;../Droom.jpg&quot;&gt;</code>。</p>
+]]></content>
+      <categories>
+        <category>從0開始學前端</category>
+      </categories>
+      <tags>
+        <tag>Front-end</tag>
+      </tags>
+  </entry>
 </search>

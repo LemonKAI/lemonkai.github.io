@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="zh-HK"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.7.0" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.7.0" type="image/png" sizes="32x32"><meta name="description" content="今天來講講HTML文本格式標籤和路徑，路徑的一些小知識還是挺重要的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTML文本格式標籤和路徑">
+<meta property="og:url" content="https://lemonkai.github.io/2022/08/10/HTML%E6%96%87%E6%9C%AC%E6%A0%BC%E5%BC%8F%E6%A8%99%E7%B1%A4%E5%92%8C%E8%B7%AF%E5%BE%91/index.html">
+<meta property="og:site_name" content="KAI Blog">
+<meta property="og:description" content="今天來講講HTML文本格式標籤和路徑，路徑的一些小知識還是挺重要的。">
+<meta property="og:locale" content="zh_HK">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220811000915.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220811001703.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220811001730.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220811002213.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220811002226.png">
+<meta property="article:published_time" content="2022-08-10T14:52:34.000Z">
+<meta property="article:modified_time" content="2022-08-10T16:42:22.325Z">
+<meta property="article:author" content="KAI">
+<meta property="article:tag" content="Front-end">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220811000915.png"><title>HTML文本格式標籤和路徑 | KAI Blog</title><link ref="canonical" href="https://lemonkai.github.io/2022/08/10/HTML%E6%96%87%E6%9C%AC%E6%A0%BC%E5%BC%8F%E6%A8%99%E7%B1%A4%E5%92%8C%E8%B7%AF%E5%BE%91/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.7.0"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":false,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: undefined,
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"複製","copySuccess":"複製成功","copyError":"複製失敗"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 6.2.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首頁</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">歸檔</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分類</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">標籤</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/reading/"><span class="header-nav-menu-item__icon"><i class="fas fa-book"></i></span><span class="header-nav-menu-item__text">閲讀</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">HTML文本格式標籤和路徑</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">發表於</span><span class="post-meta-item__value">2022-08-10</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新於</span><span class="post-meta-item__value">2022-08-11</span></span></div></header><div class="post-body"><p>今天來講講HTML文本格式標籤和路徑，路徑的一些小知識還是挺重要的。</p>
+<span id="more"></span>
+
+        <h1 id="文本格式標籤"   >
+          <a href="#文本格式標籤" class="heading-link"><i class="fas fa-link"></i></a><a href="#文本格式標籤" class="headerlink" title="文本格式標籤"></a>文本格式標籤</h1>
+      <p>需要給某些文字加上一些格式例如，<strong>粗體</strong>，<em>斜體</em>，<u>下劃綫</u>，<del>刪除綫</del>，我們可以加上一些文本格式標籤。</p>
+<p>文本格式有兩種：</p>
+<p>非強調性：</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th align="center">格式標籤</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">b</td>
+<td align="center">粗體</td>
+</tr>
+<tr>
+<td align="center">i</td>
+<td align="center">斜體</td>
+</tr>
+<tr>
+<td align="center">u</td>
+<td align="center">下劃綫</td>
+</tr>
+<tr>
+<td align="center">s</td>
+<td align="center">刪除綫</td>
+</tr>
+</tbody></table></div>
+<p>強調性：</p>
+<div class="table-container"><table>
+<thead>
+<tr>
+<th align="center">格式標籤</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">strong</td>
+<td align="center">粗體</td>
+</tr>
+<tr>
+<td align="center">em</td>
+<td align="center">斜體</td>
+</tr>
+<tr>
+<td align="center">ins</td>
+<td align="center">下劃綫</td>
+</tr>
+<tr>
+<td align="center">del</td>
+<td align="center">刪除綫</td>
+</tr>
+</tbody></table></div>
+<p>寫法如下：</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">b</span>&gt;</span>粗體<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">strong</span>&gt;</span>粗體<span class="tag">&lt;/<span class="name">strong</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">i</span>&gt;</span>斜體<span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">em</span>&gt;</span>斜體<span class="tag">&lt;/<span class="name">em</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">u</span>&gt;</span>下劃綫<span class="tag">&lt;/<span class="name">u</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ins</span>&gt;</span>下劃綫<span class="tag">&lt;/<span class="name">ins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">s</span>&gt;</span>刪除綫<span class="tag">&lt;/<span class="name">s</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">del</span>&gt;</span>刪除綫<span class="tag">&lt;/<span class="name">del</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>效果如下：</p>
+<p><b>粗體</b><br><strong>粗體</strong><br><i>斜體</i><br><em>斜體</em><br><u>下劃綫</u><br><ins>下劃綫</ins><br><s>刪除綫</s><br><del>刪除綫</del></p>
+
+        <h1 id="資源路徑"   >
+          <a href="#資源路徑" class="heading-link"><i class="fas fa-link"></i></a><a href="#資源路徑" class="headerlink" title="資源路徑"></a>資源路徑</h1>
+      <p>上一篇我們講到src屬性，這裏順便補充一下src 賦值的路徑。</p>
+<ol>
+<li>絶對路徑</li>
+<li>相對路徑</li>
+</ol>
+
+        <h2 id="絶對路徑"   >
+          <a href="#絶對路徑" class="heading-link"><i class="fas fa-link"></i></a><a href="#絶對路徑" class="headerlink" title="絶對路徑"></a>絶對路徑</h2>
+      <p>絶對路徑可以是本地磁盤的路徑，例如<code>C:\Users\KAI\Pictures\image\first_html_page.jpg</code>或者是網上的URL<code>https://raw.githubusercontent.com/LemonKAI/image/main/first_html_page.jpg</code></p>
+<p>通常使用絶對路徑都是建立一個網上圖床，再使用URL去調用圖床裏面的圖片，可以減少本地渲染的開銷吧（暫時這麽理解）</p>
+
+        <h2 id="相對路徑"   >
+          <a href="#相對路徑" class="heading-link"><i class="fas fa-link"></i></a><a href="#相對路徑" class="headerlink" title="相對路徑"></a>相對路徑</h2>
+      <p>相對路徑是指，從<strong>當前文件（.html文件）</strong>開始，出發找目標文件的過程。</p>
+<p>相對路徑分類：</p>
+<ul>
+<li>同級目録</li>
+<li>下級目録</li>
+<li>上級目録</li>
+</ul>
+
+        <h3 id="同級目録"   >
+          <a href="#同級目録" class="heading-link"><i class="fas fa-link"></i></a><a href="#同級目録" class="headerlink" title="同級目録"></a>同級目録</h3>
+      <p>同級目録下我們使用<code>./</code>找其他同級目録下的文件</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811000915.png"></p>
+<p>像上面我們可以使用<code>&lt;img src = &quot;./Droom.jpg&quot;&gt;</code>把Droom.jpg插入HTML中。</p>
+
+        <h3 id="下級目録"   >
+          <a href="#下級目録" class="heading-link"><i class="fas fa-link"></i></a><a href="#下級目録" class="headerlink" title="下級目録"></a>下級目録</h3>
+      <p>下級目録，我們想要在<code>下級目録.html</code>裏面調用Droom.jpg的話，我們首先需要進入<code>下級目録</code>文件夾，再調用圖片。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811001703.png"></p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811001730.png"></p>
+<p>使用<code>&lt;img src = &quot;./下級目録/Droom.jpg&quot;&gt;</code>，這樣就可以調用圖片Droom.jpg了。</p>
+
+        <h3 id="上級目録"   >
+          <a href="#上級目録" class="heading-link"><i class="fas fa-link"></i></a><a href="#上級目録" class="headerlink" title="上級目録"></a>上級目録</h3>
+      <p>上級目録，則需要使用到<code>../</code>。<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811002213.png"></p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220811002226.png"></p>
+<p>這就像是我們需要點擊，返回上一個文件夾，然後再調用圖片Droom.jpg一樣。</p>
+<p>寫法就是<code>&lt;img src = &quot;../Droom.jpg&quot;&gt;</code>。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文結束，感謝您的閱讀 ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://lemonkai.github.io/tags/Front-end/">Front-end</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2022/07/30/HTML5%E7%B0%A1%E4%BB%8B(2)/"><span class="paginator-prev__text">HTML5簡介(2)</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目錄</span><span class="sidebar-nav-ov">本站概覽</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E6%9C%AC%E6%A0%BC%E5%BC%8F%E6%A8%99%E7%B1%A4"><span class="toc-number">1.</span> <span class="toc-text">
+          文本格式標籤</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B3%87%E6%BA%90%E8%B7%AF%E5%BE%91"><span class="toc-number">2.</span> <span class="toc-text">
+          資源路徑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B5%B6%E5%B0%8D%E8%B7%AF%E5%BE%91"><span class="toc-number">2.1.</span> <span class="toc-text">
+          絶對路徑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%B0%8D%E8%B7%AF%E5%BE%91"><span class="toc-number">2.2.</span> <span class="toc-text">
+          相對路徑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E7%B4%9A%E7%9B%AE%E9%8C%B2"><span class="toc-number">2.2.1.</span> <span class="toc-text">
+          同級目録</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E7%B4%9A%E7%9B%AE%E9%8C%B2"><span class="toc-number">2.2.2.</span> <span class="toc-text">
+          下級目録</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E7%B4%9A%E7%9B%AE%E9%8C%B2"><span class="toc-number">2.2.3.</span> <span class="toc-text">
+          上級目録</span></a></li></ol></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">Seize the Day</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">5</div><div class="sidebar-ov-state-item__name">歸檔</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">1</div><div class="sidebar-ov-state-item__name">分類</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">標籤</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已閱讀了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>KAI</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function loadUtterances() {
+  var d = document, s = d.createElement('script');
+  var container = d.getElementById('utterances-container');
+
+  if (!container) {
+    return;
+  }
+  s.src = 'https://utteranc.es/client.js';
+  s.setAttribute('repo', 'LemonKAI/KAIBlogComment');
+  s.setAttribute('issue-term', 'title');
+  s.setAttribute('label', 'utterances');
+  s.setAttribute('theme', 'github-light');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.setAttribute('async', '');
+  if (false) {
+    s.setAttribute('data-pjax-rm', '');
+  }
+  container.append(s);
+}
+
+if (false) {
+  loadUtterances();
+} else {
+  window.addEventListener('DOMContentLoaded', loadUtterances, false);
+}</script><script src="/js/utils.js?v=2.7.0"></script><script src="/js/stun-boot.js?v=2.7.0"></script><script src="/js/scroll.js?v=2.7.0"></script><script src="/js/header.js?v=2.7.0"></script><script src="/js/sidebar.js?v=2.7.0"></script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"superSample":2,"width":150,"height":300,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":true,"scale":0.5},"log":false});</script></body></html>
