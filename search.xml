@@ -537,4 +537,75 @@
         <tag>Front-end</tag>
       </tags>
   </entry>
+  <entry>
+    <title>pytorch入門篇 ---配置</title>
+    <url>/2022/09/02/pytorch%E5%85%A5%E9%96%80%E7%AF%87-%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[
+        <h1 id="前言"   >
+          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
+      <p>我又滾回來寫Blog了，過去一個月忙着實習，前端篇就先鴿了，想記録下自己最近在學pytorch的AI框架。</p>
+<span id="more"></span>
+
+        <h1 id="Pytorch-介紹"   >
+          <a href="#Pytorch-介紹" class="heading-link"><i class="fas fa-link"></i></a><a href="#Pytorch-介紹" class="headerlink" title="Pytorch 介紹"></a>Pytorch 介紹</h1>
+      <p>Pytorch是Facebook開源的深度學習框架，也是目前主流的深度學習框架之一，學術用得比較多的好像是pytorch，這個系列就圍繞着pytorch展開，本人也在跟許多大佬學習中。</p>
+
+        <h1 id="Pytorch-環境安裝"   >
+          <a href="#Pytorch-環境安裝" class="heading-link"><i class="fas fa-link"></i></a><a href="#Pytorch-環境安裝" class="headerlink" title="Pytorch 環境安裝"></a>Pytorch 環境安裝</h1>
+      
+        <h2 id="Anaconda-安裝"   >
+          <a href="#Anaconda-安裝" class="heading-link"><i class="fas fa-link"></i></a><a href="#Anaconda-安裝" class="headerlink" title="Anaconda 安裝"></a>Anaconda 安裝</h2>
+      <p>首先去 Anaconda 官網下載或者 點擊Anaconda官網地址：<span class="exturl"><a class="exturl__link"   href="https://www.anaconda.com/" >https://www.anaconda.com/</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p>選擇跟自己電腦一樣的操作系統，這裏我用的是Windows，就用Windows作為教程，Linux系統之後有需要的話再做一篇教程吧。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902231807.png"></p>
+<p>點擊下載就完事了，下載完後就安裝。</p>
+<blockquote>
+<p>要注意的是安裝Anaconda的時候，會自動安裝Python，如果怕Python環境衝突的話，提前先把系統的Python卸載先就好了。</p>
+</blockquote>
+<p>然後記得再Advance Option裏面把 “Add Anaconda3 to my PATH environment variable”選上就行了。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902232344.png"></p>
+<p>安裝完成后，按下<code>window</code>按鍵，輸入anaconda，并點擊Anaconda Prompt(anaconda3)打開它。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902232822.png"></p>
+
+        <h2 id="創建Python-虛擬環境"   >
+          <a href="#創建Python-虛擬環境" class="heading-link"><i class="fas fa-link"></i></a><a href="#創建Python-虛擬環境" class="headerlink" title="創建Python 虛擬環境"></a>創建Python 虛擬環境</h2>
+      <p>創建環境，環境名字為pytorch，python版本為3.7（因為穩定）</p>
+<figure class="highlight cmd"><div class="table-container"><table><tr><td class="code"><pre><span class="line">conda create -n pytorch python=<span class="number">3</span>.<span class="number">7</span></span><br></pre></td></tr></table></div></figure>
+
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902233314.png"></p>
+<p>進入虛擬環境</p>
+<figure class="highlight cmd"><div class="table-container"><table><tr><td class="code"><pre><span class="line">conda activate pytorch</span><br></pre></td></tr></table></div></figure>
+
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902233425.png"></p>
+<p>可以看到左邊由base 轉換成了pytorch環境</p>
+
+        <h2 id="安裝Pytorch"   >
+          <a href="#安裝Pytorch" class="heading-link"><i class="fas fa-link"></i></a><a href="#安裝Pytorch" class="headerlink" title="安裝Pytorch"></a>安裝Pytorch</h2>
+      <p>我們進入Pytorch官網<span class="exturl"><a class="exturl__link"   href="https://pytorch.org/" >https://pytorch.org/</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>，找到下圖</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234232.png"></p>
+<p>首先需要看電腦顯卡支不支援CUDA，通常NVIDIA的顯卡都支援CUDA，pytorch優勢在於可以利用GPU的算力幫助我們加速深度學習的訓練。如果不支持CUDA也沒關係，在Compute Platform裏面選擇CPU就可以了。</p>
+<blockquote>
+<p>注意目前Windows 最低只能安裝CUDA11.3</p>
+</blockquote>
+<p>複製Command然後在Andaconda Prompt的pytorch環境下輸入</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234451.png"></p>
+<p>輸入pip list 看到 torch 說明安裝成功啦<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234634.png"></p>
+
+        <h2 id="安裝校驗"   >
+          <a href="#安裝校驗" class="heading-link"><i class="fas fa-link"></i></a><a href="#安裝校驗" class="headerlink" title="安裝校驗"></a>安裝校驗</h2>
+      <p>在pytorch環境下，輸入<code>python</code>，<br>然後輸入</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br></pre></td></tr></table></div></figure>
+<p>引入torch的庫后，輸入</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="code"><pre><span class="line">torch.cuda.is_available()</span><br></pre></td></tr></table></div></figure>
+<p>如果顯示True就說明CUDA版本的pytorch安裝好了。<br>如果顯示False說明安裝的是CPU版本，也不用太慌。<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902235215.png"></p>
+
+        <h1 id="后言"   >
+          <a href="#后言" class="heading-link"><i class="fas fa-link"></i></a><a href="#后言" class="headerlink" title="后言"></a>后言</h1>
+      <p>今天就水這麽多，我也剛剛開始學pytorch 3-4天，就學了個基本tensor transform, normalize等等，希望能學得越來越多吧。之後主要以講解pytorch的API為主，作為自己的學習記録，有興趣的可以指出問題討論一下。</p>
+]]></content>
+      <tags>
+        <tag>pytorch</tag>
+        <tag>python</tag>
+      </tags>
+  </entry>
 </search>

@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang="zh-HK"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.7.0" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.7.0" type="image/png" sizes="32x32"><meta name="description" content="前言       我又滾回來寫Blog了，過去一個月忙着實習，前端篇就先鴿了，想記録下自己最近在學pytorch的AI框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pytorch入門篇 ---配置">
+<meta property="og:url" content="https://lemonkai.github.io/2022/09/02/pytorch%E5%85%A5%E9%96%80%E7%AF%87-%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="KAI Blog">
+<meta property="og:description" content="前言       我又滾回來寫Blog了，過去一個月忙着實習，前端篇就先鴿了，想記録下自己最近在學pytorch的AI框架。">
+<meta property="og:locale" content="zh_HK">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902231807.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902232344.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902232822.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902233314.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902233425.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234232.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234451.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234634.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902235215.png">
+<meta property="article:published_time" content="2022-09-02T14:49:28.000Z">
+<meta property="article:modified_time" content="2022-09-02T15:59:12.083Z">
+<meta property="article:author" content="KAI">
+<meta property="article:tag" content="pytorch">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/LemonKAI/image/main/20220902231807.png"><title>pytorch入門篇 ---配置 | KAI Blog</title><link ref="canonical" href="https://lemonkai.github.io/2022/09/02/pytorch%E5%85%A5%E9%96%80%E7%AF%87-%E9%85%8D%E7%BD%AE/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.7.0"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":false,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: undefined,
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"複製","copySuccess":"複製成功","copyError":"複製失敗"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 6.2.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首頁</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">歸檔</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分類</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">標籤</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/reading/"><span class="header-nav-menu-item__icon"><i class="fas fa-book"></i></span><span class="header-nav-menu-item__text">閲讀</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">pytorch入門篇 ---配置</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">發表於</span><span class="post-meta-item__value">2022-09-02</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新於</span><span class="post-meta-item__value">2022-09-02</span></span></div></header><div class="post-body">
+        <h1 id="前言"   >
+          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
+      <p>我又滾回來寫Blog了，過去一個月忙着實習，前端篇就先鴿了，想記録下自己最近在學pytorch的AI框架。</p>
+<span id="more"></span>
+
+        <h1 id="Pytorch-介紹"   >
+          <a href="#Pytorch-介紹" class="heading-link"><i class="fas fa-link"></i></a><a href="#Pytorch-介紹" class="headerlink" title="Pytorch 介紹"></a>Pytorch 介紹</h1>
+      <p>Pytorch是Facebook開源的深度學習框架，也是目前主流的深度學習框架之一，學術用得比較多的好像是pytorch，這個系列就圍繞着pytorch展開，本人也在跟許多大佬學習中。</p>
+
+        <h1 id="Pytorch-環境安裝"   >
+          <a href="#Pytorch-環境安裝" class="heading-link"><i class="fas fa-link"></i></a><a href="#Pytorch-環境安裝" class="headerlink" title="Pytorch 環境安裝"></a>Pytorch 環境安裝</h1>
+      
+        <h2 id="Anaconda-安裝"   >
+          <a href="#Anaconda-安裝" class="heading-link"><i class="fas fa-link"></i></a><a href="#Anaconda-安裝" class="headerlink" title="Anaconda 安裝"></a>Anaconda 安裝</h2>
+      <p>首先去 Anaconda 官網下載或者 點擊Anaconda官網地址：<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.anaconda.com/" >https://www.anaconda.com/</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p>選擇跟自己電腦一樣的操作系統，這裏我用的是Windows，就用Windows作為教程，Linux系統之後有需要的話再做一篇教程吧。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902231807.png"></p>
+<p>點擊下載就完事了，下載完後就安裝。</p>
+<blockquote>
+<p>要注意的是安裝Anaconda的時候，會自動安裝Python，如果怕Python環境衝突的話，提前先把系統的Python卸載先就好了。</p>
+</blockquote>
+<p>然後記得再Advance Option裏面把 “Add Anaconda3 to my PATH environment variable”選上就行了。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902232344.png"></p>
+<p>安裝完成后，按下<code>window</code>按鍵，輸入anaconda，并點擊Anaconda Prompt(anaconda3)打開它。</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902232822.png"></p>
+
+        <h2 id="創建Python-虛擬環境"   >
+          <a href="#創建Python-虛擬環境" class="heading-link"><i class="fas fa-link"></i></a><a href="#創建Python-虛擬環境" class="headerlink" title="創建Python 虛擬環境"></a>創建Python 虛擬環境</h2>
+      <p>創建環境，環境名字為pytorch，python版本為3.7（因為穩定）</p>
+<figure class="highlight cmd"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n pytorch python=<span class="number">3</span>.<span class="number">7</span></span><br></pre></td></tr></table></div></figure>
+
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902233314.png"></p>
+<p>進入虛擬環境</p>
+<figure class="highlight cmd"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate pytorch</span><br></pre></td></tr></table></div></figure>
+
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902233425.png"></p>
+<p>可以看到左邊由base 轉換成了pytorch環境</p>
+
+        <h2 id="安裝Pytorch"   >
+          <a href="#安裝Pytorch" class="heading-link"><i class="fas fa-link"></i></a><a href="#安裝Pytorch" class="headerlink" title="安裝Pytorch"></a>安裝Pytorch</h2>
+      <p>我們進入Pytorch官網<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://pytorch.org/" >https://pytorch.org/</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>，找到下圖</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234232.png"></p>
+<p>首先需要看電腦顯卡支不支援CUDA，通常NVIDIA的顯卡都支援CUDA，pytorch優勢在於可以利用GPU的算力幫助我們加速深度學習的訓練。如果不支持CUDA也沒關係，在Compute Platform裏面選擇CPU就可以了。</p>
+<blockquote>
+<p>注意目前Windows 最低只能安裝CUDA11.3</p>
+</blockquote>
+<p>複製Command然後在Andaconda Prompt的pytorch環境下輸入</p>
+<p><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234451.png"></p>
+<p>輸入pip list 看到 torch 說明安裝成功啦<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902234634.png"></p>
+
+        <h2 id="安裝校驗"   >
+          <a href="#安裝校驗" class="heading-link"><i class="fas fa-link"></i></a><a href="#安裝校驗" class="headerlink" title="安裝校驗"></a>安裝校驗</h2>
+      <p>在pytorch環境下，輸入<code>python</code>，<br>然後輸入</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br></pre></td></tr></table></div></figure>
+<p>引入torch的庫后，輸入</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.cuda.is_available()</span><br></pre></td></tr></table></div></figure>
+<p>如果顯示True就說明CUDA版本的pytorch安裝好了。<br>如果顯示False說明安裝的是CPU版本，也不用太慌。<br><img src="https://raw.githubusercontent.com/LemonKAI/image/main/20220902235215.png"></p>
+
+        <h1 id="后言"   >
+          <a href="#后言" class="heading-link"><i class="fas fa-link"></i></a><a href="#后言" class="headerlink" title="后言"></a>后言</h1>
+      <p>今天就水這麽多，我也剛剛開始學pytorch 3-4天，就學了個基本tensor transform, normalize等等，希望能學得越來越多吧。之後主要以講解pytorch的API為主，作為自己的學習記録，有興趣的可以指出問題討論一下。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文結束，感謝您的閱讀 ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://lemonkai.github.io/tags/pytorch/">pytorch</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://lemonkai.github.io/tags/python/">python</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2022/08/10/HTML%E6%96%87%E6%9C%AC%E6%A0%BC%E5%BC%8F%E6%A8%99%E7%B1%A4%E5%92%8C%E8%B7%AF%E5%BE%91/"><span class="paginator-prev__text">HTML文本格式標籤和路徑</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目錄</span><span class="sidebar-nav-ov">本站概覽</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">
+          前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Pytorch-%E4%BB%8B%E7%B4%B9"><span class="toc-number">2.</span> <span class="toc-text">
+          Pytorch 介紹</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Pytorch-%E7%92%B0%E5%A2%83%E5%AE%89%E8%A3%9D"><span class="toc-number">3.</span> <span class="toc-text">
+          Pytorch 環境安裝</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Anaconda-%E5%AE%89%E8%A3%9D"><span class="toc-number">3.1.</span> <span class="toc-text">
+          Anaconda 安裝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%B5%E5%BB%BAPython-%E8%99%9B%E6%93%AC%E7%92%B0%E5%A2%83"><span class="toc-number">3.2.</span> <span class="toc-text">
+          創建Python 虛擬環境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%9DPytorch"><span class="toc-number">3.3.</span> <span class="toc-text">
+          安裝Pytorch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%9D%E6%A0%A1%E9%A9%97"><span class="toc-number">3.4.</span> <span class="toc-text">
+          安裝校驗</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%8E%E8%A8%80"><span class="toc-number">4.</span> <span class="toc-text">
+          后言</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">Seize the Day</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">6</div><div class="sidebar-ov-state-item__name">歸檔</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">1</div><div class="sidebar-ov-state-item__name">分類</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">4</div><div class="sidebar-ov-state-item__name">標籤</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已閱讀了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>KAI</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function loadUtterances() {
+  var d = document, s = d.createElement('script');
+  var container = d.getElementById('utterances-container');
+
+  if (!container) {
+    return;
+  }
+  s.src = 'https://utteranc.es/client.js';
+  s.setAttribute('repo', 'LemonKAI/KAIBlogComment');
+  s.setAttribute('issue-term', 'title');
+  s.setAttribute('label', 'utterances');
+  s.setAttribute('theme', 'github-light');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.setAttribute('async', '');
+  if (false) {
+    s.setAttribute('data-pjax-rm', '');
+  }
+  container.append(s);
+}
+
+if (false) {
+  loadUtterances();
+} else {
+  window.addEventListener('DOMContentLoaded', loadUtterances, false);
+}</script><script src="/js/utils.js?v=2.7.0"></script><script src="/js/stun-boot.js?v=2.7.0"></script><script src="/js/scroll.js?v=2.7.0"></script><script src="/js/header.js?v=2.7.0"></script><script src="/js/sidebar.js?v=2.7.0"></script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"superSample":2,"width":150,"height":300,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":true,"scale":0.5},"log":false});</script></body></html>
