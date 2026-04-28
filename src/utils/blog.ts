@@ -3,6 +3,13 @@ import { getCollection, type CollectionEntry } from "astro:content";
 export type BlogPost = CollectionEntry<"blog">;
 export type BlogLang = BlogPost["data"]["lang"];
 export type BlogKind = BlogPost["data"]["kind"];
+export interface TranslationPair {
+  key: string;
+  series?: string;
+  seriesOrder?: number;
+  zh?: BlogPost;
+  en?: BlogPost;
+}
 
 export async function getSortedPosts() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -99,6 +106,44 @@ export function findTranslation(posts: BlogPost[], currentPost: BlogPost) {
       post.data.translationKey === key &&
       post.data.lang !== currentPost.data.lang
   );
+}
+
+export function getTranslationPairs(posts: BlogPost[]) {
+  const pairs = new Map<string, TranslationPair>();
+
+  for (const post of posts) {
+    const key = post.data.translationKey ?? post.id;
+    const pair = pairs.get(key) ?? {
+      key,
+      series: post.data.series,
+      seriesOrder: post.data.seriesOrder
+    };
+
+    pair.series ??= post.data.series;
+    pair.seriesOrder ??= post.data.seriesOrder;
+
+    if (post.data.lang === "zh") {
+      pair.zh = post;
+    } else {
+      pair.en = post;
+    }
+
+    pairs.set(key, pair);
+  }
+
+  return [...pairs.values()].sort((left, right) => {
+    const leftOrder = left.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = right.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+
+    const leftDate = (left.zh ?? left.en)?.data.pubDate.getTime() ?? 0;
+    const rightDate = (right.zh ?? right.en)?.data.pubDate.getTime() ?? 0;
+
+    return rightDate - leftDate;
+  });
 }
 
 export function getUniqueTags(posts: BlogPost[]) {

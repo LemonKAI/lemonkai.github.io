@@ -13,31 +13,39 @@ interface Props {
 }
 
 const { post } = Astro.props;
+const readLabel = post.data.lang === "zh" ? "閱讀這篇筆記" : "Read this note";
 ---
 
-<article class="post-card">
+<article class:list={["post-card", `post-card--${post.data.kind}`]}>
   <div class="post-card__eyebrow">
     <span class="meta-pill">{languageLabel(post.data.lang)}</span>
     <span class="meta-pill">{kindLabel(post.data.kind, post.data.lang)}</span>
     {
       post.data.seriesOrder && (
-        <span class="meta-pill">#{post.data.seriesOrder}</span>
+        <span class="meta-pill">#{String(post.data.seriesOrder).padStart(2, "0")}</span>
       )
     }
   </div>
 
-  <div class="post-card__meta">
-    <time datetime={post.data.pubDate.toISOString()}>
-      {formatDate(post.data.pubDate, post.data.lang)}
-    </time>
-    <span>{post.data.tags.length} tags</span>
-  </div>
+  {
+    post.data.series && <p class="post-card__series">{post.data.series}</p>
+  }
 
   <h2 class="post-card__title">
     <a href={postUrl(post)}>{post.data.title}</a>
   </h2>
 
   <p class="post-card__description">{post.data.description}</p>
+
+  <div class="post-card__footer">
+    <div class="post-card__meta">
+      <time datetime={post.data.pubDate.toISOString()}>
+        {formatDate(post.data.pubDate, post.data.lang)}
+      </time>
+      <span>{post.data.tags.length} tags</span>
+    </div>
+    <span class="post-card__cta">{readLabel}</span>
+  </div>
 
   <div class="tag-list">
     {post.data.tags.map((tag) => <TagPill tag={tag} />)}

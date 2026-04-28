@@ -7,38 +7,50 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   description="關於 KAI K8s之路：用中英雙版系列，從 Kubernetes 基礎一路寫到實戰。"
   lang="zh-Hant"
 >
-  <section class="page-intro">
-    <p class="eyebrow">About</p>
-    <h1>這個 blog 想長成什麼樣</h1>
-    <p>
-      我想做的是一個更像技術筆記本、又能慢慢長成系列的個人 blog。主線是
-      <strong>KAI K8s之路</strong>，會從 k8s 基礎慢慢走到真實生產環境；副線則穿插
-      GitOps、observability、AI infra，還有一些事故趣事與建議。
-    </p>
+  <section class="page-intro page-intro--with-rail">
+    <div class="page-intro__copy">
+      <p class="eyebrow">About / 為什麼做這個站</p>
+      <h1>這個 blog 想長成一個有主線的技術筆記本</h1>
+      <p>
+        我想做的不是雜亂文章倉庫，而是一個更像 notebook 的個人技術站。主線是
+        <strong>KAI K8s之路</strong>，從 k8s 基礎慢慢走到真實生產環境；副線則穿插
+        GitOps、observability、AI infra，以及那些值得記下來的事故片段。
+      </p>
+    </div>
+
+    <aside class="page-intro__aside">
+      <p class="signal-panel__label">Writing bias / 寫作偏好</p>
+      <ul class="signal-panel__list">
+        <li>先把抽象與直覺講清楚，再進到 deployment 細節</li>
+        <li>偏好真實現場，不想只寫擺樣子的 demo</li>
+        <li>寫到自己未來回來看也還會有用</li>
+      </ul>
+    </aside>
   </section>
 
-  <section class="section-grid">
+  <section class="section-grid section-grid--manifesto">
     <article class="feature-card">
-      <h2>主線怎麼寫</h2>
+      <p class="eyebrow">主線怎麼寫</p>
+      <h2>從核心概念一路走到 rollout 與 incidents</h2>
       <p>
-        系列文章會先把基礎講清楚，再逐步進到 Deployment、Service、Probe、
-        Ingress、GitOps 與 incident handling 這些真正會碰到的場景。
+        系列會先把 Pod、Deployment、Service、Probe、Ingress 這些關鍵觀念講清楚，再一路寫到
+        GitOps、observability 與 incident handling。
       </p>
     </article>
 
     <article class="feature-card">
-      <h2>雙語怎麼做</h2>
+      <p class="eyebrow">雙語怎麼做</p>
+      <h2>主線優先中英雙版，支線保持彈性</h2>
       <p>
-        主線系列優先做中英雙版，讓它既能對自己複盤，也能對外輸出；支線內容則
-        不強迫一比一翻譯，保持更新節奏更重要。
+        系列內容盡量做成可對照的中英雙版，讓它既能對自己複盤，也能對外輸出；支線內容則不強迫一比一翻譯。
       </p>
     </article>
 
     <article class="feature-card">
-      <h2>支線會放什麼</h2>
+      <p class="eyebrow">支線會放什麼</p>
+      <h2>小知識、踩坑筆記、事故趣事與建議</h2>
       <p>
-        除了正規系列，也會有短篇小知識、踩坑筆記、探针 / rollout / GitOps 相關的
-        建議，以及一些值得記下來的生產事故片段。
+        除了正規系列，也會保留短篇小知識、probe / rollout / GitOps 類的現場經驗，以及值得記下來的生產事故片段。
       </p>
     </article>
   </section>

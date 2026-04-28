@@ -1,19 +1,19 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
+import SeriesPairRow from "../../components/SeriesPairRow.astro";
 import { FEATURED_SERIES_NAME } from "../../consts";
 import {
   getPostsByKind,
-  getPostsByLang,
   getSeriesPosts,
   getSortedPosts,
+  getTranslationPairs,
   sortSeriesPosts
 } from "../../utils/blog";
 
 const allPosts = await getSortedPosts();
 const seriesPosts = sortSeriesPosts(getSeriesPosts(allPosts, FEATURED_SERIES_NAME));
-const zhPosts = getPostsByLang(seriesPosts, "zh");
-const enPosts = getPostsByLang(seriesPosts, "en");
+const seriesPairs = getTranslationPairs(seriesPosts);
 const sideNotes = getPostsByKind(allPosts, "incident").concat(
   allPosts.filter((post) => post.data.kind === "note").slice(0, 2)
 );
@@ -51,17 +51,28 @@ const roadmap = [
   description="KAI K8s之路：Kai Ning 的 Kubernetes 系列，從基礎一路寫到真實生產環境，並同步提供 English version。"
   lang="zh-Hant"
 >
-  <section class="page-intro">
-    <p class="eyebrow">Series hub</p>
-    <h1>KAI K8s之路</h1>
-    <p>
-      這個系列會從 Kubernetes 最基礎的抽象開始，慢慢走到 rollout、GitOps、
-      observability 與 incident handling。主線優先做中英雙版，方便一路沉澱成一套完整輸出。
-    </p>
-    <div class="hero__actions">
-      <a class="button button--primary" href="/blog/zh/">看中文系列</a>
-      <a class="button" href="/blog/en/">Read English version</a>
+  <section class="page-intro page-intro--with-rail">
+    <div class="page-intro__copy">
+      <p class="eyebrow">Series hub / 主線入口</p>
+      <h1>KAI K8s之路</h1>
+      <p>
+        這是整個站的 backbone。會從 Kubernetes 最基礎的抽象開始，慢慢走到 rollout、
+        GitOps、observability 與 incident handling。每個章節都盡量整理成中英成對的閱讀軌。
+      </p>
+      <div class="hero__actions">
+        <a class="button button--primary" href="/blog/zh/">看中文系列</a>
+        <a class="button" href="/blog/en/">Read English version</a>
+      </div>
     </div>
+
+    <aside class="page-intro__aside">
+      <p class="signal-panel__label">How to read / 閱讀方式</p>
+      <ul class="signal-panel__list">
+        <li>先讀中文主線，把概念和直覺建立起來</li>
+        <li>再用 English track 補 terminology 與對外表達</li>
+        <li>遇到 side notes，就把它當作主線旁邊的真實案例</li>
+      </ul>
+    </aside>
   </section>
 
   <section class="section-header">
@@ -82,34 +93,23 @@ const roadmap = [
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">中文系列</p>
-      <h2>先把核心觀念講清楚</h2>
+      <p class="eyebrow">Chapter pairs</p>
+      <h2>按章節閱讀，比按語言切換更自然</h2>
     </div>
   </section>
 
-  <section class="post-list">
-    {zhPosts.map((post) => <PostCard post={post} />)}
+  <section class="chapter-stack">
+    {seriesPairs.map((pair) => <SeriesPairRow pair={pair} />)}
   </section>
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">English track</p>
-      <h2>The same path in English</h2>
+      <p class="eyebrow">Related notes</p>
+      <h2>跟主線相連、但不搶主視覺的補充筆記</h2>
     </div>
   </section>
 
-  <section class="post-list">
-    {enPosts.map((post) => <PostCard post={post} />)}
-  </section>
-
-  <section class="section-header">
-    <div>
-      <p class="eyebrow">Side notes</p>
-      <h2>穿插更新的實戰補充</h2>
-    </div>
-  </section>
-
-  <section class="post-list">
+  <section class="post-list post-list--secondary">
     {sideNotes.map((post) => <PostCard post={post} />)}
   </section>
 </BaseLayout>

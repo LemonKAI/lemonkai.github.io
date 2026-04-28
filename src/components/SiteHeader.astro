@@ -1,28 +1,35 @@
 ---
 import { SITE_AUTHOR, SITE_TAGLINE, SITE_TITLE } from "../consts";
 
+interface Props {
+  lang?: string;
+}
+
+const { lang = "en" } = Astro.props;
 const currentPath = Astro.url.pathname;
+const currentLang = lang.startsWith("zh") ? "zh" : "en";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/series/kai-k8s-road/", label: "Series" },
-  { href: "/blog/", label: "Blog" },
-  { href: "/about/", label: "About" }
+  { href: "/", label: "首頁", note: "Notebook" },
+  { href: "/series/kai-k8s-road/", label: "系列主線", note: "Series" },
+  { href: "/blog/", label: "全部文章", note: "Archive" },
+  { href: "/about/", label: "關於", note: "About" }
 ];
 
 const languageLinks = [
-  { href: "/blog/zh/", label: "中文" },
-  { href: "/blog/en/", label: "EN" }
+  { href: "/blog/zh/", label: "中文主線", note: "Zh.", lang: "zh" },
+  { href: "/blog/en/", label: "English track", note: "En.", lang: "en" }
 ];
 ---
 
 <header class="site-header">
   <div class="shell site-header__inner">
     <a class="site-brand" href="/">
-      <span class="site-brand__mark">lk</span>
-      <span>
-        <strong>{SITE_TITLE}</strong>
-        <small>{SITE_AUTHOR} · {SITE_TAGLINE}</small>
+      <span class="site-brand__mark">KAI</span>
+      <span class="site-brand__copy">
+        <small>{SITE_TITLE}</small>
+        <strong>KAI K8s之路</strong>
+        <em>{SITE_AUTHOR} · {SITE_TAGLINE}</em>
       </span>
     </a>
 
@@ -39,7 +46,8 @@ const languageLinks = [
               return (
                 <li>
                   <a href={link.href} data-active={active ? "true" : undefined}>
-                    {link.label}
+                    <span>{link.label}</span>
+                    <small>{link.note}</small>
                   </a>
                 </li>
               );
@@ -49,13 +57,16 @@ const languageLinks = [
       </nav>
 
       <div class="site-language-switch" aria-label="Language links">
+        <span class="site-language-switch__label">閱讀語言</span>
         {
           languageLinks.map((link) => {
-            const active = currentPath.startsWith(link.href);
+            const active =
+              currentPath.startsWith(link.href) || currentLang === link.lang;
 
             return (
               <a href={link.href} data-active={active ? "true" : undefined}>
-                {link.label}
+                <span>{link.label}</span>
+                <small>{link.note}</small>
               </a>
             );
           })

@@ -39,6 +39,8 @@ const socialImage = new URL(image, Astro.site ?? Astro.url).toString();
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 
     <meta property="og:site_name" content={SITE_TITLE} />
     <meta property="og:title" content={pageTitle} />
@@ -61,7 +63,7 @@ const socialImage = new URL(image, Astro.site ?? Astro.url).toString();
 
   <body>
     <div class="page-shell">
-      <SiteHeader />
+      <SiteHeader lang={lang} />
       <main class="shell page-content">
         <slot />
       </main>

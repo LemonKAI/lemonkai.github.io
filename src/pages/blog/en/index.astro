@@ -1,26 +1,70 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import PostCard from "../../../components/PostCard.astro";
-import { getPostsByLang, getSortedPosts } from "../../../utils/blog";
+import { FEATURED_SERIES_NAME } from "../../../consts";
+import {
+  getPostsByKind,
+  getPostsByLang,
+  getSeriesPosts,
+  getSortedPosts,
+  sortSeriesPosts
+} from "../../../utils/blog";
 
 const posts = getPostsByLang(await getSortedPosts(), "en");
+const seriesPosts = sortSeriesPosts(getSeriesPosts(posts, FEATURED_SERIES_NAME));
+const sidePosts = getPostsByKind(posts, "note").concat(
+  getPostsByKind(posts, "incident")
+);
 ---
 
 <BaseLayout
   title="English posts"
   description="English Kubernetes and platform notes by Kai Ning, including KAI's K8s Journey and production-minded side notes."
 >
-  <section class="page-intro">
-    <p class="eyebrow">English track</p>
-    <h1>KAI&apos;s K8s Journey in English</h1>
-    <p>
-      This track keeps the core Kubernetes series readable in English while
-      leaving room for short operational notes on rollouts, observability,
-      GitOps, and incident lessons.
-    </p>
+  <section class="page-intro page-intro--with-rail">
+    <div class="page-intro__copy">
+      <p class="eyebrow">English track</p>
+      <h1>KAI&apos;s K8s Journey in English</h1>
+      <p>
+        This track keeps the core Kubernetes series readable in English while
+        leaving room for short operational notes on rollouts, observability,
+        GitOps, and incident lessons.
+      </p>
+      <div class="hero__actions">
+        <a class="button button--primary" href="/series/kai-k8s-road/">Open the series hub</a>
+        <a class="button" href="/blog/zh/">See Chinese track</a>
+      </div>
+    </div>
+
+    <aside class="page-intro__aside">
+      <p class="signal-panel__label">Reading logic</p>
+      <ul class="signal-panel__list">
+        <li>Follow the core series in chapter order</li>
+        <li>Use side notes as compact production-biased detours</li>
+        <li>Switch to Chinese when you want the fuller original rhythm</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Series track</p>
+      <h2>{FEATURED_SERIES_NAME}</h2>
+    </div>
   </section>
 
   <section class="post-list">
-    {posts.map((post) => <PostCard post={post} />)}
+    {seriesPosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Field notes</p>
+      <h2>Operational notes and incident fragments</h2>
+    </div>
+  </section>
+
+  <section class="post-list post-list--secondary">
+    {sidePosts.map((post) => <PostCard post={post} />)}
   </section>
 </BaseLayout>

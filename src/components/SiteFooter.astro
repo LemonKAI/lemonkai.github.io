@@ -6,16 +6,21 @@ const year = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="shell site-footer__inner">
-    <p>
-      <strong>{SITE_TITLE}</strong> 記錄 {SITE_AUTHOR} 的 Kubernetes 主線學習、
-      GitOps / AI infra 筆記，以及穿插更新的小知識、事故趣事和實戰建議。
-    </p>
+    <div class="site-footer__copy">
+      <p class="eyebrow">KAI notebook</p>
+      <p>
+        <strong>{SITE_TITLE}</strong> 把 <strong>KAI K8s之路</strong> 當成主線，
+        把 GitOps、observability、AI infra、事故趣事與 quick tips 收進同一本技術筆記裡。
+      </p>
+    </div>
+
     <div class="site-footer__links">
       <a href="/series/kai-k8s-road/">KAI K8s之路</a>
       <a href="/rss.xml">RSS</a>
       <a href="/sitemap-index.xml">Sitemap</a>
-      <a href="https://github.com/lemonkai/lemonkai.github.io">GitHub</a>
+      <a href="https://github.com/LemonKAI/lemonkai.github.io">GitHub</a>
     </div>
+
     <small>© {year} {SITE_AUTHOR}. Built with Astro for GitHub Pages.</small>
   </div>
 </footer>

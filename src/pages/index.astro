@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/PostCard.astro";
+import SeriesPairRow from "../components/SeriesPairRow.astro";
 import { FEATURED_SERIES_NAME } from "../consts";
 import {
   getPostsByKind,
-  getPostsByLang,
   getSeriesPosts,
   getSortedPosts,
+  getTranslationPairs,
   getTagCounts,
   sortSeriesPosts
 } from "../utils/blog";
@@ -14,18 +15,19 @@ import {
 const posts = await getSortedPosts();
 const topTags = getTagCounts(posts).slice(0, 6);
 const seriesPosts = sortSeriesPosts(getSeriesPosts(posts, FEATURED_SERIES_NAME));
-const zhSeries = getPostsByLang(seriesPosts, "zh");
-const enSeries = getPostsByLang(seriesPosts, "en");
+const seriesPairs = getTranslationPairs(seriesPosts);
+const featuredPair = seriesPairs[0];
 const sidePosts = posts.filter((post) => post.data.kind !== "series").slice(0, 4);
+const notePosts = getPostsByKind(posts, "note");
 const incidentPosts = getPostsByKind(posts, "incident");
 
 const roadmap = [
-  "Container → Pod",
-  "Deployment / ReplicaSet",
-  "Service / DNS / Ingress",
-  "ConfigMap / Secret",
-  "Probe / rollout / rollback",
-  "Observability / GitOps / incidents"
+  { title: "01", detail: "Container → Pod" },
+  { title: "02", detail: "Deployment / rollout" },
+  { title: "03", detail: "Service / Ingress" },
+  { title: "04", detail: "Config / Probe / Secret" },
+  { title: "05", detail: "Observability / GitOps" },
+  { title: "06", detail: "Incidents / production notes" }
 ];
 ---
 
@@ -34,18 +36,17 @@ const roadmap = [
   description="KAI K8s之路：從 Kubernetes 基礎一路寫到實際生產環境，並同步提供 English version。"
   lang="zh-Hant"
 >
-  <section class="hero">
+  <section class="hero hero--home">
     <div class="hero__copy">
-      <p class="eyebrow">KAI K8s之路 / KAI&apos;s K8s Journey</p>
-      <h1>
-        把 Kubernetes 從基礎一路寫到真實生產環境。
-      </h1>
+      <p class="eyebrow">KAI notebook / bilingual infrastructure writing</p>
+      <h1>把 Kubernetes 寫成一條會一直回頭用的主線。</h1>
       <p class="hero__eyeline">
-        中文主線能讀，English version 也同步補上。
+        KAI K8s之路 是主線；GitOps、incident notes、AI infra 都是沿路長出的 field notes。
       </p>
       <p class="hero__lede">
-        這裡先從 k8s 基礎開始說起，慢慢走到 Deployment、Service、Probe、
-        Ingress、GitOps、Observability，再穿插一些小知識、事故趣事，以及在生產環境裡比較有感的建議。
+        這裡不想做成模板味太重的 tech blog，而更像一本持續增長的技術筆記。主線先把
+        Kubernetes 的抽象、rollout、GitOps 與 incident lessons 寫成一條路；其他 quick tips
+        和事故片段，則留在旁邊持續長出來。
       </p>
 
       <div class="hero__actions">
@@ -54,103 +55,117 @@ const roadmap = [
         <a class="button" href="/blog/en/">Read English version</a>
       </div>
 
-      <div class="note-strip">
-        <span>主線：KAI K8s之路</span>
-        <span>支線：小知識 / 事故趣事 / 建議</span>
-        <span>副題：GitOps / AI infra / production notes</span>
-      </div>
+      <dl class="hero__ledger">
+        <div>
+          <dt>Reading spine</dt>
+          <dd>從 Pod、Deployment 一路走到 observability / GitOps / incidents</dd>
+        </div>
+        <div>
+          <dt>Notebook edges</dt>
+          <dd>Quick tips、rollout scars、production-side lessons</dd>
+        </div>
+        <div>
+          <dt>Language rhythm</dt>
+          <dd>中文先講透，English track 也能對外讀</dd>
+        </div>
+      </dl>
     </div>
 
     <aside class="signal-panel">
-      <p class="signal-panel__label">內容節奏 / Content cadence</p>
-      <ul class="signal-panel__list">
-        <li>先把基礎觀念講清楚，再進入實戰</li>
-        <li>主線系列用中英雙版，支線內容自由穿插</li>
-        <li>偏好真實場景，而不是只會擺樣子的 demo</li>
-      </ul>
+      <p class="signal-panel__label">Series spine / 主線骨架</p>
+      <ol class="roadmap-list">
+        {roadmap.map((item) => (
+          <li>
+            <strong>{item.title}</strong>
+            <span>{item.detail}</span>
+          </li>
+        ))}
+      </ol>
 
       <div class="signal-panel__metrics">
         <div>
           <strong>{seriesPosts.length}</strong>
-          <span>series entries</span>
+          <span>published chapters</span>
         </div>
         <div>
           <strong>{incidentPosts.length}</strong>
-          <span>incident-style notes</span>
+          <span>incident notes</span>
+        </div>
+        <div>
+          <strong>{notePosts.length}</strong>
+          <span>quick notes</span>
+        </div>
+        <div>
+          <strong>{seriesPairs.length}</strong>
+          <span>bilingual chapter pairs</span>
         </div>
       </div>
     </aside>
   </section>
 
-  <section class="section-grid">
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Notebook guide</p>
+      <h2>這個站怎麼讀，才會讀到主線</h2>
+    </div>
+  </section>
+
+  <section class="section-grid section-grid--manifesto">
     <article class="feature-card">
-      <p class="eyebrow">主線系列</p>
-      <h2>KAI K8s之路</h2>
+      <p class="eyebrow">主線 / Backbone</p>
+      <h2>先讀系列，再讀邊角</h2>
       <p>
-        從「container 跟 Pod 差在哪裡」這種最基礎的問題開始，一路寫到 rollout、
-        observability、GitOps 與 incident handling。
+        <strong>KAI K8s之路</strong> 不是普通分類，而是整個站的骨架。從 Pod 開始，慢慢走到
+        rollout、observability、GitOps 與 incident handling。
       </p>
     </article>
 
     <article class="feature-card">
-      <p class="eyebrow">穿插更新</p>
-      <h2>小知識、趣事、與建議</h2>
+      <p class="eyebrow">雙語 / Rhythm</p>
+      <h2>中英不是切換，是兩條並排的閱讀軌</h2>
       <p>
-        不會只有正經八百的教學。也會穿插一些容易踩坑的小知識、真實事故片段，
-        還有我覺得在生產上比較值錢的做法。
+        中文負責把概念講紮實，英文負責讓整條路也能對外輸出。系列盡量成對出現，支線則保留語言彈性。
       </p>
     </article>
 
     <article class="feature-card">
-      <p class="eyebrow">雙語策略</p>
-      <h2>主線雙語，支線靈活</h2>
+      <p class="eyebrow">側邊欄 / Field notes</p>
+      <h2>小知識和事故趣事，放第二層但要保持活著</h2>
       <ul class="focus-list">
-        <li>系列文章優先中英雙版</li>
-        <li>支線內容依題材決定語言</li>
-        <li>先求持續更新，再求完美對照</li>
+        <li>probe / rollout / GitOps 類經驗會快速穿插</li>
+        <li>incident notes 保留現場感，不硬包成正規教材</li>
+        <li>所有支線都應該回頭補強主線理解</li>
       </ul>
     </article>
   </section>
 
-  <section class="section-header">
-    <div>
-      <p class="eyebrow">Series spotlight</p>
-      <h2>先把 K8s 基礎走紮實</h2>
-    </div>
-    <a class="inline-link" href="/series/kai-k8s-road/">進入系列頁</a>
-  </section>
+  {
+    featuredPair && (
+      <>
+        <section class="section-header">
+          <div>
+            <p class="eyebrow">Current chapter</p>
+            <h2>先從正在成形的這一章開始</h2>
+          </div>
+          <a class="inline-link" href="/series/kai-k8s-road/">進入系列頁</a>
+        </section>
 
-  <section class="post-list">
-    {zhSeries.slice(0, 1).map((post) => <PostCard post={post} />)}
-    {enSeries.slice(0, 1).map((post) => <PostCard post={post} />)}
-  </section>
-
-  <section class="section-header">
-    <div>
-      <p class="eyebrow">Roadmap</p>
-      <h2>這條路接下來會寫到哪裡</h2>
-    </div>
-  </section>
-
-  <section class="mini-grid">
-    {roadmap.map((item) => (
-      <article class="mini-card">
-        <strong>{item}</strong>
-      </article>
-    ))}
-  </section>
+        <section class="chapter-stack">
+          <SeriesPairRow pair={featuredPair} />
+        </section>
+      </>
+    )
+  }
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">Side quests</p>
-      <h2>穿插更新的小知識、事故趣事與建議</h2>
+      <p class="eyebrow">Field notes</p>
+      <h2>次要但活著的筆記區</h2>
     </div>
-    <a class="inline-link" href="/blog/">
-      View all posts
-    </a>
+    <a class="inline-link" href="/blog/">View full archive</a>
   </section>
 
-  <section class="post-list">
+  <section class="post-list post-list--secondary">
     {sidePosts.map((post) => <PostCard post={post} />)}
   </section>
 
