@@ -1,0 +1,124 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+import { getSortedPosts, getTagCounts } from "../utils/blog";
+
+const posts = await getSortedPosts();
+const recentPosts = posts.slice(0, 3);
+const topTags = getTagCounts(posts).slice(0, 4);
+---
+
+<BaseLayout
+  title="Kubernetes-first technical blog"
+  description="Kai Ning's personal technical blog on Kubernetes, GitOps, AI agents, and production infrastructure."
+>
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="eyebrow">Kai Ning&apos;s technical notebook</p>
+      <h1>
+        Kubernetes-first notes from the edge between platform engineering and
+        AI systems.
+      </h1>
+      <p class="hero__eyeline">K8s first. AI infra second. Production reality always.</p>
+      <p class="hero__lede">
+        I use this blog to write down the parts that actually matter when
+        systems leave the demo phase: safer rollouts, clearer observability,
+        saner GitOps workflows, and the runtime glue that makes agent systems
+        useful in production.
+      </p>
+
+      <div class="hero__actions">
+        <a class="button button--primary" href="/blog/">Read the blog</a>
+        <a class="button" href="/about/">About this site</a>
+      </div>
+
+      <div class="note-strip">
+        <span>Primary: Kubernetes</span>
+        <span>Secondary: AI / agents / infra</span>
+        <span>Style: practical over ceremonial</span>
+      </div>
+    </div>
+
+    <aside class="signal-panel">
+      <p class="signal-panel__label">What I&apos;m optimizing for</p>
+      <ul class="signal-panel__list">
+        <li>Rollouts that fail small instead of failing loud</li>
+        <li>Operational patterns that survive real traffic and real teams</li>
+        <li>Agent systems you can inspect instead of just hope for</li>
+      </ul>
+
+      <div class="signal-panel__metrics">
+        <div>
+          <strong>{posts.length}</strong>
+          <span>seed essays</span>
+        </div>
+        <div>
+          <strong>{topTags.length}</strong>
+          <span>active themes</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="section-grid">
+    <article class="feature-card">
+      <p class="eyebrow">Primary theme</p>
+      <h2>Kubernetes as the operating surface</h2>
+      <p>
+        Expect posts on rollout safety, cluster debugging, workload behavior,
+        GitOps review discipline, and the small defaults that prevent large
+        incidents.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <p class="eyebrow">Secondary theme</p>
+      <h2>AI agents and infra glue code</h2>
+      <p>
+        Notes on runtime visibility, tool orchestration, guardrails, and the
+        systems work needed to make AI automation trustworthy outside toy
+        examples.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <p class="eyebrow">Operating model</p>
+      <h2>How I want this blog to read</h2>
+      <ul class="focus-list">
+        <li>Concrete defaults</li>
+        <li>Tradeoffs made explicit</li>
+        <li>Fewer buzzwords, more runbooks</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Topic map</p>
+      <h2>Current themes in rotation</h2>
+    </div>
+  </section>
+
+  <section class="mini-grid">
+    {topTags.map(({ tag, count }) => (
+      <article class="mini-card">
+        <strong>{tag}</strong>
+        <span>{count} post{count > 1 ? "s" : ""}</span>
+      </article>
+    ))}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Recent writing</p>
+      <h2>Fresh notes from the new build</h2>
+    </div>
+    <a class="inline-link" href="/blog/">
+      View all posts
+    </a>
+  </section>
+
+  <section class="post-list">
+    {recentPosts.map((post) => <PostCard post={post} />)}
+  </section>
+</BaseLayout>

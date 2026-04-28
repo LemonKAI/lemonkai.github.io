@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getSortedPosts, getTagCounts, tagToSlug } from "../../utils/blog";
+
+const posts = await getSortedPosts();
+const tags = getTagCounts(posts);
+---
+
+<BaseLayout
+  title="Tags"
+  description="Browse topics across Kubernetes, AI agents, and infrastructure notes."
+>
+  <section class="page-intro">
+    <p class="eyebrow">Topic map</p>
+    <h1>Browse by tag</h1>
+    <p>
+      Tags keep the site navigable as posts accumulate across Kubernetes,
+      agents, and platform operations.
+    </p>
+  </section>
+
+  <section class="tag-directory">
+    {
+      tags.map(({ tag, count }) => (
+        <a class="tag-directory__item" href={`/tags/${tagToSlug(tag)}/`}>
+          <strong>{tag}</strong>
+          <span>{count} posts</span>
+        </a>
+      ))
+    }
+  </section>
+</BaseLayout>

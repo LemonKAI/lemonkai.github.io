@@ -1,0 +1,21 @@
+---
+import { SITE_AUTHOR, SITE_TITLE } from "../consts";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell site-footer__inner">
+    <p>
+      <strong>{SITE_TITLE}</strong> is {SITE_AUTHOR}&apos;s technical home base for
+      Kubernetes operations, GitOps habits, observability, and agent
+      infrastructure notes.
+    </p>
+    <div class="site-footer__links">
+      <a href="/rss.xml">RSS</a>
+      <a href="/sitemap-index.xml">Sitemap</a>
+      <a href="https://github.com/lemonkai/lemonkai.github.io">GitHub</a>
+    </div>
+    <small>© {year} {SITE_AUTHOR}. Built with Astro for GitHub Pages.</small>
+  </div>
+</footer>

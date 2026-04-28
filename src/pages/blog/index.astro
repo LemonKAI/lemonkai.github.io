@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import { getSortedPosts } from "../../utils/blog";
+
+const posts = await getSortedPosts();
+---
+
+<BaseLayout
+  title="Blog"
+  description="Technical writing by Kai Ning on Kubernetes, GitOps, AI agents, and production infrastructure."
+>
+  <section class="page-intro">
+    <p class="eyebrow">Blog archive</p>
+    <h1>Technical notes with a bias for production reality</h1>
+    <p>
+      Short writeups on Kubernetes operations, GitOps decisions, runtime
+      guardrails, and the engineering details around AI-driven systems.
+    </p>
+  </section>
+
+  <section class="post-list">
+    {posts.map((post) => <PostCard post={post} />)}
+  </section>
+</BaseLayout>

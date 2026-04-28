@@ -1,0 +1,45 @@
+---
+import { SITE_AUTHOR, SITE_TAGLINE, SITE_TITLE } from "../consts";
+
+const currentPath = Astro.url.pathname;
+
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/blog/", label: "Blog" },
+  { href: "/tags/", label: "Tags" },
+  { href: "/about/", label: "About" }
+];
+---
+
+<header class="site-header">
+  <div class="shell site-header__inner">
+    <a class="site-brand" href="/">
+      <span class="site-brand__mark">lk</span>
+      <span>
+        <strong>{SITE_TITLE}</strong>
+        <small>{SITE_AUTHOR} · {SITE_TAGLINE}</small>
+      </span>
+    </a>
+
+    <nav aria-label="Primary navigation">
+      <ul class="site-nav">
+        {
+          links.map((link) => {
+            const active =
+              link.href === "/"
+                ? currentPath === "/"
+                : currentPath.startsWith(link.href);
+
+            return (
+              <li>
+                <a href={link.href} data-active={active ? "true" : undefined}>
+                  {link.label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

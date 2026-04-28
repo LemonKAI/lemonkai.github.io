@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="404"
+  description="The page you requested was not found."
+>
+  <section class="page-intro">
+    <p class="eyebrow">404</p>
+    <h1>Page not found</h1>
+    <p>
+      The path you requested does not exist. Return to the homepage or browse
+      the latest posts.
+    </p>
+    <div class="hero__actions">
+      <a class="button button--primary" href="/">Home</a>
+      <a class="button" href="/blog/">Blog</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,56 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="About"
+  description="About Kai Ning's technical blog: Kubernetes, GitOps, AI agents, and infrastructure engineering."
+>
+  <section class="page-intro">
+    <p class="eyebrow">About</p>
+    <h1>Why this blog exists</h1>
+    <p>
+      I wanted a technical home base that feels closer to field notes than to a
+      polished marketing page. The main lens is Kubernetes. The secondary lens
+      is AI and agent infrastructure. The common thread is production reality.
+    </p>
+  </section>
+
+  <section class="section-grid">
+    <article class="feature-card">
+      <h2>What shows up here</h2>
+      <p>
+        Cluster debugging, deployment safety, GitOps review habits,
+        observability patterns, runtime behavior, and the operational work
+        behind reliable systems.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <h2>How the writing is shaped</h2>
+      <p>
+        The bias is toward practical defaults, explicit tradeoffs, and examples
+        that can survive contact with real environments without too much
+        ceremony.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <h2>What this rebuild changed</h2>
+      <p>
+        This repository now runs on Astro with a lightweight content model and
+        a GitHub Pages workflow intended to stay maintainable as the blog grows.
+      </p>
+    </article>
+  </section>
+
+  <section class="page-intro page-intro--compact">
+    <p class="eyebrow">Working principles</p>
+    <h2>What I want each post to do</h2>
+    <ul class="focus-list">
+      <li>Answer a real operational question</li>
+      <li>Show the default I would start with</li>
+      <li>Be specific enough to reuse, not just admire</li>
+    </ul>
+  </section>
+</BaseLayout>

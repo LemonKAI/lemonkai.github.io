@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="lemonkai favicon">
+  <defs>
+    <linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#6cc4ff" />
+      <stop offset="100%" stop-color="#2e83ff" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#08111f" />
+  <path
+    d="M28 92V36h14v44h26v12H28Zm40 0 18-56h14l18 56h-15l-3.8-13H86.7L83 92H68Zm22-42.8L89.7 64h16.5l-5.4-14.8c-1.2-3.4-2-6.1-2.6-8.2-.7 2.6-1.4 5.3-2.2 8.2Z"
+    fill="url(#g)"
+  />
+</svg>

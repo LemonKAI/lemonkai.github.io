@@ -1,0 +1,58 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import TagPill from "../../components/TagPill.astro";
+import { formatDate } from "../../utils/blog";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post }
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.pubDate}
+>
+  <article class="post">
+    <header class="post__header">
+      <p class="eyebrow">Blog post</p>
+      <h1>{post.data.title}</h1>
+      <p class="post__lede">{post.data.description}</p>
+
+      <div class="post__meta">
+        <time datetime={post.data.pubDate.toISOString()}>
+          Published {formatDate(post.data.pubDate)}
+        </time>
+        {
+          post.data.updatedDate && (
+            <time datetime={post.data.updatedDate.toISOString()}>
+              Updated {formatDate(post.data.updatedDate)}
+            </time>
+          )
+        }
+      </div>
+
+      <div class="tag-list">
+        {post.data.tags.map((tag) => <TagPill tag={tag} />)}
+      </div>
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
