@@ -1,6 +1,6 @@
 ---
-title: Kubernetes rollout guardrails that catch bad deploys early
-description: A compact baseline for probes, rollout settings, and quick triage before a Kubernetes release becomes an outage.
+title: "Kubernetes deployment guardrails: probes, rollout settings, and fast triage"
+description: A compact baseline for readiness, liveness, rollout settings, and fast triage before a Kubernetes deployment turns into an outage.
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
 lang: en

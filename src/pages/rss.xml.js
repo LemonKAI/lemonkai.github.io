@@ -15,6 +15,6 @@ export async function GET(context) {
       pubDate: post.data.pubDate,
       link: postUrl(post)
     })),
-    customData: "<language>en-us</language>"
+    customData: "<language>zh-hk</language>"
   });
 }

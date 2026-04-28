@@ -1,6 +1,6 @@
 ---
-title: 一次探針誤判，如何把服務打進重啟循環
-description: 有些事故不是程式壞掉，而是健康檢查把原本能活下來的服務判成該重啟。這篇記一個很典型的坑。
+title: "Kubernetes 探針誤判：一次把服務打進重啟循環的 liveness probe 事故"
+description: 有些事故不是程式壞掉，而是 liveness probe 把本來還能活下來的服務誤判成該重啟。這篇記一個很典型的 production 坑。
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
 lang: zh

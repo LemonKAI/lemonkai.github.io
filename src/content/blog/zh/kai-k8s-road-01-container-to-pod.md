@@ -1,6 +1,6 @@
 ---
-title: KAI K8s之路 01｜先別急著背資源，先搞懂 Pod 到底在管什麼
-description: 這篇先從 Kubernetes 最核心的抽象開始：為什麼它不是直接管理單個 container，而是用 Pod 當作最小調度單位。
+title: KAI K8s之路 01｜Pod 是什麼？為什麼 Kubernetes 不直接管理 container
+description: 從 Kubernetes 最核心的抽象開始：Pod 到底在管什麼，為什麼平台不是直接管理單個 container，而是用 Pod 當最小調度單位。
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
 lang: zh

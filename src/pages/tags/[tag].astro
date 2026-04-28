@@ -22,6 +22,7 @@ const { tag, posts } = Astro.props;
 <BaseLayout
   title={`Tag: ${tag}`}
   description={`Posts tagged ${tag} on lemonkai.`}
+  noindex={true}
 >
   <section class="page-intro">
     <p class="eyebrow">Tag archive</p>

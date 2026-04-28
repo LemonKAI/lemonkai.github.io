@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TagPill from "../../components/TagPill.astro";
+import { SITE_AUTHOR } from "../../consts";
 import {
   findTranslation,
   formatDate,
@@ -36,6 +37,35 @@ const isZh = post.data.lang === "zh";
   lang={isZh ? "zh-Hant" : "en"}
   type="article"
   publishedTime={post.data.pubDate}
+  updatedTime={post.data.updatedDate ?? post.data.pubDate}
+  keywords={post.data.tags}
+  alternates={
+    translation
+      ? [
+          {
+            href: postUrl(translation),
+            lang: translation.data.lang === "zh" ? "zh-Hant" : "en"
+          }
+        ]
+      : []
+  }
+  schema={{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: post.data.pubDate.toISOString(),
+    dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+    inLanguage: isZh ? "zh-Hant" : "en",
+    keywords: post.data.tags.join(", "),
+    articleSection: post.data.series ?? kindLabel(post.data.kind, post.data.lang),
+    author: {
+      "@type": "Person",
+      name: SITE_AUTHOR
+    },
+    mainEntityOfPage: Astro.url.toString(),
+    image: new URL("/og-default.svg", Astro.site ?? Astro.url).toString()
+  }}
 >
   <article class="post">
     <header class="post__header">

@@ -1,6 +1,6 @@
 ---
-title: "KAI's K8s Journey 01: Before Deployments, understand what a Pod is managing"
-description: "Start with the core Kubernetes abstraction first: why the platform schedules Pods instead of treating each container as the main unit of orchestration."
+title: "KAI's K8s Journey 01: What a Kubernetes Pod is, and why it does not manage containers directly"
+description: "Start with the core Kubernetes abstraction: what a Pod actually manages, and why Kubernetes schedules Pods instead of orchestrating containers directly."
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
 lang: en
