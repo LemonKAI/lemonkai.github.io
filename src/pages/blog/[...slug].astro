@@ -2,7 +2,13 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TagPill from "../../components/TagPill.astro";
-import { formatDate } from "../../utils/blog";
+import {
+  findTranslation,
+  formatDate,
+  kindLabel,
+  languageLabel,
+  postUrl
+} from "../../utils/blog";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -19,32 +25,60 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const translation = findTranslation(allPosts, post);
+const isZh = post.data.lang === "zh";
 ---
 
 <BaseLayout
   title={post.data.title}
   description={post.data.description}
+  lang={isZh ? "zh-Hant" : "en"}
   type="article"
   publishedTime={post.data.pubDate}
 >
   <article class="post">
     <header class="post__header">
-      <p class="eyebrow">Blog post</p>
+      <p class="eyebrow">
+        {post.data.series ?? kindLabel(post.data.kind, post.data.lang)}
+      </p>
       <h1>{post.data.title}</h1>
       <p class="post__lede">{post.data.description}</p>
 
+      <div class="post-card__eyebrow post-card__eyebrow--inline">
+        <span class="meta-pill">{languageLabel(post.data.lang)}</span>
+        <span class="meta-pill">{kindLabel(post.data.kind, post.data.lang)}</span>
+        {
+          post.data.seriesOrder && (
+            <span class="meta-pill">
+              {isZh ? `第 ${post.data.seriesOrder} 篇` : `Part ${post.data.seriesOrder}`}
+            </span>
+          )
+        }
+      </div>
+
       <div class="post__meta">
         <time datetime={post.data.pubDate.toISOString()}>
-          Published {formatDate(post.data.pubDate)}
+          {isZh ? "發布於" : "Published"} {formatDate(post.data.pubDate, post.data.lang)}
         </time>
         {
           post.data.updatedDate && (
             <time datetime={post.data.updatedDate.toISOString()}>
-              Updated {formatDate(post.data.updatedDate)}
+              {isZh ? "更新於" : "Updated"} {formatDate(post.data.updatedDate, post.data.lang)}
             </time>
           )
         }
       </div>
+
+      {
+        translation && (
+          <div class="translation-callout">
+            <a class="button" href={postUrl(translation)}>
+              {isZh ? "Read English version" : "閱讀中文版"}
+            </a>
+          </div>
+        )
+      }
 
       <div class="tag-list">
         {post.data.tags.map((tag) => <TagPill tag={tag} />)}

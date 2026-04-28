@@ -4,53 +4,52 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout
   title="About"
-  description="About Kai Ning's technical blog: Kubernetes, GitOps, AI agents, and infrastructure engineering."
+  description="關於 KAI K8s之路：用中英雙版系列，從 Kubernetes 基礎一路寫到實戰。"
+  lang="zh-Hant"
 >
   <section class="page-intro">
     <p class="eyebrow">About</p>
-    <h1>Why this blog exists</h1>
+    <h1>這個 blog 想長成什麼樣</h1>
     <p>
-      I wanted a technical home base that feels closer to field notes than to a
-      polished marketing page. The main lens is Kubernetes. The secondary lens
-      is AI and agent infrastructure. The common thread is production reality.
+      我想做的是一個更像技術筆記本、又能慢慢長成系列的個人 blog。主線是
+      <strong>KAI K8s之路</strong>，會從 k8s 基礎慢慢走到真實生產環境；副線則穿插
+      GitOps、observability、AI infra，還有一些事故趣事與建議。
     </p>
   </section>
 
   <section class="section-grid">
     <article class="feature-card">
-      <h2>What shows up here</h2>
+      <h2>主線怎麼寫</h2>
       <p>
-        Cluster debugging, deployment safety, GitOps review habits,
-        observability patterns, runtime behavior, and the operational work
-        behind reliable systems.
+        系列文章會先把基礎講清楚，再逐步進到 Deployment、Service、Probe、
+        Ingress、GitOps 與 incident handling 這些真正會碰到的場景。
       </p>
     </article>
 
     <article class="feature-card">
-      <h2>How the writing is shaped</h2>
+      <h2>雙語怎麼做</h2>
       <p>
-        The bias is toward practical defaults, explicit tradeoffs, and examples
-        that can survive contact with real environments without too much
-        ceremony.
+        主線系列優先做中英雙版，讓它既能對自己複盤，也能對外輸出；支線內容則
+        不強迫一比一翻譯，保持更新節奏更重要。
       </p>
     </article>
 
     <article class="feature-card">
-      <h2>What this rebuild changed</h2>
+      <h2>支線會放什麼</h2>
       <p>
-        This repository now runs on Astro with a lightweight content model and
-        a GitHub Pages workflow intended to stay maintainable as the blog grows.
+        除了正規系列，也會有短篇小知識、踩坑筆記、探针 / rollout / GitOps 相關的
+        建議，以及一些值得記下來的生產事故片段。
       </p>
     </article>
   </section>
 
   <section class="page-intro page-intro--compact">
     <p class="eyebrow">Working principles</p>
-    <h2>What I want each post to do</h2>
+    <h2>我希望每篇文章至少做到這三件事</h2>
     <ul class="focus-list">
-      <li>Answer a real operational question</li>
-      <li>Show the default I would start with</li>
-      <li>Be specific enough to reuse, not just admire</li>
+      <li>回答一個真實會遇到的問題</li>
+      <li>給出我自己會採用的默認做法</li>
+      <li>寫到別人能拿去用，而不是只能看完點頭</li>
     </ul>
   </section>
 </BaseLayout>

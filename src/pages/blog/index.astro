@@ -1,25 +1,86 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
-import { getSortedPosts } from "../../utils/blog";
+import { FEATURED_SERIES_NAME } from "../../consts";
+import {
+  getPostsByKind,
+  getPostsByLang,
+  getSeriesPosts,
+  getSortedPosts,
+  sortSeriesPosts
+} from "../../utils/blog";
 
 const posts = await getSortedPosts();
+const zhPosts = getPostsByLang(posts, "zh");
+const enPosts = getPostsByLang(posts, "en");
+const seriesPosts = sortSeriesPosts(getSeriesPosts(posts, FEATURED_SERIES_NAME));
+const sidePosts = getPostsByKind(posts, "incident").concat(
+  posts.filter((post) => post.data.kind === "note").slice(0, 3)
+);
 ---
 
 <BaseLayout
   title="Blog"
-  description="Technical writing by Kai Ning on Kubernetes, GitOps, AI agents, and production infrastructure."
+  description="Bilingual Kubernetes writing by Kai Ning, with the KAI K8s journey series, quick notes, and production lessons."
+  lang="zh-Hant"
 >
   <section class="page-intro">
-    <p class="eyebrow">Blog archive</p>
-    <h1>Technical notes with a bias for production reality</h1>
+    <p class="eyebrow">Blog archive / 文章總覽</p>
+    <h1>KAI K8s之路在前，其他實戰筆記穿插更新</h1>
     <p>
-      Short writeups on Kubernetes operations, GitOps decisions, runtime
-      guardrails, and the engineering details around AI-driven systems.
+      這裡的主線是雙語系列 <strong>{FEATURED_SERIES_NAME}</strong>。旁邊會穿插
+      Kubernetes 小知識、GitOps / observability 筆記，以及一些生產事故趣事和建議。
     </p>
+    <div class="hero__actions">
+      <a class="button button--primary" href="/series/kai-k8s-road/">系列入口</a>
+      <a class="button" href="/blog/zh/">看中文版</a>
+      <a class="button" href="/blog/en/">Read English track</a>
+    </div>
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Series</p>
+      <h2>KAI K8s之路 / KAI&apos;s K8s Journey</h2>
+    </div>
   </section>
 
   <section class="post-list">
-    {posts.map((post) => <PostCard post={post} />)}
+    {seriesPosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">中文內容</p>
+      <h2>先從基礎開始，再一路走向真實環境</h2>
+    </div>
+    <a class="inline-link" href="/blog/zh/">查看全部中文文章</a>
+  </section>
+
+  <section class="post-list">
+    {zhPosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">English track</p>
+      <h2>Production-minded notes in English</h2>
+    </div>
+    <a class="inline-link" href="/blog/en/">Browse English posts</a>
+  </section>
+
+  <section class="post-list">
+    {enPosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Side quests</p>
+      <h2>小知識、事故趣事與建議</h2>
+    </div>
+  </section>
+
+  <section class="post-list">
+    {sidePosts.slice(0, 4).map((post) => <PostCard post={post} />)}
   </section>
 </BaseLayout>

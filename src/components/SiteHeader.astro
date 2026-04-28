@@ -5,9 +5,14 @@ const currentPath = Astro.url.pathname;
 
 const links = [
   { href: "/", label: "Home" },
+  { href: "/series/kai-k8s-road/", label: "Series" },
   { href: "/blog/", label: "Blog" },
-  { href: "/tags/", label: "Tags" },
   { href: "/about/", label: "About" }
+];
+
+const languageLinks = [
+  { href: "/blog/zh/", label: "中文" },
+  { href: "/blog/en/", label: "EN" }
 ];
 ---
 
@@ -21,25 +26,41 @@ const links = [
       </span>
     </a>
 
-    <nav aria-label="Primary navigation">
-      <ul class="site-nav">
+    <div class="site-header__cluster">
+      <nav aria-label="Primary navigation">
+        <ul class="site-nav">
+          {
+            links.map((link) => {
+              const active =
+                link.href === "/"
+                  ? currentPath === "/"
+                  : currentPath.startsWith(link.href);
+
+              return (
+                <li>
+                  <a href={link.href} data-active={active ? "true" : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+
+      <div class="site-language-switch" aria-label="Language links">
         {
-          links.map((link) => {
-            const active =
-              link.href === "/"
-                ? currentPath === "/"
-                : currentPath.startsWith(link.href);
+          languageLinks.map((link) => {
+            const active = currentPath.startsWith(link.href);
 
             return (
-              <li>
-                <a href={link.href} data-active={active ? "true" : undefined}>
-                  {link.label}
-                </a>
-              </li>
+              <a href={link.href} data-active={active ? "true" : undefined}>
+                {link.label}
+              </a>
             );
           })
         }
-      </ul>
-    </nav>
+      </div>
+    </div>
   </div>
 </header>

@@ -3,6 +3,8 @@ title: Agent runtime observability needs spans, tool events, and failure memory
 description: Basic logging is not enough for agent systems; you need traces, tool-level outcomes, and a short path from failure back to prompt or policy.
 pubDate: 2026-04-24
 updatedDate: 2026-04-28
+lang: en
+kind: note
 tags:
   - ai
   - agents

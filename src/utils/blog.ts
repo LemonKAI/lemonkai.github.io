@@ -1,21 +1,61 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 
 export type BlogPost = CollectionEntry<"blog">;
+export type BlogLang = BlogPost["data"]["lang"];
+export type BlogKind = BlogPost["data"]["kind"];
 
 export async function getSortedPosts() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
-  return posts.sort(
+  return sortPosts(posts);
+}
+
+export function sortPosts(posts: BlogPost[]) {
+  return [...posts].sort(
     (left, right) =>
       right.data.pubDate.getTime() - left.data.pubDate.getTime()
   );
 }
 
-export function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("en-US", {
+export function sortSeriesPosts(posts: BlogPost[]) {
+  return [...posts].sort((left, right) => {
+    const leftOrder = left.data.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = right.data.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+
+    return right.data.pubDate.getTime() - left.data.pubDate.getTime();
+  });
+}
+
+export function formatDate(date: Date, lang: BlogLang = "en") {
+  return new Intl.DateTimeFormat(lang === "zh" ? "zh-HK" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric"
   }).format(date);
+}
+
+export function languageLabel(lang: BlogLang) {
+  return lang === "zh" ? "中文" : "EN";
+}
+
+export function kindLabel(kind: BlogKind, lang: BlogLang = "en") {
+  const labels = {
+    zh: {
+      series: "系列",
+      note: "小知識",
+      incident: "事故筆記"
+    },
+    en: {
+      series: "Series",
+      note: "Note",
+      incident: "Incident"
+    }
+  } as const;
+
+  return labels[lang][kind];
 }
 
 export function tagToSlug(tag: string) {
@@ -28,6 +68,37 @@ export function tagToSlug(tag: string) {
 
 export function postUrl(post: BlogPost) {
   return `/blog/${post.slug}/`;
+}
+
+export function getPostsByLang(posts: BlogPost[], lang: BlogLang) {
+  return posts.filter((post) => post.data.lang === lang);
+}
+
+export function getPostsByKind(posts: BlogPost[], kind: BlogKind) {
+  return posts.filter((post) => post.data.kind === kind);
+}
+
+export function getSeriesPosts(posts: BlogPost[], series?: string) {
+  return posts.filter(
+    (post) =>
+      post.data.kind === "series" &&
+      (series ? post.data.series === series : Boolean(post.data.series))
+  );
+}
+
+export function findTranslation(posts: BlogPost[], currentPost: BlogPost) {
+  const key = currentPost.data.translationKey;
+
+  if (!key) {
+    return undefined;
+  }
+
+  return posts.find(
+    (post) =>
+      post.id !== currentPost.id &&
+      post.data.translationKey === key &&
+      post.data.lang !== currentPost.data.lang
+  );
 }
 
 export function getUniqueTags(posts: BlogPost[]) {

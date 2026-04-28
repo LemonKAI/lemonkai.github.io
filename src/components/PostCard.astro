@@ -1,6 +1,11 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { formatDate, postUrl } from "../utils/blog";
+import {
+  formatDate,
+  kindLabel,
+  languageLabel,
+  postUrl
+} from "../utils/blog";
 import TagPill from "./TagPill.astro";
 
 interface Props {
@@ -11,9 +16,19 @@ const { post } = Astro.props;
 ---
 
 <article class="post-card">
+  <div class="post-card__eyebrow">
+    <span class="meta-pill">{languageLabel(post.data.lang)}</span>
+    <span class="meta-pill">{kindLabel(post.data.kind, post.data.lang)}</span>
+    {
+      post.data.seriesOrder && (
+        <span class="meta-pill">#{post.data.seriesOrder}</span>
+      )
+    }
+  </div>
+
   <div class="post-card__meta">
     <time datetime={post.data.pubDate.toISOString()}>
-      {formatDate(post.data.pubDate)}
+      {formatDate(post.data.pubDate, post.data.lang)}
     </time>
     <span>{post.data.tags.length} tags</span>
   </div>

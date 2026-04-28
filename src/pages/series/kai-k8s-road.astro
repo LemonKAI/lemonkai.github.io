@@ -1,0 +1,115 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import { FEATURED_SERIES_NAME } from "../../consts";
+import {
+  getPostsByKind,
+  getPostsByLang,
+  getSeriesPosts,
+  getSortedPosts,
+  sortSeriesPosts
+} from "../../utils/blog";
+
+const allPosts = await getSortedPosts();
+const seriesPosts = sortSeriesPosts(getSeriesPosts(allPosts, FEATURED_SERIES_NAME));
+const zhPosts = getPostsByLang(seriesPosts, "zh");
+const enPosts = getPostsByLang(seriesPosts, "en");
+const sideNotes = getPostsByKind(allPosts, "incident").concat(
+  allPosts.filter((post) => post.data.kind === "note").slice(0, 2)
+);
+
+const roadmap = [
+  {
+    title: "01. 先理解 Pod",
+    detail: "為什麼 Kubernetes 不直接管理單個 container，而是用 Pod 當最小調度單位。"
+  },
+  {
+    title: "02. Deployment 與 rollout",
+    detail: "更新到底怎麼發生、怎麼回滾、怎麼避免把壞版本放大。"
+  },
+  {
+    title: "03. Service / Ingress",
+    detail: "流量是怎麼進來、怎麼被導向、又會在哪裡開始出怪事。"
+  },
+  {
+    title: "04. Config / Secret / Probe",
+    detail: "設定、健康檢查、啟動與回復的關鍵細節。"
+  },
+  {
+    title: "05. Observability / GitOps",
+    detail: "從看得見到改得穩，讓系統不靠運氣。"
+  },
+  {
+    title: "06. Incident stories",
+    detail: "把那些值得記下來的事故片段，整理成可重用的經驗。"
+  }
+];
+---
+
+<BaseLayout
+  title="KAI K8s之路"
+  description="KAI K8s之路：Kai Ning 的 Kubernetes 系列，從基礎一路寫到真實生產環境，並同步提供 English version。"
+  lang="zh-Hant"
+>
+  <section class="page-intro">
+    <p class="eyebrow">Series hub</p>
+    <h1>KAI K8s之路</h1>
+    <p>
+      這個系列會從 Kubernetes 最基礎的抽象開始，慢慢走到 rollout、GitOps、
+      observability 與 incident handling。主線優先做中英雙版，方便一路沉澱成一套完整輸出。
+    </p>
+    <div class="hero__actions">
+      <a class="button button--primary" href="/blog/zh/">看中文系列</a>
+      <a class="button" href="/blog/en/">Read English version</a>
+    </div>
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Roadmap</p>
+      <h2>這條路預計怎麼走</h2>
+    </div>
+  </section>
+
+  <section class="mini-grid">
+    {roadmap.map((item) => (
+      <article class="mini-card mini-card--stacked">
+        <strong>{item.title}</strong>
+        <span>{item.detail}</span>
+      </article>
+    ))}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">中文系列</p>
+      <h2>先把核心觀念講清楚</h2>
+    </div>
+  </section>
+
+  <section class="post-list">
+    {zhPosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">English track</p>
+      <h2>The same path in English</h2>
+    </div>
+  </section>
+
+  <section class="post-list">
+    {enPosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Side notes</p>
+      <h2>穿插更新的實戰補充</h2>
+    </div>
+  </section>
+
+  <section class="post-list">
+    {sideNotes.map((post) => <PostCard post={post} />)}
+  </section>
+</BaseLayout>

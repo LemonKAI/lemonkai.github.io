@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PostCard from "../../../components/PostCard.astro";
+import { getPostsByLang, getSortedPosts } from "../../../utils/blog";
+
+const posts = getPostsByLang(await getSortedPosts(), "zh");
+---
+
+<BaseLayout
+  title="中文文章"
+  description="KAI K8s之路中文內容：Kubernetes 基礎、事故趣事、小知識與實戰建議。"
+  lang="zh-Hant"
+>
+  <section class="page-intro">
+    <p class="eyebrow">中文內容</p>
+    <h1>KAI K8s之路的中文主線</h1>
+    <p>
+      這裡優先放系列中文稿，讓整條學習路徑能從基礎一路走到實戰。中間也會穿插
+      一些事故趣事、小知識與建議。
+    </p>
+  </section>
+
+  <section class="post-list">
+    {posts.map((post) => <PostCard post={post} />)}
+  </section>
+</BaseLayout>

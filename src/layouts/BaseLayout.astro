@@ -8,6 +8,7 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  lang?: string;
   type?: "website" | "article";
   publishedTime?: Date;
 }
@@ -16,6 +17,7 @@ const {
   title = SITE_TITLE,
   description = SITE_DESCRIPTION,
   image = "/og-default.svg",
+  lang = "en",
   type = "website",
   publishedTime
 } = Astro.props;
@@ -26,7 +28,7 @@ const socialImage = new URL(image, Astro.site ?? Astro.url).toString();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

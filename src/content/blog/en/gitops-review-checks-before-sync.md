@@ -3,6 +3,8 @@ title: GitOps review checks I want before Argo CD touches production
 description: A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior.
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
+lang: en
+kind: note
 tags:
   - kubernetes
   - gitops

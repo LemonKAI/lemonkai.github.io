@@ -1,60 +1,82 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/PostCard.astro";
-import { getSortedPosts, getTagCounts } from "../utils/blog";
+import { FEATURED_SERIES_NAME } from "../consts";
+import {
+  getPostsByKind,
+  getPostsByLang,
+  getSeriesPosts,
+  getSortedPosts,
+  getTagCounts,
+  sortSeriesPosts
+} from "../utils/blog";
 
 const posts = await getSortedPosts();
-const recentPosts = posts.slice(0, 3);
-const topTags = getTagCounts(posts).slice(0, 4);
+const topTags = getTagCounts(posts).slice(0, 6);
+const seriesPosts = sortSeriesPosts(getSeriesPosts(posts, FEATURED_SERIES_NAME));
+const zhSeries = getPostsByLang(seriesPosts, "zh");
+const enSeries = getPostsByLang(seriesPosts, "en");
+const sidePosts = posts.filter((post) => post.data.kind !== "series").slice(0, 4);
+const incidentPosts = getPostsByKind(posts, "incident");
+
+const roadmap = [
+  "Container → Pod",
+  "Deployment / ReplicaSet",
+  "Service / DNS / Ingress",
+  "ConfigMap / Secret",
+  "Probe / rollout / rollback",
+  "Observability / GitOps / incidents"
+];
 ---
 
 <BaseLayout
-  title="Kubernetes-first technical blog"
-  description="Kai Ning's personal technical blog on Kubernetes, GitOps, AI agents, and production infrastructure."
+  title="KAI K8s之路"
+  description="KAI K8s之路：從 Kubernetes 基礎一路寫到實際生產環境，並同步提供 English version。"
+  lang="zh-Hant"
 >
   <section class="hero">
     <div class="hero__copy">
-      <p class="eyebrow">Kai Ning&apos;s technical notebook</p>
+      <p class="eyebrow">KAI K8s之路 / KAI&apos;s K8s Journey</p>
       <h1>
-        Kubernetes-first notes from the edge between platform engineering and
-        AI systems.
+        把 Kubernetes 從基礎一路寫到真實生產環境。
       </h1>
-      <p class="hero__eyeline">K8s first. AI infra second. Production reality always.</p>
+      <p class="hero__eyeline">
+        中文主線能讀，English version 也同步補上。
+      </p>
       <p class="hero__lede">
-        I use this blog to write down the parts that actually matter when
-        systems leave the demo phase: safer rollouts, clearer observability,
-        saner GitOps workflows, and the runtime glue that makes agent systems
-        useful in production.
+        這裡先從 k8s 基礎開始說起，慢慢走到 Deployment、Service、Probe、
+        Ingress、GitOps、Observability，再穿插一些小知識、事故趣事，以及在生產環境裡比較有感的建議。
       </p>
 
       <div class="hero__actions">
-        <a class="button button--primary" href="/blog/">Read the blog</a>
-        <a class="button" href="/about/">About this site</a>
+        <a class="button button--primary" href="/series/kai-k8s-road/">看系列入口</a>
+        <a class="button" href="/blog/zh/">看中文版</a>
+        <a class="button" href="/blog/en/">Read English version</a>
       </div>
 
       <div class="note-strip">
-        <span>Primary: Kubernetes</span>
-        <span>Secondary: AI / agents / infra</span>
-        <span>Style: practical over ceremonial</span>
+        <span>主線：KAI K8s之路</span>
+        <span>支線：小知識 / 事故趣事 / 建議</span>
+        <span>副題：GitOps / AI infra / production notes</span>
       </div>
     </div>
 
     <aside class="signal-panel">
-      <p class="signal-panel__label">What I&apos;m optimizing for</p>
+      <p class="signal-panel__label">內容節奏 / Content cadence</p>
       <ul class="signal-panel__list">
-        <li>Rollouts that fail small instead of failing loud</li>
-        <li>Operational patterns that survive real traffic and real teams</li>
-        <li>Agent systems you can inspect instead of just hope for</li>
+        <li>先把基礎觀念講清楚，再進入實戰</li>
+        <li>主線系列用中英雙版，支線內容自由穿插</li>
+        <li>偏好真實場景，而不是只會擺樣子的 demo</li>
       </ul>
 
       <div class="signal-panel__metrics">
         <div>
-          <strong>{posts.length}</strong>
-          <span>seed essays</span>
+          <strong>{seriesPosts.length}</strong>
+          <span>series entries</span>
         </div>
         <div>
-          <strong>{topTags.length}</strong>
-          <span>active themes</span>
+          <strong>{incidentPosts.length}</strong>
+          <span>incident-style notes</span>
         </div>
       </div>
     </aside>
@@ -62,40 +84,80 @@ const topTags = getTagCounts(posts).slice(0, 4);
 
   <section class="section-grid">
     <article class="feature-card">
-      <p class="eyebrow">Primary theme</p>
-      <h2>Kubernetes as the operating surface</h2>
+      <p class="eyebrow">主線系列</p>
+      <h2>KAI K8s之路</h2>
       <p>
-        Expect posts on rollout safety, cluster debugging, workload behavior,
-        GitOps review discipline, and the small defaults that prevent large
-        incidents.
+        從「container 跟 Pod 差在哪裡」這種最基礎的問題開始，一路寫到 rollout、
+        observability、GitOps 與 incident handling。
       </p>
     </article>
 
     <article class="feature-card">
-      <p class="eyebrow">Secondary theme</p>
-      <h2>AI agents and infra glue code</h2>
+      <p class="eyebrow">穿插更新</p>
+      <h2>小知識、趣事、與建議</h2>
       <p>
-        Notes on runtime visibility, tool orchestration, guardrails, and the
-        systems work needed to make AI automation trustworthy outside toy
-        examples.
+        不會只有正經八百的教學。也會穿插一些容易踩坑的小知識、真實事故片段，
+        還有我覺得在生產上比較值錢的做法。
       </p>
     </article>
 
     <article class="feature-card">
-      <p class="eyebrow">Operating model</p>
-      <h2>How I want this blog to read</h2>
+      <p class="eyebrow">雙語策略</p>
+      <h2>主線雙語，支線靈活</h2>
       <ul class="focus-list">
-        <li>Concrete defaults</li>
-        <li>Tradeoffs made explicit</li>
-        <li>Fewer buzzwords, more runbooks</li>
+        <li>系列文章優先中英雙版</li>
+        <li>支線內容依題材決定語言</li>
+        <li>先求持續更新，再求完美對照</li>
       </ul>
     </article>
   </section>
 
   <section class="section-header">
     <div>
+      <p class="eyebrow">Series spotlight</p>
+      <h2>先把 K8s 基礎走紮實</h2>
+    </div>
+    <a class="inline-link" href="/series/kai-k8s-road/">進入系列頁</a>
+  </section>
+
+  <section class="post-list">
+    {zhSeries.slice(0, 1).map((post) => <PostCard post={post} />)}
+    {enSeries.slice(0, 1).map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Roadmap</p>
+      <h2>這條路接下來會寫到哪裡</h2>
+    </div>
+  </section>
+
+  <section class="mini-grid">
+    {roadmap.map((item) => (
+      <article class="mini-card">
+        <strong>{item}</strong>
+      </article>
+    ))}
+  </section>
+
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Side quests</p>
+      <h2>穿插更新的小知識、事故趣事與建議</h2>
+    </div>
+    <a class="inline-link" href="/blog/">
+      View all posts
+    </a>
+  </section>
+
+  <section class="post-list">
+    {sidePosts.map((post) => <PostCard post={post} />)}
+  </section>
+
+  <section class="section-header">
+    <div>
       <p class="eyebrow">Topic map</p>
-      <h2>Current themes in rotation</h2>
+      <h2>目前主題分布</h2>
     </div>
   </section>
 
@@ -106,19 +168,5 @@ const topTags = getTagCounts(posts).slice(0, 4);
         <span>{count} post{count > 1 ? "s" : ""}</span>
       </article>
     ))}
-  </section>
-
-  <section class="section-header">
-    <div>
-      <p class="eyebrow">Recent writing</p>
-      <h2>Fresh notes from the new build</h2>
-    </div>
-    <a class="inline-link" href="/blog/">
-      View all posts
-    </a>
-  </section>
-
-  <section class="post-list">
-    {recentPosts.map((post) => <PostCard post={post} />)}
   </section>
 </BaseLayout>

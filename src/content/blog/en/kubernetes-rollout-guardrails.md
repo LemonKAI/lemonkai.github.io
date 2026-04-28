@@ -3,6 +3,8 @@ title: Kubernetes rollout guardrails that catch bad deploys early
 description: A compact baseline for probes, rollout settings, and quick triage before a Kubernetes release becomes an outage.
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
+lang: en
+kind: note
 tags:
   - kubernetes
   - sre
