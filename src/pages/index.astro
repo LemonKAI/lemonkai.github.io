@@ -21,19 +21,54 @@ const sidePosts = posts.filter((post) => post.data.kind !== "series").slice(0, 4
 const notePosts = getPostsByKind(posts, "note");
 const incidentPosts = getPostsByKind(posts, "incident");
 
-const roadmap = [
-  { title: "01", detail: "Container → Pod" },
-  { title: "02", detail: "Deployment / rollout" },
-  { title: "03", detail: "Service / Ingress" },
-  { title: "04", detail: "Config / Probe / Secret" },
-  { title: "05", detail: "Observability / GitOps" },
-  { title: "06", detail: "Incidents / production notes" }
+const route = [
+  { step: "01", title: "Pod", detail: "先知道 Kubernetes 到底在照顧哪一組程式。" },
+  { step: "02", title: "Deployment", detail: "再理解更新、回滾與 rollout 怎麼發生。" },
+  { step: "03", title: "Service", detail: "接著看流量如何找到 workload。" },
+  { step: "04", title: "Probe", detail: "把健康檢查和重啟邏輯拆開。" },
+  { step: "05", title: "GitOps", detail: "最後把變更交給一條可審計的路。" }
+];
+
+const principles = [
+  {
+    title: "不是百科，是心智路線",
+    copy: "每篇先回答：我為什麼現在要理解它、我會怎麼記住它、它後面會影響哪些問題。"
+  },
+  {
+    title: "不是摘要，是 KAI 的理解",
+    copy: "同一個 Kubernetes 概念，要寫出我會怎麼看、怎麼 debug、怎麼把它放進下一章。"
+  },
+  {
+    title: "不是孤立文章，是一條主線",
+    copy: "Pod 會接到 Deployment，Deployment 會接到 rollout，rollout 最後一定會遇到 observability 和 incident。"
+  }
+];
+
+const lanes = [
+  {
+    label: "KAI notebook",
+    title: "主線文章",
+    copy: "個人筆記感，拆概念、建心智模型，把 Kubernetes 寫成可以一路讀下去的故事。",
+    href: "/series/kai-k8s-road/"
+  },
+  {
+    label: "Production field notes",
+    title: "事故與現場",
+    copy: "probe、rollout、GitOps、observability 的現場筆記，保留排查順序和誤判點。",
+    href: "/blog/"
+  },
+  {
+    label: "Concept artifact",
+    title: "概念拆解",
+    copy: "把抽象概念變成一個能記住的 mental object，不只背名詞。",
+    href: "/tags/"
+  }
 ];
 ---
 
 <BaseLayout
   title="KAI K8s之路"
-  description="KAI K8s之路：Kai Ning 的 Kubernetes 技術筆記，從 Pod、Deployment、Service 一路寫到 GitOps、observability 與 production incident lessons，提供中文主線與 English track。"
+  description="KAI K8s之路：Kai Ning 的 Kubernetes 個人技術主線，用 infra notebook 的方式把 Pod、Deployment、Service、GitOps 與 production lessons 串成一條可反覆回看的路。"
   lang="zh-Hant"
   keywords={[
     "Kubernetes blog",
@@ -59,52 +94,54 @@ const roadmap = [
       "@type": "Person",
       name: SITE_AUTHOR,
       url: "https://lemonkai.github.io/",
-      sameAs: ["https://github.com/LemonKAI"]
+      sameAs: ["https://github.com/LemonKAI", "https://www.instagram.com/kaikai_blog/"]
     }
   ]}
 >
-  <section class="hero hero--home">
+  <section class="hero hero--home hero--notebook">
     <div class="hero__copy">
-      <p class="eyebrow">KAI notebook / bilingual infrastructure writing</p>
-      <h1>把 Kubernetes 寫成一條會一直回頭用的主線。</h1>
+      <p class="eyebrow">KAI notebook / mainline infrastructure writing</p>
+      <h1>把 Kubernetes 寫成一條能被記住的路。</h1>
       <p class="hero__eyeline">
-        KAI K8s之路 是主線；GitOps、incident notes、AI infra 都是沿路長出的 field notes。
+        KAI K8s之路不是文章列表，是一條從 Pod 長到 production 的心智路線。
       </p>
       <p class="hero__lede">
-        這裡不想做成模板味太重的 tech blog，而更像一本持續增長的技術筆記。主線先把
-        Kubernetes 的抽象、rollout、GitOps 與 incident lessons 寫成一條路；其他 quick tips
-        和事故片段，則留在旁邊持續長出來。
+        我不想把這裡做成雲原生百科。這裡更像一本持續增長的 infra notebook：先把一個概念放進自己的理解裡，再把它接到下一個問題。讀者看完不是只知道名詞，而是能帶走一個可以回來用的判斷。
       </p>
 
       <div class="hero__actions">
-        <a class="button button--primary" href="/series/kai-k8s-road/">看系列入口</a>
-        <a class="button" href="/blog/zh/">看中文版</a>
-        <a class="button" href="/blog/en/">Read English version</a>
+        <a class="button button--primary" href="/series/kai-k8s-road/">進入 KAI K8s 主線</a>
+        <a class="button" href="/blog/zh/">中文文章</a>
+        <a class="button" href="/blog/en/">English track</a>
+        <a class="button" href="https://www.instagram.com/kaikai_blog/" rel="noreferrer">@kaikai_blog</a>
       </div>
 
-      <dl class="hero__ledger">
+      <dl class="hero__ledger hero__ledger--notebook">
         <div>
-          <dt>Reading spine</dt>
-          <dd>從 Pod、Deployment 一路走到 observability / GitOps / incidents</dd>
+          <dt>Core sentence</dt>
+          <dd>每篇都要有一句能記住的核心判斷。</dd>
         </div>
         <div>
-          <dt>Notebook edges</dt>
-          <dd>Quick tips、rollout scars、production-side lessons</dd>
+          <dt>Mental model</dt>
+          <dd>每個概念都要變成一個讀者能帶走的模型。</dd>
         </div>
         <div>
-          <dt>Language rhythm</dt>
-          <dd>中文先講透，English track 也能對外讀</dd>
+          <dt>Story chain</dt>
+          <dd>每章都要能自然接到下一個 Kubernetes 問題。</dd>
         </div>
       </dl>
     </div>
 
-    <aside class="signal-panel">
-      <p class="signal-panel__label">Series spine / 主線骨架</p>
-      <ol class="roadmap-list">
-        {roadmap.map((item) => (
-          <li>
-            <strong>{item.title}</strong>
-            <span>{item.detail}</span>
+    <aside class="signal-panel signal-panel--route">
+      <p class="signal-panel__label">Reading route / 主線路徑</p>
+      <ol class="chapter-path">
+        {route.map((item) => (
+          <li class="chapter-step">
+            <span>{item.step}</span>
+            <div>
+              <strong>{item.title}</strong>
+              <p>{item.detail}</p>
+            </div>
           </li>
         ))}
       </ol>
@@ -124,7 +161,7 @@ const roadmap = [
         </div>
         <div>
           <strong>{seriesPairs.length}</strong>
-          <span>bilingual chapter pairs</span>
+          <span>bilingual pairs</span>
         </div>
       </div>
     </aside>
@@ -132,38 +169,36 @@ const roadmap = [
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">Notebook guide</p>
-      <h2>這個站怎麼讀，才會讀到主線</h2>
+      <p class="eyebrow">Writing constitution</p>
+      <h2>這個站的文章應該怎麼長出來</h2>
     </div>
   </section>
 
-  <section class="section-grid section-grid--manifesto">
-    <article class="feature-card">
-      <p class="eyebrow">主線 / Backbone</p>
-      <h2>先讀系列，再讀邊角</h2>
-      <p>
-        <strong>KAI K8s之路</strong> 不是普通分類，而是整個站的骨架。從 Pod 開始，慢慢走到
-        rollout、observability、GitOps 與 incident handling。
-      </p>
-    </article>
+  <section class="principle-strip">
+    {principles.map((item) => (
+      <article class="principle-card">
+        <span aria-hidden="true"></span>
+        <h3>{item.title}</h3>
+        <p>{item.copy}</p>
+      </article>
+    ))}
+  </section>
 
-    <article class="feature-card">
-      <p class="eyebrow">雙語 / Rhythm</p>
-      <h2>中英不是切換，是兩條並排的閱讀軌</h2>
-      <p>
-        中文負責把概念講紮實，英文負責讓整條路也能對外輸出。系列盡量成對出現，支線則保留語言彈性。
-      </p>
-    </article>
+  <section class="section-header">
+    <div>
+      <p class="eyebrow">Content lanes</p>
+      <h2>主線、現場、概念，各自有自己的寫法</h2>
+    </div>
+  </section>
 
-    <article class="feature-card">
-      <p class="eyebrow">側邊欄 / Field notes</p>
-      <h2>小知識和事故趣事，放第二層但要保持活著</h2>
-      <ul class="focus-list">
-        <li>probe / rollout / GitOps 類經驗會快速穿插</li>
-        <li>incident notes 保留現場感，不硬包成正規教材</li>
-        <li>所有支線都應該回頭補強主線理解</li>
-      </ul>
-    </article>
+  <section class="lane-grid">
+    {lanes.map((lane) => (
+      <a class="lane-card" href={lane.href}>
+        <p class="eyebrow">{lane.label}</p>
+        <h3>{lane.title}</h3>
+        <p>{lane.copy}</p>
+      </a>
+    ))}
   </section>
 
   {
@@ -187,7 +222,7 @@ const roadmap = [
   <section class="section-header">
     <div>
       <p class="eyebrow">Field notes</p>
-      <h2>次要但活著的筆記區</h2>
+      <h2>支線不是雜訊，是主線的現場回聲</h2>
     </div>
     <a class="inline-link" href="/blog/">View full archive</a>
   </section>

@@ -20,81 +20,103 @@ const sideNotes = getPostsByKind(allPosts, "incident").concat(
 
 const roadmap = [
   {
-    title: "01. 先理解 Pod",
-    detail: "為什麼 Kubernetes 不直接管理單個 container，而是用 Pod 當最小調度單位。"
+    chapter: "01",
+    title: "Pod 是第一個邊界",
+    question: "Kubernetes 為什麼不直接管理 container？",
+    model: "Container 是執行單位，Pod 是編排單位。",
+    status: "published"
   },
   {
-    title: "02. Deployment 與 rollout",
-    detail: "更新到底怎麼發生、怎麼回滾、怎麼避免把壞版本放大。"
+    chapter: "02",
+    title: "Deployment 是變更控制器",
+    question: "有了 Pod，為什麼還需要 Deployment？",
+    model: "不要手動照顧每個 Pod，要讓 controller 管 rollout。",
+    status: "next"
   },
   {
-    title: "03. Service / Ingress",
-    detail: "流量是怎麼進來、怎麼被導向、又會在哪裡開始出怪事。"
+    chapter: "03",
+    title: "Service 是穩定入口",
+    question: "Pod 一直變，流量怎麼找到它？",
+    model: "Service 把易變的 Pod 包成穩定的網路身份。",
+    status: "planned"
   },
   {
-    title: "04. Config / Secret / Probe",
-    detail: "設定、健康檢查、啟動與回復的關鍵細節。"
+    chapter: "04",
+    title: "Probe 是信任邊界",
+    question: "Running 為什麼不代表可以接流量？",
+    model: "Readiness 管接流量，liveness 管是否該重啟。",
+    status: "planned"
   },
   {
-    title: "05. Observability / GitOps",
-    detail: "從看得見到改得穩，讓系統不靠運氣。"
-  },
-  {
-    title: "06. Incident stories",
-    detail: "把那些值得記下來的事故片段，整理成可重用的經驗。"
+    chapter: "05",
+    title: "GitOps 是變更路線",
+    question: "怎樣讓 production 變更可審、可回放？",
+    model: "把 cluster 狀態放進一條可追的提交歷史。",
+    status: "planned"
   }
+];
+
+const method = [
+  "先講我為什麼現在要理解它",
+  "再給一句能記住的核心判斷",
+  "接著把概念變成一個心智模型",
+  "最後接到下一章會遇到的真問題"
 ];
 ---
 
 <BaseLayout
   title="KAI K8s之路"
-  description="KAI K8s之路：Kai Ning 的 Kubernetes 系列，從基礎一路寫到真實生產環境，並同步提供 English version。"
+  description="KAI K8s之路：Kai Ning 的 Kubernetes 主線系列。不是知識點清單，而是一條從 Pod 到 production 的個人 infra notebook。"
   lang="zh-Hant"
 >
-  <section class="page-intro page-intro--with-rail">
+  <section class="page-intro page-intro--with-rail page-intro--notebook">
     <div class="page-intro__copy">
       <p class="eyebrow">Series hub / 主線入口</p>
       <h1>KAI K8s之路</h1>
       <p>
-        這是整個站的 backbone。會從 Kubernetes 最基礎的抽象開始，慢慢走到 rollout、
-        GitOps、observability 與 incident handling。每個章節都盡量整理成中英成對的閱讀軌。
+        這條主線不是把 Kubernetes 名詞照順序排完，而是把一個工程師真正會卡住的問題慢慢接起來。
+        先理解 Pod，才知道 Deployment 在幫你解什麼；理解 rollout，才知道為什麼 probe 和 observability 不是裝飾品。
       </p>
       <div class="hero__actions">
-        <a class="button button--primary" href="/blog/zh/">看中文系列</a>
-        <a class="button" href="/blog/en/">Read English version</a>
+        <a class="button button--primary" href="#chapters">從章節開始</a>
+        <a class="button" href="/blog/zh/">看中文文章</a>
+        <a class="button" href="/blog/en/">Read English track</a>
       </div>
     </div>
 
-    <aside class="page-intro__aside">
-      <p class="signal-panel__label">How to read / 閱讀方式</p>
+    <aside class="page-intro__aside series-contract">
+      <p class="signal-panel__label">Series contract / 寫作契約</p>
       <ul class="signal-panel__list">
-        <li>先讀中文主線，把概念和直覺建立起來</li>
-        <li>再用 English track 補 terminology 與對外表達</li>
-        <li>遇到 side notes，就把它當作主線旁邊的真實案例</li>
+        {method.map((item) => <li>{item}</li>)}
       </ul>
     </aside>
   </section>
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">Roadmap</p>
-      <h2>這條路預計怎麼走</h2>
+      <p class="eyebrow">Route map</p>
+      <h2>每一章都要回答一個真問題</h2>
     </div>
   </section>
 
-  <section class="mini-grid">
+  <section class="route-map">
     {roadmap.map((item) => (
-      <article class="mini-card mini-card--stacked">
-        <strong>{item.title}</strong>
-        <span>{item.detail}</span>
+      <article class:list={["route-card", `route-card--${item.status}`]}>
+        <div class="route-card__index">{item.chapter}</div>
+        <div class="route-card__body">
+          <p class="eyebrow">{item.status}</p>
+          <h3>{item.title}</h3>
+          <p>{item.question}</p>
+          <strong>{item.model}</strong>
+        </div>
       </article>
     ))}
   </section>
 
-  <section class="section-header">
+  <section class="section-header" id="chapters">
     <div>
       <p class="eyebrow">Chapter pairs</p>
-      <h2>按章節閱讀，比按語言切換更自然</h2>
+      <h2>章節不是文章，是主線上的節點</h2>
     </div>
   </section>
 
@@ -102,10 +124,25 @@ const roadmap = [
     {seriesPairs.map((pair) => <SeriesPairRow pair={pair} />)}
   </section>
 
+  <section class="notebook-panel">
+    <div>
+      <p class="eyebrow">How to read</p>
+      <h2>讀這個系列時，我希望你不要急著背 YAML</h2>
+      <p>
+        YAML 很快可以查到。真正難的是先知道每個資源在 Kubernetes 裡負責哪一段邊界。
+        這條主線會盡量把每個概念變成一句能記住的判斷，讓後面 debug 和設計時能回來用。
+      </p>
+    </div>
+    <div class="notebook-panel__quote">
+      <span>Core bias</span>
+      <strong>先理解邊界，再看配置。</strong>
+    </div>
+  </section>
+
   <section class="section-header">
     <div>
       <p class="eyebrow">Related notes</p>
-      <h2>跟主線相連、但不搶主視覺的補充筆記</h2>
+      <h2>支線筆記：主線旁邊的 production 回聲</h2>
     </div>
   </section>
 

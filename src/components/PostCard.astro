@@ -14,6 +14,11 @@ interface Props {
 
 const { post } = Astro.props;
 const readLabel = post.data.lang === "zh" ? "閱讀這篇筆記" : "Read this note";
+const lane = {
+  series: post.data.lang === "zh" ? "KAI notebook" : "Mainline note",
+  incident: post.data.lang === "zh" ? "Production field notes" : "Production field notes",
+  note: post.data.lang === "zh" ? "Concept artifact" : "Concept artifact"
+}[post.data.kind];
 ---
 
 <article class:list={["post-card", `post-card--${post.data.kind}`]}>
@@ -30,6 +35,8 @@ const readLabel = post.data.lang === "zh" ? "閱讀這篇筆記" : "Read this no
   {
     post.data.series && <p class="post-card__series">{post.data.series}</p>
   }
+
+  <p class="post-card__lane">{lane}</p>
 
   <h2 class="post-card__title">
     <a href={postUrl(post)}>{post.data.title}</a>
