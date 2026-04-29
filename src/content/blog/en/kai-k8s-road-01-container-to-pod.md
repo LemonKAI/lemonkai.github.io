@@ -1,11 +1,11 @@
 ---
-title: "KAI's K8s Journey 01: What a Kubernetes Pod is, and why it does not manage containers directly"
+title: "KAI K8s之路 01 — English mirror: What a Kubernetes Pod is, and why it does not manage containers directly"
 description: "Start with the core Kubernetes abstraction: what a Pod actually manages, and why Kubernetes schedules Pods instead of orchestrating containers directly."
 pubDate: 2026-04-28
 updatedDate: 2026-04-28
 lang: en
 kind: series
-series: KAI K8s之路 / KAI's K8s Journey
+series: KAI K8s之路
 seriesOrder: 1
 translationKey: kai-k8s-road-01
 tags:
@@ -34,6 +34,14 @@ That distinction matters more than it sounds.
 If I had to compress it into one sentence, it would be this:
 
 > **A container is an execution unit. A Pod is an orchestration unit.**
+
+## A simple everyday example
+
+I think of a Pod like a lunch box.
+
+The rice, vegetables, and sauce packet are not the same thing, but you expect them to be carried to the same table, opened together, and cleaned up together.
+
+A Pod works in a similar way. Containers can have different jobs, but Kubernetes needs a larger unit that says: this group belongs together, lands together, shares the same context, and has one lifecycle boundary.
 
 ## Why Kubernetes does not stop at containers
 

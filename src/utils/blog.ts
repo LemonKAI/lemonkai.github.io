@@ -51,14 +51,14 @@ export function languageLabel(lang: BlogLang) {
 export function kindLabel(kind: BlogKind, lang: BlogLang = "en") {
   const labels = {
     zh: {
-      series: "系列",
-      note: "小知識",
-      incident: "事故筆記"
+      series: "主線",
+      note: "概念模型",
+      incident: "排查筆記"
     },
     en: {
-      series: "Series",
-      note: "Note",
-      incident: "Incident"
+      series: "Mirror",
+      note: "Concept",
+      incident: "Field note"
     }
   } as const;
 

@@ -5,7 +5,7 @@ pubDate: 2026-04-28
 updatedDate: 2026-04-28
 lang: zh
 kind: series
-series: KAI K8s之路 / KAI's K8s Journey
+series: KAI K8s之路
 seriesOrder: 1
 translationKey: kai-k8s-road-01
 tags:
@@ -34,6 +34,14 @@ draft: false
 如果只記一句話，我會記這句：
 
 > **Container 是執行單位，Pod 是編排單位。**
+
+## 先用一個生活例子記住它
+
+我會把 Pod 想成一個便當盒。
+
+便當裡可以有飯、菜、醬料包，它們不是同一樣東西，但你會希望它們一起被拿到同一張桌子上，一起被打開，也一起被收走。
+
+Pod 做的事有點像這個便當盒：container 可以分工，但 Kubernetes 需要一個更大的單位來決定「這一組東西要一起被放在哪裡、共享什麼環境、什麼時候算一起啟動或結束」。
 
 ## 為什麼不直接一個 container 一個資源？
 
@@ -105,4 +113,4 @@ kubectl logs <pod-name> -n <ns>
 2. Pod 讓一組應該綁在一起的 container，共享網路、儲存與生命週期
 3. 之後很多 k8s 問題，本質上都是 Pod 行為問題，不只是程式問題
 
-下一篇，我會接著往前走：**為什麼有了 Pod，還需要 Deployment？**
+下一篇會接著問：**為什麼有了 Pod，還需要 Deployment？**

@@ -24,39 +24,39 @@ const sidePosts = getPostsByKind(posts, "incident").concat(
 
 <BaseLayout
   title="Blog"
-  description="Bilingual Kubernetes writing by Kai Ning, with the KAI K8s journey series, quick notes, and production lessons."
+  description="Kai Ning 的 Kubernetes 筆記庫：繁中主稿以 KAI K8s之路為主線，英文版作為 mirror，旁邊收錄排查筆記、操作守則與概念模型。"
   lang="zh-Hant"
 >
   <section class="page-intro page-intro--with-rail">
     <div class="page-intro__copy">
       <p class="eyebrow">Archive / 全站文章庫</p>
-      <h1>主線是 KAI K8s之路，其餘內容都該繞著它讀</h1>
+      <h1>主線是 KAI K8s之路，其他文章是旁邊的排查筆記</h1>
       <p>
-        這裡不是把所有文章平鋪展示，而是先把雙語系列
-        <strong>{FEATURED_SERIES_NAME}</strong> 放在前景。其他 Kubernetes、GitOps、
-        observability 與事故筆記，則作為 field notes 穿插更新。
+        這裡不是把所有文章平鋪展示，而是先把繁中主稿
+        <strong>{FEATURED_SERIES_NAME}</strong> 放在前景。英文版是 mirror；其他 Kubernetes、GitOps、
+        observability 與事故筆記，則作為排查與操作補充。
       </p>
       <div class="hero__actions">
-        <a class="button button--primary" href="/series/kai-k8s-road/">系列入口</a>
-        <a class="button" href="/blog/zh/">看中文版</a>
-        <a class="button" href="/blog/en/">Read English track</a>
+        <a class="button button--primary" href="/series/kai-k8s-road/">K8s之路</a>
+        <a class="button" href="/blog/zh/">看繁中主稿</a>
+        <a class="button" href="/blog/en/">English mirror</a>
       </div>
     </div>
 
     <aside class="page-intro__aside">
-      <p class="signal-panel__label">Archive shape / 結構</p>
+      <p class="signal-panel__label">Archive logic / 文章怎麼分類</p>
       <ul class="signal-panel__list">
-        <li>章節式雙語主線放在最前面</li>
-        <li>中文與 English archives 保留獨立入口</li>
-        <li>quick tips 與 incidents 留在後段閱讀</li>
+        <li>先讀繁中主稿，把直覺和專業邊界建立起來</li>
+        <li>英文 mirror 用來對外分享與技術對照</li>
+        <li>排查筆記、操作守則與概念模型放在後段補強</li>
       </ul>
     </aside>
   </section>
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">Series spine</p>
-      <h2>KAI K8s之路 / KAI&apos;s K8s Journey</h2>
+      <p class="eyebrow">Mainline notebook</p>
+      <h2>KAI K8s之路</h2>
     </div>
   </section>
 
@@ -66,18 +66,18 @@ const sidePosts = getPostsByKind(posts, "incident").concat(
 
   <section class="language-split">
     <article class="language-panel">
-      <p class="eyebrow">中文內容</p>
-      <h2>中文主線與補充筆記</h2>
-      <p>先把概念講清楚，再一路走到 rollout、GitOps 與真實環境裡的坑。</p>
+      <p class="eyebrow">繁中主稿</p>
+      <h2>繁中主稿與補充筆記</h2>
+      <p>先用中文把概念、生活例子與專業邊界講清楚，再接到 rollout、GitOps 與真實環境裡的坑。</p>
       <a class="inline-link" href="/blog/zh/">查看全部中文文章</a>
       <div class="language-panel__count">{zhPosts.length} 篇</div>
     </article>
 
     <article class="language-panel">
-      <p class="eyebrow">English track</p>
-      <h2>English notes with production bias</h2>
-      <p>Keep the series readable in English while leaving room for operational notes.</p>
-      <a class="inline-link" href="/blog/en/">Browse English posts</a>
+      <p class="eyebrow">English mirror</p>
+      <h2>English mirror for sharing</h2>
+      <p>英文版是 mirror：保留核心技術對照與分享用途，完整語氣以繁中主稿為準。</p>
+      <a class="inline-link" href="/blog/en/">Browse mirror posts</a>
       <div class="language-panel__count">{enPosts.length} posts</div>
     </article>
   </section>
@@ -85,7 +85,7 @@ const sidePosts = getPostsByKind(posts, "incident").concat(
   <section class="section-header">
     <div>
       <p class="eyebrow">Field notes</p>
-      <h2>現場補充、小知識、事故趣事與建議</h2>
+      <h2>排查筆記、操作守則與概念模型</h2>
     </div>
   </section>
 

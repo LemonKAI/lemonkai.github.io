@@ -24,6 +24,7 @@ const roadmap = [
     title: "Pod 是第一個邊界",
     question: "Kubernetes 為什麼不直接管理 container？",
     model: "Container 是執行單位，Pod 是編排單位。",
+    analogy: "像便當盒：飯菜可以分格，但要一起拿去同一張桌子。",
     status: "published"
   },
   {
@@ -31,6 +32,7 @@ const roadmap = [
     title: "Deployment 是變更控制器",
     question: "有了 Pod，為什麼還需要 Deployment？",
     model: "不要手動照顧每個 Pod，要讓 controller 管 rollout。",
+    analogy: "像值班主管：不是自己做每件事，而是盯著人數和替換節奏。",
     status: "next"
   },
   {
@@ -38,6 +40,7 @@ const roadmap = [
     title: "Service 是穩定入口",
     question: "Pod 一直變，流量怎麼找到它？",
     model: "Service 把易變的 Pod 包成穩定的網路身份。",
+    analogy: "像公司總機：員工座位會換，但入口電話不變。",
     status: "planned"
   },
   {
@@ -45,47 +48,50 @@ const roadmap = [
     title: "Probe 是信任邊界",
     question: "Running 為什麼不代表可以接流量？",
     model: "Readiness 管接流量，liveness 管是否該重啟。",
+    analogy: "像開店前檢查：人在店裡不代表已經可以接客。",
     status: "planned"
   },
   {
     chapter: "05",
-    title: "GitOps 是變更路線",
+    title: "GitOps 是變更紀錄",
     question: "怎樣讓 production 變更可審、可回放？",
-    model: "把 cluster 狀態放進一條可追的提交歷史。",
+    model: "把 cluster 狀態放進可追、可審、可回放的提交歷史。",
+    analogy: "像有簽核紀錄的施工圖：現場照圖收斂，改過什麼查得到。",
     status: "planned"
   }
 ];
 
 const method = [
   "先講我為什麼現在要理解它",
+  "用一個生活小例子先建立直覺",
   "再給一句能記住的核心判斷",
-  "接著把概念變成一個心智模型",
+  "接著回到 Kubernetes 真正的技術邊界",
   "最後接到下一章會遇到的真問題"
 ];
 ---
 
 <BaseLayout
   title="KAI K8s之路"
-  description="KAI K8s之路：Kai Ning 的 Kubernetes 主線系列。不是知識點清單，而是一條從 Pod 到 production 的個人 infra notebook。"
+  description="KAI K8s之路：Kai Ning 的 Kubernetes 主線筆記。每章用生活例子建立直覺，再回到資源邊界、controller 行為與 production 排查。"
   lang="zh-Hant"
 >
   <section class="page-intro page-intro--with-rail page-intro--notebook">
     <div class="page-intro__copy">
-      <p class="eyebrow">Series hub / 主線入口</p>
+      <p class="eyebrow">Mainline notebook / 主線筆記</p>
       <h1>KAI K8s之路</h1>
       <p>
-        這條主線不是把 Kubernetes 名詞照順序排完，而是把一個工程師真正會卡住的問題慢慢接起來。
-        先理解 Pod，才知道 Deployment 在幫你解什麼；理解 rollout，才知道為什麼 probe 和 observability 不是裝飾品。
+        這條主線不是把 Kubernetes 名詞照順序排完，而是把一個工程師真正會卡住的問題放進同一本筆記。
+        每章先用生活例子讓人抓到直覺，再回到專業邊界：Pod 管什麼、Deployment 控什麼、Service 穩定什麼、Probe 到底信不信你能接流量。
       </p>
       <div class="hero__actions">
-        <a class="button button--primary" href="#chapters">從章節開始</a>
-        <a class="button" href="/blog/zh/">看中文文章</a>
-        <a class="button" href="/blog/en/">Read English track</a>
+        <a class="button button--primary" href="#chapters">從第一章開始</a>
+        <a class="button" href="/blog/zh/">看繁中主稿</a>
+        <a class="button" href="/blog/en/">English mirror</a>
       </div>
     </div>
 
     <aside class="page-intro__aside series-contract">
-      <p class="signal-panel__label">Series contract / 寫作契約</p>
+      <p class="signal-panel__label">Notebook rule / 寫作方式</p>
       <ul class="signal-panel__list">
         {method.map((item) => <li>{item}</li>)}
       </ul>
@@ -94,8 +100,8 @@ const method = [
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">Route map</p>
-      <h2>每一章都要回答一個真問題</h2>
+      <p class="eyebrow">Chapter index</p>
+      <h2>每一章都回答一個真的 K8s 卡點</h2>
     </div>
   </section>
 
@@ -108,6 +114,7 @@ const method = [
           <h3>{item.title}</h3>
           <p>{item.question}</p>
           <strong>{item.model}</strong>
+          <p class="route-card__example">生活例子：{item.analogy}</p>
         </div>
       </article>
     ))}
@@ -115,8 +122,8 @@ const method = [
 
   <section class="section-header" id="chapters">
     <div>
-      <p class="eyebrow">Chapter pairs</p>
-      <h2>章節不是文章，是主線上的節點</h2>
+      <p class="eyebrow">Mainline notes</p>
+      <h2>章節不是散文，是一個個可回用的模型</h2>
     </div>
   </section>
 
@@ -130,7 +137,7 @@ const method = [
       <h2>讀這個系列時，我希望你不要急著背 YAML</h2>
       <p>
         YAML 很快可以查到。真正難的是先知道每個資源在 Kubernetes 裡負責哪一段邊界。
-        這條主線會盡量把每個概念變成一句能記住的判斷，讓後面 debug 和設計時能回來用。
+        所以每章都會先放一個生活小例子，把直覺搭起來；但最後一定要回到專業機制，讓後面 debug 和設計時能拿回來用。
       </p>
     </div>
     <div class="notebook-panel__quote">
@@ -142,7 +149,7 @@ const method = [
   <section class="section-header">
     <div>
       <p class="eyebrow">Related notes</p>
-      <h2>支線筆記：主線旁邊的 production 回聲</h2>
+      <h2>支線筆記：主線旁邊的排查現場</h2>
     </div>
   </section>
 

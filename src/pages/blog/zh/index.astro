@@ -19,30 +19,30 @@ const sidePosts = getPostsByKind(posts, "incident").concat(
 
 <BaseLayout
   title="中文文章"
-  description="KAI K8s之路中文內容：Kubernetes 基礎、事故趣事、小知識與實戰建議。"
+  description="KAI K8s之路繁中主稿：用生活例子建立 Kubernetes 直覺，再回到專業邊界、排查筆記與操作守則。"
   lang="zh-Hant"
   alternates={[{ href: "/blog/en/", lang: "en" }]}
 >
   <section class="page-intro page-intro--with-rail">
     <div class="page-intro__copy">
-      <p class="eyebrow">中文內容 / Chinese track</p>
+      <p class="eyebrow">繁中主稿 / Chinese original</p>
       <h1>KAI K8s之路的中文主線</h1>
       <p>
-        這裡優先放系列中文稿，讓整條路能從基礎一路走到實戰。中間也會穿插事故趣事、
-        小知識與實際上比較值錢的建議。
+        這裡優先放系列繁中主稿：每章先用生活例子讓人容易理解，再回到 Kubernetes 真正的技術邊界。
+        旁邊會收錄排查筆記、操作守則與概念模型。
       </p>
       <div class="hero__actions">
-        <a class="button button--primary" href="/series/kai-k8s-road/">看系列入口</a>
-        <a class="button" href="/blog/en/">Read English track</a>
+        <a class="button button--primary" href="/series/kai-k8s-road/">看 K8s之路</a>
+        <a class="button" href="/blog/en/">English mirror</a>
       </div>
     </div>
 
     <aside class="page-intro__aside">
-      <p class="signal-panel__label">Reading order / 閱讀順序</p>
+      <p class="signal-panel__label">Reading logic / 閱讀方式</p>
       <ul class="signal-panel__list">
-        <li>先用中文主線把概念和直覺建立起來</li>
-        <li>遇到 field notes，再拿來補強對主線的理解</li>
-        <li>想對外表達時，再切換 English track 看對照</li>
+        <li>先用生活例子抓直覺</li>
+        <li>再看 Kubernetes 資源真正負責哪段邊界</li>
+        <li>想對外表達時，再切換 English mirror 看對照</li>
       </ul>
     </aside>
   </section>
@@ -50,7 +50,7 @@ const sidePosts = getPostsByKind(posts, "incident").concat(
   <section class="section-header">
     <div>
       <p class="eyebrow">Series in Chinese</p>
-      <h2>先把核心概念與直覺建立起來</h2>
+      <h2>用好懂的例子建立專業直覺</h2>
     </div>
   </section>
 
@@ -61,7 +61,7 @@ const sidePosts = getPostsByKind(posts, "incident").concat(
   <section class="section-header">
     <div>
       <p class="eyebrow">Field notes</p>
-      <h2>中文補充筆記</h2>
+      <h2>排查筆記與操作守則</h2>
     </div>
   </section>
 

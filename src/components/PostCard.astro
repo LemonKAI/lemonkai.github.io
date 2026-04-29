@@ -15,9 +15,9 @@ interface Props {
 const { post } = Astro.props;
 const readLabel = post.data.lang === "zh" ? "閱讀這篇筆記" : "Read this note";
 const lane = {
-  series: post.data.lang === "zh" ? "KAI notebook" : "Mainline note",
-  incident: post.data.lang === "zh" ? "Production field notes" : "Production field notes",
-  note: post.data.lang === "zh" ? "Concept artifact" : "Concept artifact"
+  series: post.data.lang === "zh" ? "主線筆記" : "English mirror",
+  incident: post.data.lang === "zh" ? "排查筆記" : "Field note",
+  note: post.data.lang === "zh" ? "概念模型" : "Concept model"
 }[post.data.kind];
 ---
 

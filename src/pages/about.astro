@@ -4,24 +4,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout
   title="About"
-  description="關於 KAI K8s之路：用中英雙版系列，從 Kubernetes 基礎一路寫到實戰。"
+  description="關於 KAI K8s之路：Kai Ning 的 Kubernetes infra notebook。繁中主稿優先，用生活例子建立直覺，再回到專業邊界與排查。"
   lang="zh-Hant"
 >
   <section class="page-intro page-intro--with-rail">
     <div class="page-intro__copy">
       <p class="eyebrow">About / 為什麼做這個站</p>
-      <h1>這個 blog 想長成一個有主線的技術筆記本</h1>
+      <h1>這個 blog 想長成一本 KAI 的 infra notebook</h1>
       <p>
         我想做的不是雜亂文章倉庫，而是一個更像 notebook 的個人技術站。主線是
-        <strong>KAI K8s之路</strong>，從 k8s 基礎慢慢走到真實生產環境；副線則穿插
-        GitOps、observability、AI infra，以及那些值得記下來的事故片段。
+        <strong>KAI K8s之路</strong>：先用生活例子把直覺搭起來，再回到 Kubernetes 的資源邊界、controller 行為與 production 排查。副線則收進
+        GitOps、observability、AI infra，以及那些值得記下來的事故筆記。
       </p>
     </div>
 
     <aside class="page-intro__aside">
       <p class="signal-panel__label">Writing bias / 寫作偏好</p>
       <ul class="signal-panel__list">
-        <li>先把抽象與直覺講清楚，再進到 deployment 細節</li>
+        <li>每章先用一個生活例子建立直覺</li>
+        <li>再把抽象概念放回 Kubernetes 真正的技術邊界</li>
         <li>偏好真實現場，不想只寫擺樣子的 demo</li>
         <li>寫到自己未來回來看也還會有用</li>
       </ul>
@@ -31,26 +32,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <section class="section-grid section-grid--manifesto">
     <article class="feature-card">
       <p class="eyebrow">主線怎麼寫</p>
-      <h2>從核心概念一路走到 rollout 與 incidents</h2>
+      <h2>先講好懂的直覺，再回到專業邊界</h2>
       <p>
-        系列會先把 Pod、Deployment、Service、Probe、Ingress 這些關鍵觀念講清楚，再一路寫到
-        GitOps、observability 與 incident handling。
+        系列會先把 Pod、Deployment、Service、Probe、Ingress 這些關鍵觀念講清楚：每章都有生活例子，但最後一定回到 controller、traffic、rollout、GitOps、observability 與 incident handling。
       </p>
     </article>
 
     <article class="feature-card">
-      <p class="eyebrow">雙語怎麼做</p>
-      <h2>主線優先中英雙版，支線保持彈性</h2>
+      <p class="eyebrow">英文怎麼做</p>
+      <h2>繁中是主稿，英文只是 mirror</h2>
       <p>
-        系列內容盡量做成可對照的中英雙版，讓它既能對自己複盤，也能對外輸出；支線內容則不強迫一比一翻譯。
+        系列內容以繁中筆記為準，英文版保留技術對照與對外分享用途；支線內容不強迫一比一翻譯。
       </p>
     </article>
 
     <article class="feature-card">
       <p class="eyebrow">支線會放什麼</p>
-      <h2>小知識、踩坑筆記、事故趣事與建議</h2>
+      <h2>排查筆記、操作守則、概念模型</h2>
       <p>
-        除了正規系列，也會保留短篇小知識、probe / rollout / GitOps 類的現場經驗，以及值得記下來的生產事故片段。
+        除了主線系列，也會保留 probe / rollout / GitOps 類的現場經驗、誤判模式，以及值得記下來的 production 事故筆記。
       </p>
     </article>
   </section>
@@ -60,6 +60,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <h2>我希望每篇文章至少做到這三件事</h2>
     <ul class="focus-list">
       <li>回答一個真實會遇到的問題</li>
+      <li>用一個生活例子讓人先理解，但不犧牲技術精準度</li>
       <li>給出我自己會採用的默認做法</li>
       <li>寫到別人能拿去用，而不是只能看完點頭</li>
     </ul>

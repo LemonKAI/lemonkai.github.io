@@ -19,37 +19,36 @@ const sidePosts = getPostsByKind(posts, "note").concat(
 
 <BaseLayout
   title="English posts"
-  description="English Kubernetes and platform notes by Kai Ning, including KAI's K8s Journey and production-minded side notes."
+  description="English mirror of Kai Ning's Chinese-first Kubernetes notebook, centered on KAI K8s之路 and selected operational notes."
   alternates={[{ href: "/blog/zh/", lang: "zh-Hant" }]}
 >
   <section class="page-intro page-intro--with-rail">
     <div class="page-intro__copy">
-      <p class="eyebrow">English track</p>
-      <h1>KAI&apos;s K8s Journey in English</h1>
+      <p class="eyebrow">English mirror</p>
+      <h1>KAI K8s之路 — English mirror</h1>
       <p>
-        This track keeps the core Kubernetes series readable in English while
-        leaving room for short operational notes on rollouts, observability,
-        GitOps, and incident lessons.
+        These posts mirror the Chinese-first Kubernetes notebook for sharing and technical reference.
+        The fuller voice, examples, and notebook rhythm live in the Traditional Chinese original.
       </p>
       <div class="hero__actions">
-        <a class="button button--primary" href="/series/kai-k8s-road/">Open the series hub</a>
-        <a class="button" href="/blog/zh/">See Chinese track</a>
+        <a class="button button--primary" href="/series/kai-k8s-road/">Open K8s notebook</a>
+        <a class="button" href="/blog/zh/">Read Chinese original</a>
       </div>
     </div>
 
     <aside class="page-intro__aside">
-      <p class="signal-panel__label">Reading logic</p>
+      <p class="signal-panel__label">Mirror logic</p>
       <ul class="signal-panel__list">
-        <li>Follow the core series in chapter order</li>
-        <li>Use side notes as compact production-biased detours</li>
-        <li>Switch to Chinese when you want the fuller original rhythm</li>
+        <li>This is the mirror, not the primary voice</li>
+        <li>Use it for English reference and external sharing</li>
+        <li>Switch to Chinese for the fuller notebook version</li>
       </ul>
     </aside>
   </section>
 
   <section class="section-header">
     <div>
-      <p class="eyebrow">Series track</p>
+      <p class="eyebrow">Mirrored mainline</p>
       <h2>{FEATURED_SERIES_NAME}</h2>
     </div>
   </section>
@@ -61,7 +60,7 @@ const sidePosts = getPostsByKind(posts, "note").concat(
   <section class="section-header">
     <div>
       <p class="eyebrow">Field notes</p>
-      <h2>Operational notes and incident fragments</h2>
+      <h2>Mirrored field notes and operating rules</h2>
     </div>
   </section>
 
