@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior in Kubernetes."><meta name="keywords" content="kubernetes, gitops, platform, operations"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#08111f"><link rel="canonical" href="https://lemonkai.github.io/blog/en/gitops-review-checks-before-sync/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="GitOps review checklist before Argo CD syncs production | LemonKAI"><meta property="og:description" content="A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior in Kubernetes."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/gitops-review-checks-before-sync/"><meta property="og:image" content="https://lemonkai.github.io/og-default.svg"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="GitOps review checklist before Argo CD syncs production | LemonKAI"><meta name="twitter:description" content="A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior in Kubernetes."><meta name="twitter:image" content="https://lemonkai.github.io/og-default.svg"><meta property="article:published_time" content="2026-04-28T00:00:00.000Z"><meta property="article:modified_time" content="2026-04-28T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="gitops"><meta property="article:tag" content="platform"><meta property="article:tag" content="operations"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"GitOps review checklist before Argo CD syncs production | LemonKAI","headline":"GitOps review checklist before Argo CD syncs production | LemonKAI","description":"A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior in Kubernetes.","url":"https://lemonkai.github.io/blog/en/gitops-review-checks-before-sync/","inLanguage":"en","image":"https://lemonkai.github.io/og-default.svg","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"GitOps review checklist before Argo CD syncs production","description":"A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior in Kubernetes.","datePublished":"2026-04-28T00:00:00.000Z","dateModified":"2026-04-28T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, gitops, platform, operations","articleSection":"Concept","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/gitops-review-checks-before-sync/","image":"https://lemonkai.github.io/og-default.svg"}]</script><title>GitOps review checklist before Argo CD syncs production | LemonKAI</title><link rel="stylesheet" href="/_astro/about.DRTlrdwv.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/"> <span class="site-brand__mark">KAI</span> <span class="site-brand__copy"> <small>LemonKAI</small> <strong>KAI K8s之路</strong> <em>Kai Ning · infra notebook / K8s / GitOps / AI infra</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>首頁</span> <small>Notebook</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>K8s之路</span> <small>主線</small> </a> </li><li> <a href="/blog/" data-active="true"> <span>全部文章</span> <small>Archive</small> </a> </li><li> <a href="/about/"> <span>關於</span> <small>About</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <span class="site-language-switch__label">閱讀語言</span> <a href="/blog/zh/"> <span>繁中主稿</span> <small>Zh.</small> </a><a href="/blog/en/" data-active="true"> <span>English mirror</span> <small>En.</small> </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> Concept </p> <h1>GitOps review checklist before Argo CD syncs production</h1> <p class="post__lede">A compact pre-sync checklist for GitOps changes so an innocent YAML edit does not become surprising production behavior in Kubernetes.</p> <div class="post-card__eyebrow post-card__eyebrow--inline"> <span class="meta-pill">EN</span> <span class="meta-pill">Concept</span>  </div> <div class="post__meta"> <time datetime="2026-04-28T00:00:00.000Z"> Published Apr 28, 2026 </time> <time datetime="2026-04-28T00:00:00.000Z"> Updated Apr 28, 2026 </time> </div>  <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> kubernetes </a><a class="tag-pill" href="/tags/gitops/"> gitops </a><a class="tag-pill" href="/tags/platform/"> platform </a><a class="tag-pill" href="/tags/operations/"> operations </a> </div> <section class="post-insight" aria-label="Before you read"> <p class="post-insight__label">Before you read</p> <div class="post-insight__grid"> <div> <span>Question</span> <p>What should you check before Argo CD or Flux syncs a production change?</p> </div> <div> <span>Core judgment</span> <p>GitOps applies intent; it does not prove the rollout math is safe.</p> </div> <div> <span>Use it for</span> <p>Review by change category, ownership boundary, delayed failure mode, and rollback path.</p> <ul> <li>GitOps review</li><li>Argo CD sync</li><li>production change control</li> </ul> </div> </div> </section> </header> <div class="prose"> <p>GitOps is great at making clusters converge. It is less great at telling you whether convergence is a good idea.</p>
+<p>That is why I like a small review checklist before Argo CD, Flux, or any similar controller gets a chance to rewrite production for me.</p>
+<h2 id="read-the-diff-by-intent-not-by-line-count">Read the diff by intent, not by line count</h2>
+<p>I care less about how many YAML lines changed and more about what kind of change it is.</p>
+<ul>
+<li><strong>Image change</strong>: what code is actually shipping?</li>
+<li><strong>Replica or resource change</strong>: what will this do to capacity and cost?</li>
+<li><strong>Probe change</strong>: are we changing health semantics or just timeout values?</li>
+<li><strong>Ingress, policy, or secret wiring change</strong>: are we expanding blast radius?</li>
+</ul>
+<p>If the review only says “looks fine,” it probably is not deep enough.</p>
+<h2 id="check-ownership-boundaries">Check ownership boundaries</h2>
+<p>The easiest GitOps mistakes happen when two systems believe they own the same field.</p>
+<p>Typical examples:</p>
+<ul>
+<li>An HPA manages replica count while a human changes <code>spec.replicas</code></li>
+<li>A cert controller writes annotations that another tool keeps reverting</li>
+<li>A runtime patch in the cluster gets wiped by the next sync</li>
+</ul>
+<p>Before sync, I want to know which controller owns which part of the object. Drift is not always bad. Unexplained drift is.</p>
+<h2 id="review-rollout-behavior-not-just-desired-state">Review rollout behavior, not just desired state</h2>
+<p>The manifest might look safe while the rollout path is not.</p>
+<p>Questions I ask:</p>
+<ul>
+<li>Will this create a restart storm?</li>
+<li>Do the probes still match startup reality?</li>
+<li>Does the PodDisruptionBudget still make sense for this replica count?</li>
+<li>Is <code>maxUnavailable</code> too aggressive for the current dependency graph?</li>
+</ul>
+<p>GitOps tools apply intent. They do not protect you from bad rollout math.</p>
+<h2 id="be-suspicious-of-configuration-changes-with-delayed-failure">Be suspicious of configuration changes with delayed failure</h2>
+<p>The most annoying incidents are the ones that pass sync and fail ten minutes later.</p>
+<p>That usually means:</p>
+<ul>
+<li>a secret rotated but not everywhere</li>
+<li>an environment variable changed semantics</li>
+<li>a dependency endpoint moved</li>
+<li>a feature flag exposed code paths nobody exercised in staging</li>
+</ul>
+<p>For config-heavy changes, I want one extra question in review: <strong>what is the delayed failure mode if this is wrong?</strong></p>
+<h2 id="my-tiny-pre-sync-checklist">My tiny pre-sync checklist</h2>
+<p>Before I let the controller touch production, I want answers to these:</p>
+<ol>
+<li>What category of change is this?</li>
+<li>Which controller owns the important fields?</li>
+<li>What does rollout behavior look like under failure?</li>
+<li>Is there a delayed config risk hiding behind a clean diff?</li>
+<li>If this goes bad, what is the fastest rollback path?</li>
+</ol>
+<p>If those five answers are clear, GitOps feels boring in the best possible way.</p>
+<p>That is the goal. Not flashy automation. Predictable automation.</p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">KAI notebook</p> <p> <strong>LemonKAI</strong> 把 <strong>KAI K8s之路</strong> 當成主線，
+        用生活例子建立直覺，再回到 Pod、Deployment、Service、Probe、GitOps 的專業邊界與排查筆記。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">KAI K8s之路</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">Sitemap</a> <a href="https://github.com/LemonKAI/lemonkai.github.io">GitHub</a> </div> <small>© 2026 Kai Ning. Built with Astro for GitHub Pages.</small> </div> </footer> </div> </body></html>
