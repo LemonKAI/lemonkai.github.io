@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="A Pod is not enough. A Deployment captures the desired replica count, Pod template, selector, and rollout behavior so Kubernetes can keep a workload converged."><meta name="keywords" content="kubernetes, deployment, workload, rollout, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#08111f"><link rel="canonical" href="https://lemonkai.github.io/blog/en/kai-k8s-road-02-deployment/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="zh-Hant" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-02-deployment/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually | LemonKAI"><meta property="og:description" content="A Pod is not enough. A Deployment captures the desired replica count, Pod template, selector, and rollout behavior so Kubernetes can keep a workload converged."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/kai-k8s-road-02-deployment/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually | LemonKAI"><meta name="twitter:description" content="A Pod is not enough. A Deployment captures the desired replica count, Pod template, selector, and rollout behavior so Kubernetes can keep a workload converged."><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg"><meta property="article:published_time" content="2026-05-04T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-04T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="deployment"><meta property="article:tag" content="workload"><meta property="article:tag" content="rollout"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually | LemonKAI","headline":"KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually | LemonKAI","description":"A Pod is not enough. A Deployment captures the desired replica count, Pod template, selector, and rollout behavior so Kubernetes can keep a workload converged.","url":"https://lemonkai.github.io/blog/en/kai-k8s-road-02-deployment/","inLanguage":"en","image":"https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually","description":"A Pod is not enough. A Deployment captures the desired replica count, Pod template, selector, and rollout behavior so Kubernetes can keep a workload converged.","datePublished":"2026-05-04T00:00:00.000Z","dateModified":"2026-05-04T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, deployment, workload, rollout, series","articleSection":"KAI Road of Kubernetes","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/kai-k8s-road-02-deployment/","image":"https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg"}]</script><title>KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually | LemonKAI</title><link rel="stylesheet" href="/_astro/about.CihWXzm0.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes · Production · Concepts</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-02-deployment/"> 繁中 </a><a href="/blog/en/kai-k8s-road-02-deployment/" data-active="true"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> Mainline </p> <h1>KAI Road of Kubernetes 02 — What a Deployment is, and why Pods should not be babysat manually</h1> <p class="post__lede">A Pod is not enough. A Deployment captures the desired replica count, Pod template, selector, and rollout behavior so Kubernetes can keep a workload converged.</p> <div class="post-card__topline post-card__topline--inline"> <span>EN</span> <span>Mainline</span> <span> Part 2 </span> </div> <div class="post__meta"> <time datetime="2026-05-04T00:00:00.000Z"> Published May 4, 2026 </time> <time datetime="2026-05-04T00:00:00.000Z"> Updated May 4, 2026 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/zh/kai-k8s-road-02-deployment/"> 閱讀中文版 </a> </div> <section class="article-note" aria-label="Core idea"> <div> <span>Core idea</span> <p>A Pod is one landing of a workload. A Deployment is the rule that keeps the workload converged.</p> </div> <div> <span>Takeaway</span> <p>Do not babysit individual Pods. Start from the Deployment&#39;s replicas, selector, Pod template, rollout status, and events.</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> kubernetes </a><a class="tag-pill" href="/tags/deployment/"> deployment </a><a class="tag-pill" href="/tags/workload/"> workload </a><a class="tag-pill" href="/tags/rollout/"> rollout </a><a class="tag-pill" href="/tags/series/"> series </a> </div> </header> <div class="prose"> <p>The previous chapter separated containers from Pods.</p>
+<p>A container runs a process. A Pod is the first Kubernetes workload boundary.</p>
+<p>But that immediately creates the next question:</p>
+<p>If a Pod fails, moves to another node, or needs a new image version, are we supposed to babysit every Pod by hand?</p>
+<p>No.</p>
+<p>The sentence I would keep is this:</p>
+<blockquote>
+<p><strong>A Pod is one landing of a workload. A Deployment is the rule that keeps the workload converged.</strong></p>
+</blockquote>
+<h2 id="do-not-babysit-pods-manually">Do not babysit Pods manually</h2>
+<p>A Pod matters, but an individual Pod is not something you should usually treat as a long-lived pet.</p>
+<p>A Pod can be deleted, recreated, renamed, and rescheduled. It is closer to “this workload landed here this time.”</p>
+<p>The thing you want to preserve is not the Pod name.</p>
+<p>The thing you want to declare is:</p>
+<ul>
+<li>how many replicas should exist</li>
+<li>what each Pod should look like</li>
+<li>which Pods belong to this workload</li>
+<li>how fast a new version should replace the old one</li>
+<li>whether a bad release can be rolled back</li>
+</ul>
+<p>That is where a Deployment enters.</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-02/deployment-shift-board-note.jpg" alt="KAI notebook style diagram contrasting manual Pod babysitting with Deployment desired state." loading="lazy" decoding="async">
+  <figcaption>A Deployment is not just a way to create several Pods. It is a desired-state rule that lets the controller keep pulling the real workload back toward what you declared.</figcaption>
+</figure>
+<h2 id="think-of-it-as-a-shift-schedule">Think of it as a shift schedule</h2>
+<p>I think of Pods like people currently working a shift.</p>
+<p>A Deployment is closer to the shift schedule plus the manager.</p>
+<p>A schedule does not say: “protect this exact person at the counter forever.”</p>
+<p>It says:</p>
+<blockquote>
+<p>Keep three people at the counter, using the current process. If someone leaves, bring in a replacement. If the process changes, do not replace everyone at once.</p>
+</blockquote>
+<p>That is close to the Deployment mental model.</p>
+<p>You are not preserving a specific Pod. You are describing the state a workload should keep returning to.</p>
+<h2 id="what-a-deployment-actually-describes">What a Deployment actually describes</h2>
+<p>A Deployment is one of the most common Kubernetes workload controllers, usually used for stateless, interchangeable application Pods.</p>
+<p>Its core idea is declarative:</p>
+<blockquote>
+<p>This is the state I want the workload to reach and maintain.</p>
+</blockquote>
+<p>The first three fields I usually read are:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  replicas</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    matchLabels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">example/web:v2</span></span></code></pre>
+<p>I read them like this:</p>
+<ul>
+<li><code>replicas</code>: how many Pods should be running</li>
+<li><code>selector</code>: which Pods belong to this workload</li>
+<li><code>template</code>: what a new Pod should look like</li>
+</ul>
+<p>Together, those fields form the desired state.</p>
+<h2 id="deployment-replicaset-and-pods">Deployment, ReplicaSet, and Pods</h2>
+<p>This is where beginners often look at the wrong layer.</p>
+<p>A Deployment usually does not directly manage every Pod. It manages ReplicaSets, and ReplicaSets maintain the replica Pods.</p>
+<p>A useful compression is:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Deployment -> ReplicaSet -> Pods</span></span></code></pre>
+<p>The Deployment owns the higher-level behavior: rollout, rollback, version changes, and scaling.</p>
+<p>The ReplicaSet maintains the requested number of Pods.</p>
+<p>The Pods are the runtime result.</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-02/deployment-ownership-note.png" alt="KAI notebook style diagram showing Deployment owning ReplicaSet and ReplicaSet owning Pods." loading="lazy" decoding="async">
+  <figcaption>Follow the ownership chain: start from the Deployment's desired state, then inspect how the ReplicaSet maintains Pods. Do not make one Pod the center of the whole system.</figcaption>
+</figure>
+<p>This is also why the Kubernetes documentation warns you not to directly manage ReplicaSets owned by a Deployment.</p>
+<p>You can inspect them. You can debug through them. But they are usually not the main control surface.</p>
+<h2 id="the-useful-word-is-convergence">The useful word is convergence</h2>
+<p>The most important Deployment idea is convergence.</p>
+<p>The real world keeps drifting away from the desired state:</p>
+<ul>
+<li>a Pod fails</li>
+<li>a node has a problem</li>
+<li>an image changes</li>
+<li>replicas are missing</li>
+<li>a rollout gets stuck</li>
+<li>readiness never passes</li>
+</ul>
+<p>The Deployment controller keeps comparing:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>desired state vs actual state</span></span></code></pre>
+<p>Then it creates, deletes, or replaces Pods until the actual state moves toward what you declared.</p>
+<p>That is very Kubernetes.</p>
+<p>You are not issuing a one-time command. You are writing down the correct state and letting a controller keep chasing it.</p>
+<h2 id="a-deployment-does-not-replace-everything-at-once">A Deployment does not replace everything at once</h2>
+<p>Another major value is rollout control.</p>
+<p>When you change the Deployment’s Pod template, such as moving the image from <code>v1</code> to <code>v2</code>, the Deployment creates a new ReplicaSet and gradually scales it up while scaling the old ReplicaSet down.</p>
+<p>One detail matters: a rollout is triggered by changes to the Pod template. Scaling the replica count is not the same thing.</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-02/deployment-rollout-note.png" alt="KAI notebook style diagram showing a Deployment rolling update from old version Pods to new version Pods with readiness checks." loading="lazy" decoding="async">
+  <figcaption>A rolling update is controlled replacement. The important question is not merely whether Pods exist, but whether the new version becomes available safely.</figcaption>
+</figure>
+<p>That is why production release checks should not stop at <code>kubectl get pods</code>.</p>
+<p>You want to know whether the rollout completed, whether the new replicas are available, and whether the old ReplicaSet has scaled down as expected.</p>
+<h2 id="common-misunderstandings">Common misunderstandings</h2>
+<h3 id="1-treating-a-deployment-like-a-bigger-pod">1. Treating a Deployment like a bigger Pod</h3>
+<p>A Deployment is not a larger Pod.</p>
+<p>It is a controller-facing object. You describe a desired state, and the controller uses ReplicaSets and Pods to converge toward it.</p>
+<h3 id="2-deleting-pods-as-the-first-reflex">2. Deleting Pods as the first reflex</h3>
+<p>Deleting a Pod can be a valid debugging move, but if every fix starts with manually deleting Pods, you are working around the controller’s language.</p>
+<p>The better question is:</p>
+<blockquote>
+<p>Why does the Deployment keep producing Pods that return to the same bad state?</p>
+</blockquote>
+<p>That points you toward the template, image, config, probes, resources, and events.</p>
+<h3 id="3-assuming-replicas-mean-healthy-service">3. Assuming replicas mean healthy service</h3>
+<p><code>replicas: 3</code> is only the desired count.</p>
+<p>You still need to read Ready, Available, and Updated status. Three Pods existing does not mean three Pods are ready to serve production traffic.</p>
+<h3 id="4-ignoring-selector-risk">4. Ignoring selector risk</h3>
+<p>A Deployment uses its selector to decide which Pods belong to it.</p>
+<p>If selectors and template labels are wrong or overlapping with another controller, the system can behave in surprising ways.</p>
+<h2 id="how-i-would-inspect-a-deployment">How I would inspect a Deployment</h2>
+<p>For an unfamiliar workload, I usually start here:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> deploy</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> deploy</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> status</span><span style="color:#A5D6FF"> deployment/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> rs</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --show-labels</span></span></code></pre>
+<p>For release-related debugging:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> history</span><span style="color:#A5D6FF"> deployment/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> undo</span><span style="color:#A5D6FF"> deployment/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>I pay attention to:</p>
+<ul>
+<li>whether <code>READY</code> is close to desired replicas</li>
+<li>whether <code>UP-TO-DATE</code> matches the new template</li>
+<li>whether <code>AVAILABLE</code> reflects real usable replicas</li>
+<li>whether events show scheduling, image pull, or probe failures</li>
+<li>whether old and new ReplicaSets match the expected rollout state</li>
+</ul>
+<p>That is closer to how Kubernetes actually operates than staring at one Pod log first.</p>
+<h2 id="deployment-is-not-the-answer-for-every-workload">Deployment is not the answer for every workload</h2>
+<p>This chapter focuses on Deployments because they are the common entry point for stateless applications.</p>
+<p>But not every workload belongs in a Deployment.</p>
+<p>If a Pod needs stable identity or storage identity, you may need StatefulSet.</p>
+<p>If every node needs one copy of an agent, you may need DaemonSet.</p>
+<p>So I place Deployment here:</p>
+<blockquote>
+<p>When Pods are interchangeable, a Deployment is the main controller that keeps their count, version, and rollout rhythm converged.</p>
+</blockquote>
+<h2 id="three-takeaways">Three takeaways</h2>
+<ol>
+<li>A Pod is the runtime landing. A Deployment is the desired state and convergence rule.</li>
+<li>A Deployment uses ReplicaSets to maintain Pods and handle rollout / rollback.</li>
+<li>When debugging app workloads, start from the Deployment’s selector, template, replicas, and rollout status before zooming into individual Pods.</li>
+</ol>
+<p>Next in the series: <strong>Pods keep changing, so how does a Service give them a stable entry point?</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · Production · Concepts</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，Production 記錄生產環境問題，Concepts 整理概念模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">Mainline</a> <a href="/blog/#production">Production</a> <a href="/blog/#concepts">Concepts</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">Sitemap</a> </div> <small>© 2026 Kai Ning. Built with Astro for GitHub Pages.</small> </div> </footer> </div> </body></html>

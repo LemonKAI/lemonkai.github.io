@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="zh-Hant"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="有了 Pod 還不夠。Deployment 把「我想要幾個 Pod、用哪個版本、怎麼更新」寫成 desired state，讓 Kubernetes 持續把 workload 拉回正軌。"><meta name="keywords" content="kubernetes, deployment, workload, rollout, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#08111f"><link rel="canonical" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-02-deployment/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="en" href="https://lemonkai.github.io/blog/en/kai-k8s-road-02-deployment/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧 | LemonKAI"><meta property="og:description" content="有了 Pod 還不夠。Deployment 把「我想要幾個 Pod、用哪個版本、怎麼更新」寫成 desired state，讓 Kubernetes 持續把 workload 拉回正軌。"><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/zh/kai-k8s-road-02-deployment/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg"><meta property="og:locale" content="zh_HK"><meta property="og:locale:alternate" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧 | LemonKAI"><meta name="twitter:description" content="有了 Pod 還不夠。Deployment 把「我想要幾個 Pod、用哪個版本、怎麼更新」寫成 desired state，讓 Kubernetes 持續把 workload 拉回正軌。"><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg"><meta property="article:published_time" content="2026-05-04T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-04T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="deployment"><meta property="article:tag" content="workload"><meta property="article:tag" content="rollout"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧 | LemonKAI","headline":"KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧 | LemonKAI","description":"有了 Pod 還不夠。Deployment 把「我想要幾個 Pod、用哪個版本、怎麼更新」寫成 desired state，讓 Kubernetes 持續把 workload 拉回正軌。","url":"https://lemonkai.github.io/blog/zh/kai-k8s-road-02-deployment/","inLanguage":"zh-Hant","image":"https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧","description":"有了 Pod 還不夠。Deployment 把「我想要幾個 Pod、用哪個版本、怎麼更新」寫成 desired state，讓 Kubernetes 持續把 workload 拉回正軌。","datePublished":"2026-05-04T00:00:00.000Z","dateModified":"2026-05-04T00:00:00.000Z","inLanguage":"zh-Hant","keywords":"kubernetes, deployment, workload, rollout, series","articleSection":"KAI K8s之路","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/zh/kai-k8s-road-02-deployment/","image":"https://lemonkai.github.io/images/kai-k8s-road-02/deployment-shift-board-note.jpg"}]</script><title>KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧 | LemonKAI</title><link rel="stylesheet" href="/_astro/about.CihWXzm0.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes · Production · Concepts</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-02-deployment/" data-active="true"> 繁中 </a><a href="/blog/en/kai-k8s-road-02-deployment/"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> 主線 </p> <h1>KAI K8s之路 02｜Deployment 是什麼？為什麼 Pod 不該手動照顧</h1> <p class="post__lede">有了 Pod 還不夠。Deployment 把「我想要幾個 Pod、用哪個版本、怎麼更新」寫成 desired state，讓 Kubernetes 持續把 workload 拉回正軌。</p> <div class="post-card__topline post-card__topline--inline"> <span>中文</span> <span>主線</span> <span> 第 2 篇 </span> </div> <div class="post__meta"> <time datetime="2026-05-04T00:00:00.000Z"> 發布 2026年5月4日 </time> <time datetime="2026-05-04T00:00:00.000Z"> 更新 2026年5月4日 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/en/kai-k8s-road-02-deployment/"> Read English version </a> </div> <section class="article-note" aria-label="先抓住"> <div> <span>先抓住</span> <p>Pod 是 workload 的一次落地；Deployment 是讓它持續回到期望狀態的規則。</p> </div> <div> <span>讀完帶走</span> <p>不要手動照顧 Pod；先看 Deployment 的 replicas、selector、rollout 和 events，判斷它怎麼把狀態拉回來。</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> kubernetes </a><a class="tag-pill" href="/tags/deployment/"> deployment </a><a class="tag-pill" href="/tags/workload/"> workload </a><a class="tag-pill" href="/tags/rollout/"> rollout </a><a class="tag-pill" href="/tags/series/"> series </a> </div> </header> <div class="prose"> <p>上一篇先把 Pod 想清楚：Pod 是 Kubernetes 照顧 workload 的第一個邊界。</p>
+<p>但這裡馬上會出現下一個問題。</p>
+<p>如果 Pod 掛了、被 node 趕走、版本要換，難道我們要每天手動盯著每一個 Pod 嗎？</p>
+<p>我不會這樣想。</p>
+<p>我會先記這句：</p>
+<blockquote>
+<p><strong>Pod 是 workload 的一次落地；Deployment 是讓它持續回到期望狀態的規則。</strong></p>
+</blockquote>
+<h2 id="先不要手動照顧-pod">先不要手動照顧 Pod</h2>
+<p>Pod 很重要，但 Pod 本身不是一個你應該長期手動照顧的東西。</p>
+<p>Pod 可以被刪掉、重建、換名字、換 node。它更像「這一次 workload 被放到現場的結果」。</p>
+<p>真正該被你寫進系統裡的，不是某個 Pod 的名字，而是：</p>
+<ul>
+<li>我希望這個 workload 有幾份 replica</li>
+<li>它們應該長成什麼樣子</li>
+<li>哪些 Pod 算是這個 workload 的一部分</li>
+<li>更新版本時，要用什麼速度替換</li>
+<li>新版本不穩時，要不要能 rollback</li>
+</ul>
+<p>這就是 Deployment 出現的位置。</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-02/deployment-shift-board-note.jpg" alt="KAI notebook style diagram contrasting manual Pod babysitting with Deployment desired state." loading="lazy" decoding="async">
+  <figcaption>Deployment 的重點不是「幫你建立幾個 Pod」而已，而是把你想要的 workload 狀態寫成規則，讓 controller 持續把實際狀態拉回來。</figcaption>
+</figure>
+<h2 id="用排班表想-deployment">用排班表想 Deployment</h2>
+<p>我會把 Pod 想成現場正在上班的人。</p>
+<p>那 Deployment 比較像排班表加主管。</p>
+<p>排班表不會說：「請保護小明這個人永遠站在櫃台。」</p>
+<p>它會說：</p>
+<blockquote>
+<p>今天櫃台要有 3 個人，穿同一套制服，做同一個版本的工作；有人離開，就補一個人；換新流程時，不要一次把所有人都換掉。</p>
+</blockquote>
+<p>這個比喻很接近 Deployment 的思路。</p>
+<p>你不是在珍惜某個 Pod。你是在描述一個 workload 應該維持的狀態。</p>
+<h2 id="deployment-實際上管了什麼">Deployment 實際上管了什麼</h2>
+<p>Deployment 是 Kubernetes 裡最常見的 workload controller 之一，通常用來跑 stateless、可替換的 application workload。</p>
+<p>它的核心不是命令式地說「現在幫我做這件事」，而是宣告：</p>
+<blockquote>
+<p>我希望最後看起來是這個狀態。</p>
+</blockquote>
+<p>一個 Deployment 裡，最值得先看的通常是三個欄位：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  replicas</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    matchLabels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">example/web:v2</span></span></code></pre>
+<p>我會這樣讀：</p>
+<ul>
+<li><code>replicas</code>：我希望有幾個 Pod 在跑</li>
+<li><code>selector</code>：哪些 Pod 算是這個 Deployment 管的</li>
+<li><code>template</code>：如果需要建立新 Pod，Pod 應該長什麼樣子</li>
+</ul>
+<p>這三個東西合起來，就是 Deployment 的期望狀態。</p>
+<h2 id="deploymentreplicasetpod-的關係">Deployment、ReplicaSet、Pod 的關係</h2>
+<p>這裡新手很容易看錯。</p>
+<p>Deployment 通常不是自己直接照顧每一個 Pod。它會管理 ReplicaSet，再由 ReplicaSet 維持一組 Pod replica。</p>
+<p>可以先這樣記：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Deployment -> ReplicaSet -> Pods</span></span></code></pre>
+<p>Deployment 負責比較高層的事情：rollout、rollback、版本切換、scale。</p>
+<p>ReplicaSet 負責比較直接的事情：維持指定數量的 Pod。</p>
+<p>Pod 則是最後實際跑 workload 的結果。</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-02/deployment-ownership-note.png" alt="KAI notebook style diagram showing Deployment owning ReplicaSet and ReplicaSet owning Pods." loading="lazy" decoding="async">
+  <figcaption>順著 ownership 看會比較穩：先看 Deployment 的期望狀態，再看 ReplicaSet 怎麼維持 Pod；不要倒過來把某個 Pod 當成整個系統的主角。</figcaption>
+</figure>
+<p>這也是為什麼 Kubernetes 官方文件會提醒：不要直接管理由 Deployment 擁有的 ReplicaSet。</p>
+<p>你可以看它、查它、debug 它，但通常不要把它當成主要操作入口。</p>
+<h2 id="真正有用的是收斂">真正有用的是收斂</h2>
+<p>Deployment 最重要的能力，我會用兩個字記：<strong>收斂</strong>。</p>
+<p>實際世界會一直偏離你想要的樣子：</p>
+<ul>
+<li>Pod 掛了</li>
+<li>node 出問題</li>
+<li>image 換了</li>
+<li>replica 不夠</li>
+<li>rollout 卡住</li>
+<li>readiness 沒過</li>
+</ul>
+<p>Deployment controller 會不斷比較：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>期望狀態 vs 實際狀態</span></span></code></pre>
+<p>然後透過建立、刪除、替換 Pod，讓狀態慢慢回到你宣告的樣子。</p>
+<p>這件事很 Kubernetes。</p>
+<p>它不是你下了一個一次性的指令，而是你把「正確狀態」寫下來，讓 controller 一直追。</p>
+<h2 id="更新版本時它不是一次全部換掉">更新版本時，它不是一次全部換掉</h2>
+<p>Deployment 另一個重要價值，是 rollout。</p>
+<p>你改了 Deployment 的 Pod template，例如把 image 從 <code>v1</code> 換成 <code>v2</code>，Deployment 會建立新的 ReplicaSet，逐步把新 Pod 拉上來，再把舊 Pod 降下去。</p>
+<p>注意一個細節：通常是 <strong>Pod template 改了才會觸發 rollout</strong>。單純改 replica 數量，不是同一件事。</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-02/deployment-rollout-note.png" alt="KAI notebook style diagram showing a Deployment rolling update from old version Pods to new version Pods with readiness checks." loading="lazy" decoding="async">
+  <figcaption>rollout 不是把舊 Pod 一次清掉，而是在可用性和更新速度之間做受控替換。真正要看的不是「有沒有 Pod」，而是新版本有沒有安全變成 Available。</figcaption>
+</figure>
+<p>這也是為什麼 production 發布時，你不能只看 <code>kubectl get pods</code>。</p>
+<p>你要看 rollout 有沒有完成，新版本有沒有真的 available，舊 ReplicaSet 是不是已經被降下來。</p>
+<h2 id="新手最容易誤會的幾件事">新手最容易誤會的幾件事</h2>
+<h3 id="1-把-deployment-當成-pod-的大一點版本">1. 把 Deployment 當成 Pod 的大一點版本</h3>
+<p>Deployment 不是「比較大的 Pod」。</p>
+<p>Deployment 是一個 controller-facing object。你用它描述期望狀態，controller 透過 ReplicaSet 和 Pod 把狀態拉回來。</p>
+<h3 id="2-看到-pod-壞了就急著手動刪">2. 看到 Pod 壞了就急著手動刪</h3>
+<p>有些情況刪 Pod 是合理的排查手段，但如果你每次都靠手動刪 Pod 解決問題，你其實是在繞過 controller 的語言。</p>
+<p>更好的問題是：</p>
+<blockquote>
+<p>為什麼 Deployment 產生的 Pod 會一直回到壞狀態？</p>
+</blockquote>
+<p>要查 template、image、config、probe、resource、event，而不是只把眼前那個 Pod 當成唯一問題。</p>
+<h3 id="3-以為-replicas-等於服務一定健康">3. 以為 replicas 等於服務一定健康</h3>
+<p><code>replicas: 3</code> 只是期望數量。</p>
+<p>你還要看 Ready、Available、Updated 這些狀態。三個 Pod 都存在，不代表三個都能服務流量。</p>
+<h3 id="4-selector-寫錯也很危險">4. selector 寫錯也很危險</h3>
+<p>Deployment 靠 selector 找自己要管的 Pod。selector 和 template label 如果設計不好，controller 可能管不到該管的 Pod，或者和其他 controller 重疊。</p>
+<p>這種錯不一定一眼爆炸，但會讓系統行為很怪。</p>
+<h2 id="我會怎麼-inspect-一個-deployment">我會怎麼 inspect 一個 Deployment</h2>
+<p>如果接手一個 workload，我會先用這個順序：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> deploy</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> deploy</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> status</span><span style="color:#A5D6FF"> deployment/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> rs</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --show-labels</span></span></code></pre>
+<p>如果是版本發布相關：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> history</span><span style="color:#A5D6FF"> deployment/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> undo</span><span style="color:#A5D6FF"> deployment/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>我會特別看：</p>
+<ul>
+<li><code>READY</code> 是不是接近期望 replicas</li>
+<li><code>UP-TO-DATE</code> 是不是新 template 的數量</li>
+<li><code>AVAILABLE</code> 是不是有真的可用</li>
+<li>Events 裡有沒有 failed scheduling、image pull、probe failure</li>
+<li>ReplicaSet 的新舊版本是不是符合 rollout 預期</li>
+</ul>
+<p>這比只看一個 Pod 的 log 更接近 Kubernetes 的運作方式。</p>
+<h2 id="deployment-不是所有-workload-的答案">Deployment 不是所有 workload 的答案</h2>
+<p>這篇講 Deployment，是因為它是跑 stateless app 最常見的入口。</p>
+<p>但不是所有 workload 都適合 Deployment。</p>
+<p>如果 Pod 需要穩定身份或綁定自己的儲存，後面可能要看 StatefulSet。</p>
+<p>如果你要每台 node 都跑一份 agent，可能是 DaemonSet。</p>
+<p>所以我會把 Deployment 放在這個位置：</p>
+<blockquote>
+<p>當 Pod 是可替換的，Deployment 就是讓它們維持數量、版本和 rollout 節奏的主控制器。</p>
+</blockquote>
+<h2 id="這篇先記住三件事">這篇先記住三件事</h2>
+<ol>
+<li>Pod 是執行現場，Deployment 是期望狀態和收斂規則</li>
+<li>Deployment 透過 ReplicaSet 維持 Pod 數量，並處理 rollout / rollback</li>
+<li>Debug app workload 時，不要只盯 Pod；先看 Deployment 的 selector、template、replicas 和 rollout 狀態</li>
+</ol>
+<p>下一篇會接著問：<strong>Pod 一直會被替換，Service 怎麼給它們一個穩定入口？</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · Production · Concepts</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，Production 記錄生產環境問題，Concepts 整理概念模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">Mainline</a> <a href="/blog/#production">Production</a> <a href="/blog/#concepts">Concepts</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">Sitemap</a> </div> <small>© 2026 Kai Ning. Built with Astro for GitHub Pages.</small> </div> </footer> </div> </body></html>
