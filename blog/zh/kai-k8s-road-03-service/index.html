@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="zh-Hant"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="Pod 可以被 Deployment 不斷替換，但呼叫方不能每天追新的 Pod IP。Service 把一組可替換 Pod 包成穩定入口，讓流量能透過 DNS、ClusterIP、selector 和 EndpointSlice 找到真正 ready 的後端。"><meta name="keywords" content="kubernetes, service, networking, endpoint, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-03-service/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="en" href="https://lemonkai.github.io/blog/en/kai-k8s-road-03-service/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄 | LemonKAI"><meta property="og:description" content="Pod 可以被 Deployment 不斷替換，但呼叫方不能每天追新的 Pod IP。Service 把一組可替換 Pod 包成穩定入口，讓流量能透過 DNS、ClusterIP、selector 和 EndpointSlice 找到真正 ready 的後端。"><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/zh/kai-k8s-road-03-service/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png"><meta property="og:locale" content="zh_HK"><meta property="og:locale:alternate" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄 | LemonKAI"><meta name="twitter:description" content="Pod 可以被 Deployment 不斷替換，但呼叫方不能每天追新的 Pod IP。Service 把一組可替換 Pod 包成穩定入口，讓流量能透過 DNS、ClusterIP、selector 和 EndpointSlice 找到真正 ready 的後端。"><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png"><meta property="article:published_time" content="2026-05-18T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-18T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="service"><meta property="article:tag" content="networking"><meta property="article:tag" content="endpoint"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄 | LemonKAI","headline":"KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄 | LemonKAI","description":"Pod 可以被 Deployment 不斷替換，但呼叫方不能每天追新的 Pod IP。Service 把一組可替換 Pod 包成穩定入口，讓流量能透過 DNS、ClusterIP、selector 和 EndpointSlice 找到真正 ready 的後端。","url":"https://lemonkai.github.io/blog/zh/kai-k8s-road-03-service/","inLanguage":"zh-Hant","image":"https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄","description":"Pod 可以被 Deployment 不斷替換，但呼叫方不能每天追新的 Pod IP。Service 把一組可替換 Pod 包成穩定入口，讓流量能透過 DNS、ClusterIP、selector 和 EndpointSlice 找到真正 ready 的後端。","datePublished":"2026-05-18T00:00:00.000Z","dateModified":"2026-05-18T00:00:00.000Z","inLanguage":"zh-Hant","keywords":"kubernetes, service, networking, endpoint, series","articleSection":"KAI K8s之路","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/zh/kai-k8s-road-03-service/","image":"https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png"}]</script><title>KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄 | LemonKAI</title><link rel="stylesheet" href="/_astro/about.CvtOj4n-.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="主要導覽"> <ul class="site-nav"> <li> <a href="/"> <span>首頁</span> <small>起點</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>主線</span> <small>順序讀</small> </a> </li><li> <a href="/blog/#production"> <span>生產筆記</span> <small>排查</small> </a> </li><li> <a href="/blog/#concepts"> <span>概念筆記</span> <small>模型</small> </a> </li><li> <a href="/about/"> <span>關於</span> <small>網站</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="語言切換"> <a href="/blog/zh/kai-k8s-road-03-service/" data-active="true"> 繁中 </a><a href="/blog/en/kai-k8s-road-03-service/"> 英文 </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> 主線 </p> <h1>KAI K8s之路 03｜Service 是什麼？Pod 會換，入口不能飄</h1> <p class="post__lede">Pod 可以被 Deployment 不斷替換，但呼叫方不能每天追新的 Pod IP。Service 把一組可替換 Pod 包成穩定入口，讓流量能透過 DNS、ClusterIP、selector 和 EndpointSlice 找到真正 ready 的後端。</p> <div class="post-card__topline post-card__topline--inline"> <span>中文</span> <span>主線</span> <span> 第 3 篇 </span> </div> <div class="post__meta"> <time datetime="2026-05-18T00:00:00.000Z"> 發布 2026年5月18日 </time> <time datetime="2026-05-18T00:00:00.000Z"> 更新 2026年5月18日 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/en/kai-k8s-road-03-service/"> 閱讀英文版 </a> </div> <section class="article-note" aria-label="先抓住"> <div> <span>先抓住</span> <p>Pod 會換，IP 會飄；Service 是把一組 Pod 變成穩定入口的網路抽象。</p> </div> <div> <span>讀完帶走</span> <p>Debug Service 不要只盯 ClusterIP；順著 selector、EndpointSlice、Pod readiness 和 targetPort 一路查。</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/service/"> service </a><a class="tag-pill" href="/tags/networking/"> networking </a><a class="tag-pill" href="/tags/endpoint/"> endpoint </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </header> <div class="prose"> <p>上一篇講 Deployment 時，我們先接受一件事：Pod 不該被手動照顧。</p>
+<p>Pod 掛了可以重建，版本換了可以 rollout，node 出事也可能被重新排程。這些都很正常。</p>
+<p>但這裡馬上出現下一個問題：</p>
+<p>如果 Pod 一直會換，別的服務要怎麼連到它？</p>
+<p>我不會讓 frontend 去記某個 backend Pod 的 IP。那樣等於叫客人每天追著不同員工跑。</p>
+<p>這一章要記的句子很短：</p>
+<blockquote>
+<p><strong>Pod 會換，IP 會飄；Service 是把一組 Pod 變成穩定入口的網路抽象。</strong></p>
+</blockquote>
+<h2 id="先不要追-pod-ip">先不要追 Pod IP</h2>
+<p>Pod 有自己的 IP，這點很重要。</p>
+<p>但 Pod IP 不是一個穩定承諾。</p>
+<p>一個 Deployment 今天有三個 Pod，明天 rollout 之後可能是另外三個 Pod。名字會變，IP 會變，所在 node 也可能變。</p>
+<p>如果另一個服務直接連 Pod IP，它其實是在跟「某一次落地的結果」綁死。</p>
+<p>Kubernetes 不希望你這樣想。</p>
+<p>它希望你把一組可以替換的 Pod 放在一個穩定入口後面，讓呼叫方只記得：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>我要找 web 這個服務</span></span></code></pre>
+<p>而不是：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>我要找 10.244.2.17 這個 Pod</span></span></code></pre>
+<p>這就是 Service 出現的位置。</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-03/service-stable-entrance-note.png" alt="KAI notebook style diagram showing a stable Kubernetes Service counter in front of changing backend Pods selected by labels." loading="lazy" decoding="async">
+  <figcaption>Service 的重點不是讓某個 Pod 變穩，而是讓一組可替換的 Pod 有一個穩定入口。Pod 可以被換掉，但 client 不應該追著 Pod IP 跑。</figcaption>
+</figure>
+<h2 id="用櫃台想-service">用櫃台想 Service</h2>
+<p>延續上一章的排班例子。</p>
+<p>Deployment 像排班表加主管：今天櫃台要有三個人，有人離開就補人，換流程時慢慢替換。</p>
+<p>那 Service 是什麼？</p>
+<p>我會把它想成「固定櫃台號碼」。</p>
+<p>客人不需要知道今天是哪三個員工在後面做事，也不需要知道某個員工換到哪個座位。</p>
+<p>客人只需要記得：</p>
+<blockquote>
+<p>我要去 3 號櫃台。</p>
+</blockquote>
+<p>Service 做的就是這件事。</p>
+<p>它不等於員工，也不等於排班表。它是一個穩定的入口，後面接的是一組符合條件、當下可以服務的 backend Pods。</p>
+<p>這個比喻也順手提醒一件事：</p>
+<p>如果櫃台後面沒有人，櫃台號碼還在，但服務不會 magically 成功。</p>
+<p>Service 有入口，不代表一定有健康後端。</p>
+<h2 id="service-實際上描述了什麼">Service 實際上描述了什麼</h2>
+<p>最常見的 Service 會長得像這樣：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Service</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  type</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ClusterIP</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">      port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">      targetPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span></code></pre>
+<p>我會這樣讀：</p>
+<ul>
+<li><code>metadata.name: web</code>：這個穩定入口叫 <code>web</code></li>
+<li><code>type: ClusterIP</code>：預設只在 cluster 內部提供一個穩定 IP</li>
+<li><code>selector: app=web</code>：哪些 Pod 算是這個 Service 的後端</li>
+<li><code>port: 80</code>：Service 對外呈現的 port</li>
+<li><code>targetPort: 8080</code>：真正轉去 Pod 裡 app 監聽的 port</li>
+</ul>
+<p>這裡最容易被忽略的是 selector。</p>
+<p>Service 不是靠 Deployment 名字找 Pod，也不是靠 Pod 名字找 Pod。</p>
+<p>它主要靠 label selector 找 backend。</p>
+<p>所以如果 Deployment 的 Pod template label 是：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">api</span></span></code></pre>
+<p>但 Service selector 寫：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span></code></pre>
+<p>那這個 Service 很可能就沒有後端。</p>
+<p>入口還在，但門後面是空的。</p>
+<h2 id="servicednsendpointslice-怎麼接起來">Service、DNS、EndpointSlice 怎麼接起來</h2>
+<p>正常的 ClusterIP Service 會得到一個 cluster 內部 IP，也會有 DNS 名字。</p>
+<p>在同一個 namespace 裡，你通常可以用短名：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web</span></span></code></pre>
+<p>跨 namespace 時，會寫得更清楚：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web.default.svc.cluster.local</span></span></code></pre>
+<p>但 DNS 只是讓你找到 Service 入口。</p>
+<p>真正的 backend list 不是藏在 DNS 裡，而是由 Kubernetes 根據 Service selector 維護成 EndpointSlice。</p>
+<p>可以先用這條線記：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>client -> Service DNS / ClusterIP -> EndpointSlice -> ready Pod IP:targetPort</span></span></code></pre>
+<p>更完整一點：</p>
+<ol>
+<li>你建立 Service，寫好 selector</li>
+<li>Kubernetes 找到符合 label 的 Pods</li>
+<li>EndpointSlice 記錄這些 backend endpoints</li>
+<li>每個 node 上的 service proxy / dataplane 依照這份 endpoint 資訊導流</li>
+<li>client 只需要連穩定的 Service 名字或 ClusterIP</li>
+</ol>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-03/service-endpointslice-flow-note.png" alt="KAI notebook style diagram showing a client calling Service DNS and ClusterIP, selector mapping to EndpointSlices, and traffic routed to ready backend Pods." loading="lazy" decoding="async">
+  <figcaption>Service 給 client 穩定地址；EndpointSlice 記錄當下有哪些 backend endpoint。正常場景下，不 ready 或正在終止的 Pod 不應該被當成一般可用後端。</figcaption>
+</figure>
+<p>這裡有一個重要細節：Service 不是健康檢查本身。</p>
+<p>Pod 能不能進入可用 backend，通常跟 Pod readiness 有關。readiness 沒過，你會看到 Pod 還在，但流量不應該被正常送過去。</p>
+<p>所以排查 Service 時，不要只問：</p>
+<blockquote>
+<p>Service 有沒有 IP？</p>
+</blockquote>
+<p>還要問：</p>
+<blockquote>
+<p>EndpointSlice 裡有沒有 ready endpoint？</p>
+</blockquote>
+<h2 id="port-跟-targetport-不要看混"><code>port</code> 跟 <code>targetPort</code> 不要看混</h2>
+<p>這個坑非常常見。</p>
+<p>Service 的 <code>port</code> 是 client 看到的 port。</p>
+<p>Pod 裡 app 真的監聽的，是 <code>targetPort</code>。</p>
+<p>例如：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">    port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">    targetPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span></code></pre>
+<p>意思是：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>client -> web:80 -> Pod:8080</span></span></code></pre>
+<p>如果 app 其實聽在 3000，但 Service 寫 <code>targetPort: 8080</code>，Service 入口可能存在，Endpoint 也可能存在，但請求就是打不到正確地方。</p>
+<p>我自己的偏好是，production manifest 盡量用 named port 讓語意穩一點：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#8B949E"># Service</span></span>
+<span class="line"><span style="color:#7EE787">ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">    port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">    targetPort</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># Pod template</span></span>
+<span class="line"><span style="color:#7EE787">ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">    containerPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span></code></pre>
+<p>這樣以後 Pod 內部 port 從 8080 改成 3000 時，只要維持 <code>name: http</code> 的語意，Service 不一定要跟著改數字。</p>
+<h2 id="service-type-先不用背太多但要知道邊界">Service type 先不用背太多，但要知道邊界</h2>
+<p>新手很容易把 Service 想成「對外暴露服務」。</p>
+<p>這只對了一部分。</p>
+<p>Service 預設的 <code>ClusterIP</code> 是 cluster 內部入口，不是 public internet 入口。</p>
+<p>幾個常見 type 可以先這樣放：</p>
+<ul>
+<li><code>ClusterIP</code>：預設，給 cluster 內部用</li>
+<li><code>NodePort</code>：在每個 node 上開一個固定範圍的 port，通常不是我會直接當正式入口的第一選擇</li>
+<li><code>LoadBalancer</code>：請 cloud provider 或外部實作給你一個外部 load balancer</li>
+<li><code>ExternalName</code>：用 DNS CNAME 把 Service 名字指到外部 hostname</li>
+</ul>
+<p>還有一個常見例外是 headless Service：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">clusterIP</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">None</span></span></code></pre>
+<p>它不給你一般 ClusterIP，而是讓 DNS 回到後端 endpoint。這常出現在 StatefulSet 或需要 client 自己知道每個 backend 身份的場景。</p>
+<p>這篇先不展開，因為主線要先抓住一般 Service 的直覺：</p>
+<blockquote>
+<p>Service 不是「把東西公開到網路上」的同義詞；它先是一個穩定的服務入口抽象。</p>
+</blockquote>
+<h2 id="新手最容易誤會的幾件事">新手最容易誤會的幾件事</h2>
+<h3 id="1-以為-service-會建立-pod">1. 以為 Service 會建立 Pod</h3>
+<p>Service 不會建立 Pod。</p>
+<p>建立和維持 Pod 數量是 Deployment / ReplicaSet 那一層的事。</p>
+<p>Service 只是看 label，找到符合條件的 backend，然後提供入口。</p>
+<p>所以如果沒有 Pod，或者 selector 對不到 Pod，Service 不會幫你生出後端。</p>
+<h3 id="2-以為-service-ip-通就代表-app-通">2. 以為 Service IP 通就代表 app 通</h3>
+<p>Service 有 ClusterIP，只代表入口物件存在。</p>
+<p>要真的通，還要看：</p>
+<ul>
+<li>selector 有沒有選到 Pod</li>
+<li>EndpointSlice 裡有沒有 endpoint</li>
+<li>Pod readiness 有沒有過</li>
+<li><code>targetPort</code> 有沒有對到 app 監聽的 port</li>
+<li>app 自己有沒有正常回應</li>
+</ul>
+<p>Service 是入口，不是保證成功的魔法門。</p>
+<h3 id="3-把-selector-寫得太隨便">3. 把 selector 寫得太隨便</h3>
+<p>Selector 太窄，會選不到 Pod。</p>
+<p>Selector 太寬，可能選到不該接流量的 Pod。</p>
+<p>這種錯很麻煩，因為 YAML 看起來都合法，但流量行為會很怪。</p>
+<p>我會把 Service selector 當成一條很重要的合約：</p>
+<blockquote>
+<p>哪些 Pod 被允許站在這個入口後面。</p>
+</blockquote>
+<h3 id="4-把-serviceingressloadbalancer-混在一起">4. 把 Service、Ingress、LoadBalancer 混在一起</h3>
+<p>Service 先解的是：cluster 裡面怎麼給一組 Pod 穩定入口。</p>
+<p>Ingress / Gateway 更常是在解：外部 HTTP / HTTPS 流量怎麼進 cluster、怎麼做 host/path routing、TLS、流量策略。</p>
+<p><code>LoadBalancer</code> Service 可以拿到外部入口，但它不是 Ingress 的完整替代品。</p>
+<p>先把層次分開，後面會輕鬆很多。</p>
+<h2 id="我會怎麼-inspect-一個-service">我會怎麼 inspect 一個 Service</h2>
+<p>如果有人說「這個 svc 不通」，我不會只看 <code>kubectl get svc</code> 就停。</p>
+<p>我會順著這條線查：</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-03/service-debug-map-note.png" alt="KAI notebook style debugging map for Kubernetes Service: check Service, selector, EndpointSlice, Pod readiness, and port to targetPort mapping." loading="lazy" decoding="async">
+  <figcaption>Service debug 的第一原則：沒有 endpoints 時，不要先怪 DNS。先確認 selector、Pod label、readiness 和 targetPort，入口背後到底有沒有人。</figcaption>
+</figure>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> svc</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> svc</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">svc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> endpointslice</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#FF7B72"> \</span></span>
+<span class="line"><span style="color:#79C0FF">  -l</span><span style="color:#A5D6FF"> kubernetes.io/service-name=</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">svc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --show-labels</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -l</span><span style="color:#A5D6FF"> app=web</span><span style="color:#79C0FF"> -o</span><span style="color:#A5D6FF"> wide</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>我會特別看：</p>
+<ul>
+<li>Service selector 是什麼</li>
+<li>Pod labels 是否真的 match</li>
+<li>EndpointSlice 裡有沒有 addresses</li>
+<li>endpoint condition 是否 ready / serving</li>
+<li>Service <code>port</code> 和 backend <code>targetPort</code> 是否對得上</li>
+<li>Pod 的 readiness probe 是否一直失敗</li>
+</ul>
+<p>如果要從 cluster 裡驗證 DNS 和 HTTP，可以起一個暫時 client：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> run</span><span style="color:#A5D6FF"> tmp-curl</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --rm</span><span style="color:#79C0FF"> -it</span><span style="color:#FF7B72"> \</span></span>
+<span class="line"><span style="color:#79C0FF">  --image=curlimages/curl</span><span style="color:#79C0FF"> --</span><span style="color:#A5D6FF"> sh</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFA657">nslookup</span><span style="color:#A5D6FF"> web</span></span>
+<span class="line"><span style="color:#FFA657">curl</span><span style="color:#79C0FF"> -v</span><span style="color:#A5D6FF"> http://web:80</span></span></code></pre>
+<p>如果 DNS 找得到，但 EndpointSlice 是空的，問題通常不在 DNS。</p>
+<p>如果 EndpointSlice 有 ready endpoint，但 request timeout，才繼續往 <code>targetPort</code>、app listen address、NetworkPolicy、CNI / dataplane 那些方向查。</p>
+<h2 id="我對-service-的記法">我對 Service 的記法</h2>
+<p>我不會把 Service 記成「Kubernetes 的 load balancer」。</p>
+<p>這句太粗，容易把 ClusterIP、NodePort、LoadBalancer、Ingress 全部混在一起。</p>
+<p>我比較喜歡這樣記：</p>
+<blockquote>
+<p><strong>Service 是一個穩定入口，背後是一份會隨 Pod 變動而更新的 backend 名單。</strong></p>
+</blockquote>
+<p>這樣你排查時就會自然問兩件事：</p>
+<ol>
+<li>入口本身是否存在？</li>
+<li>入口後面的 backend 名單是否正確且可用？</li>
+</ol>
+<p>只要這兩件事分開，Service 就不難了。</p>
+<h2 id="這篇先記住三件事">這篇先記住三件事</h2>
+<ol>
+<li>Pod IP 不是穩定介面；Service 才是一組 Pod 對外承諾的穩定入口</li>
+<li>Service 靠 selector 找 Pod，EndpointSlice 記錄當下可用的 backend endpoints</li>
+<li>Debug Service 要順著 <code>Service -> selector -> EndpointSlice -> Pod readiness -> targetPort</code> 查，不要只盯 ClusterIP</li>
+</ol>
+<p>下一篇會接著問：<strong>Service 給了 cluster 內部穩定入口，那外部 HTTP / HTTPS 流量要怎麼進來？</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>

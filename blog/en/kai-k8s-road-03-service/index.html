@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="Pods can be replaced by Deployments at any time. A Service gives a changing group of Pods a stable network entry point through DNS, ClusterIP, selectors, EndpointSlices, and ready backend endpoints."><meta name="keywords" content="kubernetes, service, networking, endpoint, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/en/kai-k8s-road-03-service/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="zh-Hant" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-03-service/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface | LemonKAI"><meta property="og:description" content="Pods can be replaced by Deployments at any time. A Service gives a changing group of Pods a stable network entry point through DNS, ClusterIP, selectors, EndpointSlices, and ready backend endpoints."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/kai-k8s-road-03-service/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface | LemonKAI"><meta name="twitter:description" content="Pods can be replaced by Deployments at any time. A Service gives a changing group of Pods a stable network entry point through DNS, ClusterIP, selectors, EndpointSlices, and ready backend endpoints."><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png"><meta property="article:published_time" content="2026-05-18T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-18T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="service"><meta property="article:tag" content="networking"><meta property="article:tag" content="endpoint"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface | LemonKAI","headline":"KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface | LemonKAI","description":"Pods can be replaced by Deployments at any time. A Service gives a changing group of Pods a stable network entry point through DNS, ClusterIP, selectors, EndpointSlices, and ready backend endpoints.","url":"https://lemonkai.github.io/blog/en/kai-k8s-road-03-service/","inLanguage":"en","image":"https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface","description":"Pods can be replaced by Deployments at any time. A Service gives a changing group of Pods a stable network entry point through DNS, ClusterIP, selectors, EndpointSlices, and ready backend endpoints.","datePublished":"2026-05-18T00:00:00.000Z","dateModified":"2026-05-18T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, service, networking, endpoint, series","articleSection":"KAI Road of Kubernetes","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/kai-k8s-road-03-service/","image":"https://lemonkai.github.io/images/kai-k8s-road-03/service-stable-entrance-note.png"}]</script><title>KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface | LemonKAI</title><link rel="stylesheet" href="/_astro/about.CvtOj4n-.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-03-service/"> 中文 </a><a href="/blog/en/kai-k8s-road-03-service/" data-active="true"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> Mainline </p> <h1>KAI Road of Kubernetes 03 — What a Service is, and why Pod IPs should not be your interface</h1> <p class="post__lede">Pods can be replaced by Deployments at any time. A Service gives a changing group of Pods a stable network entry point through DNS, ClusterIP, selectors, EndpointSlices, and ready backend endpoints.</p> <div class="post-card__topline post-card__topline--inline"> <span>EN</span> <span>Mainline</span> <span> Part 3 </span> </div> <div class="post__meta"> <time datetime="2026-05-18T00:00:00.000Z"> Published May 18, 2026 </time> <time datetime="2026-05-18T00:00:00.000Z"> Updated May 18, 2026 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/zh/kai-k8s-road-03-service/"> 閱讀中文版 </a> </div> <section class="article-note" aria-label="Core idea"> <div> <span>Core idea</span> <p>Pods change and Pod IPs drift. A Service turns a group of Pods into a stable network entry point.</p> </div> <div> <span>Takeaway</span> <p>When debugging a Service, do not stop at the ClusterIP. Follow selector, EndpointSlice, Pod readiness, and targetPort.</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/service/"> service </a><a class="tag-pill" href="/tags/networking/"> networking </a><a class="tag-pill" href="/tags/endpoint/"> endpoint </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </header> <div class="prose"> <p>The previous chapter introduced Deployment as the reason we do not babysit Pods manually.</p>
+<p>A Pod can fail and be recreated. A rollout can replace old Pods with new ones. A node problem can move the workload somewhere else.</p>
+<p>That is normal.</p>
+<p>But it immediately creates the next problem:</p>
+<p>If Pods keep changing, how does anything connect to them?</p>
+<p>I would not let a frontend remember a backend Pod IP. That is like asking customers to chase whichever worker happens to be on shift today.</p>
+<p>The sentence I would keep is this:</p>
+<blockquote>
+<p><strong>Pods change and Pod IPs drift. A Service turns a group of Pods into a stable network entry point.</strong></p>
+</blockquote>
+<h2 id="do-not-chase-pod-ips">Do not chase Pod IPs</h2>
+<p>A Pod has its own IP address. That matters.</p>
+<p>But a Pod IP is not a durable interface.</p>
+<p>A Deployment might have three Pods now and three different Pods after the next rollout. Names change. IPs change. Nodes can change.</p>
+<p>If another workload connects directly to a Pod IP, it is binding itself to one temporary landing of the workload.</p>
+<p>Kubernetes wants a different mental model.</p>
+<p>You put a changing group of Pods behind a stable entry point, so the caller only needs to know:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>I want the web service.</span></span></code></pre>
+<p>not:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>I want Pod 10.244.2.17.</span></span></code></pre>
+<p>That is where Service enters.</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-03/service-stable-entrance-note.png" alt="KAI notebook style diagram showing a stable Kubernetes Service counter in front of changing backend Pods selected by labels." loading="lazy" decoding="async">
+  <figcaption>A Service does not make one Pod stable. It gives a stable entry point to a replaceable set of Pods, so clients do not need to chase Pod IPs.</figcaption>
+</figure>
+<h2 id="think-of-service-as-a-fixed-counter">Think of Service as a fixed counter</h2>
+<p>Continue the shift-schedule example from the Deployment chapter.</p>
+<p>A Deployment is like the schedule plus the manager: keep three people at the counter, replace someone who leaves, and roll out a new process gradually.</p>
+<p>What is a Service?</p>
+<p>I think of it as the fixed counter number.</p>
+<p>Customers do not need to know which three people are working behind the counter today. They do not need to know where one worker moved.</p>
+<p>They only need to know:</p>
+<blockquote>
+<p>Go to counter 3.</p>
+</blockquote>
+<p>That is what a Service does.</p>
+<p>It is not the worker. It is not the shift schedule. It is the stable entry point in front of a set of matching, currently usable backend Pods.</p>
+<p>This analogy also prevents one common mistake:</p>
+<p>If there is nobody behind the counter, the counter number still exists, but the service will not magically work.</p>
+<p>A Service can have an entry point and still have no healthy backends.</p>
+<h2 id="what-a-service-actually-describes">What a Service actually describes</h2>
+<p>A common Service looks like this:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Service</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  type</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ClusterIP</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">      port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">      targetPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span></code></pre>
+<p>I read it like this:</p>
+<ul>
+<li><code>metadata.name: web</code>: the stable entry point is named <code>web</code></li>
+<li><code>type: ClusterIP</code>: by default, expose a stable internal cluster IP</li>
+<li><code>selector: app=web</code>: which Pods count as backends for this Service</li>
+<li><code>port: 80</code>: the port clients use on the Service</li>
+<li><code>targetPort: 8080</code>: the port the application listens on inside the Pod</li>
+</ul>
+<p>The easy-to-miss part is the selector.</p>
+<p>A Service does not find Pods by Deployment name. It does not find Pods by Pod name.</p>
+<p>It usually finds backends by label selector.</p>
+<p>So if the Deployment’s Pod template uses:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">api</span></span></code></pre>
+<p>but the Service says:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span></code></pre>
+<p>then the Service may have no backends.</p>
+<p>The entry point exists, but the room behind the door is empty.</p>
+<h2 id="how-service-dns-and-endpointslice-fit-together">How Service, DNS, and EndpointSlice fit together</h2>
+<p>A normal ClusterIP Service gets a cluster-internal IP address and a DNS name.</p>
+<p>Within the same namespace, you can often use the short name:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web</span></span></code></pre>
+<p>Across namespaces, you can be explicit:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web.default.svc.cluster.local</span></span></code></pre>
+<p>But DNS only helps the client find the Service entry point.</p>
+<p>The current backend list is not hidden inside DNS. Kubernetes maintains it through EndpointSlices based on the Service selector.</p>
+<p>A useful path is:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>client -> Service DNS / ClusterIP -> EndpointSlice -> ready Pod IP:targetPort</span></span></code></pre>
+<p>A fuller version:</p>
+<ol>
+<li>You create a Service with a selector.</li>
+<li>Kubernetes finds Pods whose labels match the selector.</li>
+<li>EndpointSlices record the backend endpoints.</li>
+<li>The service proxy or dataplane on each node routes traffic using that endpoint information.</li>
+<li>Clients keep using the stable Service name or ClusterIP.</li>
+</ol>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-03/service-endpointslice-flow-note.png" alt="KAI notebook style diagram showing a client calling Service DNS and ClusterIP, selector mapping to EndpointSlices, and traffic routed to ready backend Pods." loading="lazy" decoding="async">
+  <figcaption>The Service gives clients a stable address. EndpointSlices track the changing backend endpoints. In normal cases, Pods that are not ready or are terminating should not be treated as regular usable backends.</figcaption>
+</figure>
+<p>One detail matters: Service is not the health check itself.</p>
+<p>Whether a Pod becomes a usable backend is usually tied to Pod readiness. A Pod can exist, but if readiness has not passed, traffic should not normally be sent to it.</p>
+<p>So when debugging a Service, do not only ask:</p>
+<blockquote>
+<p>Does the Service have an IP?</p>
+</blockquote>
+<p>Ask:</p>
+<blockquote>
+<p>Does the EndpointSlice have ready endpoints?</p>
+</blockquote>
+<h2 id="do-not-mix-up-port-and-targetport">Do not mix up <code>port</code> and <code>targetPort</code></h2>
+<p>This mistake is very common.</p>
+<p>The Service <code>port</code> is what the client sees.</p>
+<p>The <code>targetPort</code> is where the traffic is sent on the backend Pod.</p>
+<p>For example:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">    port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">    targetPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span></code></pre>
+<p>means:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>client -> web:80 -> Pod:8080</span></span></code></pre>
+<p>If the application actually listens on 3000 but the Service says <code>targetPort: 8080</code>, the Service can exist and endpoints can exist, but requests still fail.</p>
+<p>For production manifests, I usually prefer named ports where possible:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#8B949E"># Service</span></span>
+<span class="line"><span style="color:#7EE787">ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">    port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">    targetPort</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8B949E"># Pod template</span></span>
+<span class="line"><span style="color:#7EE787">ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">    containerPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span></code></pre>
+<p>Then if the container port changes from 8080 to 3000 later, keeping the same semantic port name can reduce unnecessary Service changes.</p>
+<h2 id="service-types-know-the-boundary-first">Service types: know the boundary first</h2>
+<p>Beginners often think Service means “expose this to the internet.”</p>
+<p>That is only partly true.</p>
+<p>The default <code>ClusterIP</code> Service is an internal cluster entry point, not a public internet entry point.</p>
+<p>A first-pass model:</p>
+<ul>
+<li><code>ClusterIP</code>: default, internal to the cluster</li>
+<li><code>NodePort</code>: opens a port on every node from a configured range; usually not my first choice as a clean production entry point</li>
+<li><code>LoadBalancer</code>: asks a cloud provider or external implementation to provision an external load balancer</li>
+<li><code>ExternalName</code>: maps the Service name to an external DNS name using CNAME</li>
+</ul>
+<p>There is also headless Service:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">clusterIP</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">None</span></span></code></pre>
+<p>It does not give the usual ClusterIP. DNS returns backend endpoints instead. You often see this with StatefulSets or systems where clients need to know individual backend identities.</p>
+<p>The main point for this chapter is simpler:</p>
+<blockquote>
+<p>Service is not a synonym for “public exposure.” It is first a stable service-entry abstraction.</p>
+</blockquote>
+<h2 id="common-misunderstandings">Common misunderstandings</h2>
+<h3 id="1-thinking-a-service-creates-pods">1. Thinking a Service creates Pods</h3>
+<p>A Service does not create Pods.</p>
+<p>Creating and maintaining Pods is the Deployment / ReplicaSet layer.</p>
+<p>A Service watches labels, finds matching backends, and provides the entry point.</p>
+<p>If there are no Pods, or if the selector does not match any Pods, the Service will not create backends for you.</p>
+<h3 id="2-assuming-a-service-ip-means-the-app-works">2. Assuming a Service IP means the app works</h3>
+<p>A ClusterIP means the Service object exists.</p>
+<p>For the request to work, you still need:</p>
+<ul>
+<li>a selector that matches Pods</li>
+<li>EndpointSlices with endpoints</li>
+<li>Pods that pass readiness</li>
+<li>a correct <code>targetPort</code></li>
+<li>an application that actually responds</li>
+</ul>
+<p>A Service is an entry point, not a magic guarantee.</p>
+<h3 id="3-treating-selectors-casually">3. Treating selectors casually</h3>
+<p>If the selector is too narrow, it selects no Pods.</p>
+<p>If it is too broad, it may select Pods that should not receive this traffic.</p>
+<p>This is painful because the YAML can be valid while traffic behavior is wrong.</p>
+<p>I treat the Service selector as a contract:</p>
+<blockquote>
+<p>Which Pods are allowed to stand behind this entry point?</p>
+</blockquote>
+<h3 id="4-mixing-service-ingress-and-loadbalancer-together">4. Mixing Service, Ingress, and LoadBalancer together</h3>
+<p>Service first solves stable access to a group of Pods inside the cluster.</p>
+<p>Ingress and Gateway more often solve how external HTTP / HTTPS traffic enters the cluster, including host/path routing, TLS, and richer traffic policy.</p>
+<p>A <code>LoadBalancer</code> Service can give you an external entry point, but it is not a full replacement for Ingress or Gateway.</p>
+<p>Separate the layers first. The rest becomes easier.</p>
+<h2 id="how-i-would-inspect-a-service">How I would inspect a Service</h2>
+<p>If someone says “this svc is not working,” I would not stop at <code>kubectl get svc</code>.</p>
+<p>I follow this path:</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-03/service-debug-map-note.png" alt="KAI notebook style debugging map for Kubernetes Service: check Service, selector, EndpointSlice, Pod readiness, and port to targetPort mapping." loading="lazy" decoding="async">
+  <figcaption>First rule of Service debugging: if there are no endpoints, do not blame DNS first. Check selector, Pod labels, readiness, and targetPort.</figcaption>
+</figure>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> svc</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> svc</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">svc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> endpointslice</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#FF7B72"> \</span></span>
+<span class="line"><span style="color:#79C0FF">  -l</span><span style="color:#A5D6FF"> kubernetes.io/service-name=</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">svc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --show-labels</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -l</span><span style="color:#A5D6FF"> app=web</span><span style="color:#79C0FF"> -o</span><span style="color:#A5D6FF"> wide</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>I look for:</p>
+<ul>
+<li>what selector the Service uses</li>
+<li>whether Pod labels actually match</li>
+<li>whether EndpointSlices contain addresses</li>
+<li>whether endpoint conditions are ready / serving</li>
+<li>whether Service <code>port</code> maps to the correct backend <code>targetPort</code></li>
+<li>whether the Pod readiness probe keeps failing</li>
+</ul>
+<p>To test DNS and HTTP from inside the cluster, I might start a temporary client:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> run</span><span style="color:#A5D6FF"> tmp-curl</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --rm</span><span style="color:#79C0FF"> -it</span><span style="color:#FF7B72"> \</span></span>
+<span class="line"><span style="color:#79C0FF">  --image=curlimages/curl</span><span style="color:#79C0FF"> --</span><span style="color:#A5D6FF"> sh</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFA657">nslookup</span><span style="color:#A5D6FF"> web</span></span>
+<span class="line"><span style="color:#FFA657">curl</span><span style="color:#79C0FF"> -v</span><span style="color:#A5D6FF"> http://web:80</span></span></code></pre>
+<p>If DNS resolves but the EndpointSlice is empty, the problem is usually not DNS.</p>
+<p>If EndpointSlices have ready endpoints but requests time out, then I continue toward <code>targetPort</code>, application listen address, NetworkPolicy, CNI, or dataplane issues.</p>
+<h2 id="my-service-mental-model">My Service mental model</h2>
+<p>I do not like memorizing Service as “the Kubernetes load balancer.”</p>
+<p>That sentence is too rough. It mixes ClusterIP, NodePort, LoadBalancer, and Ingress into one blurry idea.</p>
+<p>I prefer this:</p>
+<blockquote>
+<p><strong>A Service is a stable entry point backed by a backend list that changes as Pods change.</strong></p>
+</blockquote>
+<p>That naturally leads to two debugging questions:</p>
+<ol>
+<li>Does the entry point exist?</li>
+<li>Is the backend list correct and usable?</li>
+</ol>
+<p>Once those are separate, Service becomes much easier to reason about.</p>
+<h2 id="three-takeaways">Three takeaways</h2>
+<ol>
+<li>Pod IP is not the stable interface. A Service is the stable entry point a group of Pods exposes.</li>
+<li>A Service uses selectors to find Pods, and EndpointSlices track the current usable backend endpoints.</li>
+<li>Debug Service through <code>Service -> selector -> EndpointSlice -> Pod readiness -> targetPort</code>; do not stare only at ClusterIP.</li>
+</ol>
+<p>Next in the series: <strong>Service gives the cluster a stable internal entry point. How does external HTTP / HTTPS traffic enter?</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
