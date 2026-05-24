@@ -226,5 +226,5 @@
 <li>Service 靠 selector 找 Pod，EndpointSlice 記錄當下可用的 backend endpoints</li>
 <li>Debug Service 要順著 <code>Service -> selector -> EndpointSlice -> Pod readiness -> targetPort</code> 查，不要只盯 ClusterIP</li>
 </ol>
-<p>下一篇會接著問：<strong>Service 給了 cluster 內部穩定入口，那外部 HTTP / HTTPS 流量要怎麼進來？</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+<p>下一篇會接著問：<strong>Service 有了穩定入口，但 Kubernetes 怎麼知道哪些 Pod 現在真的可以接流量？</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
 </p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>

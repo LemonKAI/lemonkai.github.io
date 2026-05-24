@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="zh-Hant"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="Service 給了穩定入口，但 Kubernetes 還要判斷 Pod 能不能接流量。這篇用 readiness、liveness、startup probe 拆開「活著」「能服務」「慢啟動」三件事，避免把服務打進 restart loop。"><meta name="keywords" content="kubernetes, probes, readiness, liveness, startup, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-04-probe/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready | LemonKAI"><meta property="og:description" content="Service 給了穩定入口，但 Kubernetes 還要判斷 Pod 能不能接流量。這篇用 readiness、liveness、startup probe 拆開「活著」「能服務」「慢啟動」三件事，避免把服務打進 restart loop。"><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/zh/kai-k8s-road-04-probe/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png"><meta property="og:locale" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready | LemonKAI"><meta name="twitter:description" content="Service 給了穩定入口，但 Kubernetes 還要判斷 Pod 能不能接流量。這篇用 readiness、liveness、startup probe 拆開「活著」「能服務」「慢啟動」三件事，避免把服務打進 restart loop。"><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png"><meta property="article:published_time" content="2026-05-25T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-25T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="probes"><meta property="article:tag" content="readiness"><meta property="article:tag" content="liveness"><meta property="article:tag" content="startup"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready | LemonKAI","headline":"KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready | LemonKAI","description":"Service 給了穩定入口，但 Kubernetes 還要判斷 Pod 能不能接流量。這篇用 readiness、liveness、startup probe 拆開「活著」「能服務」「慢啟動」三件事，避免把服務打進 restart loop。","url":"https://lemonkai.github.io/blog/zh/kai-k8s-road-04-probe/","inLanguage":"zh-Hant","image":"https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready","description":"Service 給了穩定入口，但 Kubernetes 還要判斷 Pod 能不能接流量。這篇用 readiness、liveness、startup probe 拆開「活著」「能服務」「慢啟動」三件事，避免把服務打進 restart loop。","datePublished":"2026-05-25T00:00:00.000Z","dateModified":"2026-05-25T00:00:00.000Z","inLanguage":"zh-Hant","keywords":"kubernetes, probes, readiness, liveness, startup, series","articleSection":"KAI K8s之路","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/zh/kai-k8s-road-04-probe/","image":"https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png"}]</script><title>KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready | LemonKAI</title><link rel="stylesheet" href="/_astro/about.CvtOj4n-.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="主要導覽"> <ul class="site-nav"> <li> <a href="/"> <span>首頁</span> <small>起點</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>主線</span> <small>順序讀</small> </a> </li><li> <a href="/blog/#production"> <span>生產筆記</span> <small>排查</small> </a> </li><li> <a href="/blog/#concepts"> <span>概念筆記</span> <small>模型</small> </a> </li><li> <a href="/about/"> <span>關於</span> <small>網站</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="語言切換"> <a href="/blog/zh/kai-k8s-road-04-probe/" data-active="true"> 繁中 </a><a href="/blog/en/"> 英文 </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> 主線 </p> <h1>KAI K8s之路 04｜Probe 是什麼？Running 不等於 Ready</h1> <p class="post__lede">Service 給了穩定入口，但 Kubernetes 還要判斷 Pod 能不能接流量。這篇用 readiness、liveness、startup probe 拆開「活著」「能服務」「慢啟動」三件事，避免把服務打進 restart loop。</p> <div class="post-card__topline post-card__topline--inline"> <span>中文</span> <span>主線</span> <span> 第 4 篇 </span> </div> <div class="post__meta"> <time datetime="2026-05-25T00:00:00.000Z"> 發布 2026年5月25日 </time> <time datetime="2026-05-25T00:00:00.000Z"> 更新 2026年5月25日 </time> </div>  <section class="article-note" aria-label="先抓住"> <div> <span>先抓住</span> <p>Running 只是程式起來；Ready 才能接流量。Probe 是 workload 對 Kubernetes 回報狀態的訊號。</p> </div> <div> <span>讀完帶走</span> <p>先把 probe 責任拆清：readiness 控流量、liveness 控重啟、startup 保護慢啟動，再查 Event 和 EndpointSlice。</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/probes/"> Probe </a><a class="tag-pill" href="/tags/readiness/"> readiness </a><a class="tag-pill" href="/tags/liveness/"> liveness </a><a class="tag-pill" href="/tags/startup/"> startup </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </header> <div class="prose"> <p>上一篇我們把 Service 想清楚了：</p>
+<p>Pod 會換，入口不能飄。</p>
+<p>但入口穩定，不代表後面每個 Pod 都真的能服務。</p>
+<p>這就是很多新手第一個卡點：</p>
+<p>Service 看起來正常，DNS 也正常，為什麼 request 還是 timeout、502，或者偶發失敗？</p>
+<p>我會先記這句：</p>
+<blockquote>
+<p><strong>Running 只是程式起來；Ready 才是可以接流量。Probe 是 Kubernetes 判斷 workload 狀態的訊號。</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-04/probe-running-ready-note.png" alt="KAI notebook style diagram showing a Service sending traffic only to a Ready Pod while a Running but Not Ready Pod is blocked and a stuck Pod is restarted by liveness probe." loading="lazy" decoding="async">
+  <figcaption>Service 給入口，但 Probe 決定哪些 Pod 真的能站到入口後面。Running 只是起來；Ready 才能接流量。</figcaption>
+</figure>
+<h2 id="先不要把-running-當成-ready">先不要把 Running 當成 Ready</h2>
+<p>Pod 進到 <code>Running</code>，只代表 container process 已經被拉起來。</p>
+<p>但你的應用可能還在做這些事：</p>
+<ul>
+<li>連資料庫</li>
+<li>載入設定</li>
+<li>warm cache</li>
+<li>等依賴服務可用</li>
+</ul>
+<p>所以 <code>Running</code> 不等於「現在可以穩定回應請求」。</p>
+<p>如果這時候就讓 Service 把流量導進來，用戶看到的通常不是「快」，而是「時好時壞」。</p>
+<h2 id="用餐廳營業想-probe">用餐廳營業想 Probe</h2>
+<p>我會用餐廳例子記這章。</p>
+<p>店裡燈亮了，不代表可以接客。</p>
+<p>廚房可能還在備料，POS 還沒連上，員工還在開晨會。</p>
+<p>這時候門口掛「營業中」，客人進來點不到東西，體驗反而更差。</p>
+<p>Probe 就是在替 Kubernetes 回答三件事：</p>
+<ul>
+<li><code>startupProbe</code>：我是不是還在正常開機，先不要太早判我死</li>
+<li><code>readinessProbe</code>：我現在能不能接單，不能就不要把流量導進來</li>
+<li><code>livenessProbe</code>：我是不是卡死到該重啟</li>
+</ul>
+<h2 id="probe-三種角色不要混">Probe 三種角色，不要混</h2>
+<p>我會把它們分工記成一句話：</p>
+<blockquote>
+<p><strong>readiness 控流量，liveness 控重啟，startup 保護慢啟動。</strong></p>
+</blockquote>
+<p>這三個 probe 可以檢查同一個 endpoint，也可以分開。</p>
+<p>重點不是 endpoint 一不一樣，而是語義不要打架。</p>
+<p>如果把 readiness 和 liveness 混著用，系統就會把「暫時慢」誤判成「應該重啟」，最後把小抖動放大成事故。</p>
+<h2 id="kubernetes-實際在做什麼">Kubernetes 實際在做什麼</h2>
+<p>這裡給一個技術上夠準、但不繞的版本。</p>
+<ol>
+<li><code>kubelet</code> 會週期性執行 probe（例如 HTTP、TCP、exec、gRPC）。</li>
+<li><code>readinessProbe</code> 失敗時，Pod 會被標成 not ready；對應 Service 的 EndpointSlice 會把這個 Pod 從可用端點名單拿掉。</li>
+<li><code>livenessProbe</code> 連續失敗超過 <code>failureThreshold</code>，kubelet 會重啟該 container。</li>
+<li><code>startupProbe</code> 若有配置，在它成功前，liveness 和 readiness 不會開始執行。</li>
+</ol>
+<p>這些行為是 Kubernetes 官方文件明確定義的，不是社群慣例。</p>
+<p>參考：<a href="https://kubernetes.io/docs/concepts/workloads/pods/probes/">https://kubernetes.io/docs/concepts/workloads/pods/probes/</a></p>
+<h2 id="一個簡化設定範例">一個簡化設定範例</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Pod</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">      image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ghcr.io/example/web:1.0.0</span></span>
+<span class="line"><span style="color:#7EE787">      ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">containerPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">      startupProbe</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        httpGet</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          path</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/healthz</span></span>
+<span class="line"><span style="color:#7EE787">          port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">        periodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">10</span></span>
+<span class="line"><span style="color:#7EE787">        failureThreshold</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">30</span></span>
+<span class="line"><span style="color:#7EE787">      readinessProbe</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        httpGet</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          path</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/ready</span></span>
+<span class="line"><span style="color:#7EE787">          port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">        periodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">5</span></span>
+<span class="line"><span style="color:#7EE787">        timeoutSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">2</span></span>
+<span class="line"><span style="color:#7EE787">        failureThreshold</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span>
+<span class="line"><span style="color:#7EE787">      livenessProbe</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        httpGet</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          path</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/healthz</span></span>
+<span class="line"><span style="color:#7EE787">          port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">        periodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">10</span></span>
+<span class="line"><span style="color:#7EE787">        timeoutSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">2</span></span>
+<span class="line"><span style="color:#7EE787">        failureThreshold</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span></code></pre>
+<p>這份配置的重點不是參數值，而是責任切分：</p>
+<ul>
+<li><code>startupProbe</code> 給慢啟動保護時間</li>
+<li><code>readinessProbe</code> 控制是否進 Service 流量池</li>
+<li><code>livenessProbe</code> 只處理真的卡死情境</li>
+</ul>
+<h2 id="新手最常踩的坑">新手最常踩的坑</h2>
+<h3 id="1-把-running-當成可以接流量">1) 把 Running 當成可以接流量</h3>
+<p>這是最常見誤判。</p>
+<p>Service 有 endpoint，不代表 endpoint 現在能穩定服務。</p>
+<h3 id="2-用-liveness-解決-readiness-問題">2) 用 liveness 解決 readiness 問題</h3>
+<p>依賴服務短暫抖動時，如果直接讓 liveness 判死，服務會被重啟到更不穩。</p>
+<h3 id="3-readiness-設太重">3) readiness 設太重</h3>
+<p>Probe endpoint 如果自己就很重，可能把健康檢查變成壓力來源。</p>
+<h3 id="4-慢啟動服務沒有-startupprobe">4) 慢啟動服務沒有 startupProbe</h3>
+<p>沒有 startupProbe 時，很容易在啟動期就被 liveness 提前殺掉。</p>
+<h2 id="我會怎麼-inspect">我會怎麼 inspect</h2>
+<p>如果有人說「Service 不通」，我會先查 Probe，不先怪網路。</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pod</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> logs</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --previous</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> endpointslice</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -l</span><span style="color:#A5D6FF"> kubernetes.io/service-name=</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">svc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>我會重點看：</p>
+<ul>
+<li><code>READY</code> 欄位是否長期 0/1</li>
+<li><code>RESTARTS</code> 是否持續增加</li>
+<li>Events 裡是 readiness fail 還是 liveness fail</li>
+<li>EndpointSlice 是否仍有 ready backend</li>
+<li>probe path / port / timeout / threshold 是否過於激進</li>
+</ul>
+<p>一句話版本：</p>
+<blockquote>
+<p><strong>Service 不通時，先問 Pod 有沒有 Ready，再問網路。</strong></p>
+</blockquote>
+<h2 id="我對-probe-的記法">我對 Probe 的記法</h2>
+<p>我不會把 probe 記成「健康檢查功能」這麼空。</p>
+<p>我會把它記成一份協議：</p>
+<blockquote>
+<p><strong>workload 用 probe 告訴 Kubernetes：什麼時候我能接流量，什麼時候我只是慢，什麼時候我真的該被重啟。</strong></p>
+</blockquote>
+<p>協議寫對，平台會穩定幫你收斂。</p>
+<p>協議寫錯，平台也會很穩定地幫你製造事故。</p>
+<h2 id="這篇先記住三件事">這篇先記住三件事</h2>
+<ol>
+<li><code>Running</code> 不等於 <code>Ready</code>；<code>Ready</code> 才是可接流量</li>
+<li><code>readiness</code> 控流量、<code>liveness</code> 控重啟、<code>startup</code> 保護慢啟動</li>
+<li>查 Service 問題時，順著 <code>Probe -> Ready 狀態 -> EndpointSlice</code> 走，通常比先查 DNS 有用</li>
+</ol>
+<p>下一篇會接著看：<strong>ConfigMap / Secret 是什麼？為什麼配置和鑰匙不應該寫死在 container 裡。</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
