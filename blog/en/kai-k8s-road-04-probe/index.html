@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="A Service gives a stable entry point, but Kubernetes still needs to know which Pods can safely receive traffic. This chapter separates readiness, liveness, and startup probes so a workload does not turn a slow warm-up into a restart loop."><meta name="keywords" content="kubernetes, probes, readiness, liveness, startup, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/en/kai-k8s-road-04-probe/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="zh-Hant" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-04-probe/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready | LemonKAI"><meta property="og:description" content="A Service gives a stable entry point, but Kubernetes still needs to know which Pods can safely receive traffic. This chapter separates readiness, liveness, and startup probes so a workload does not turn a slow warm-up into a restart loop."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/kai-k8s-road-04-probe/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready | LemonKAI"><meta name="twitter:description" content="A Service gives a stable entry point, but Kubernetes still needs to know which Pods can safely receive traffic. This chapter separates readiness, liveness, and startup probes so a workload does not turn a slow warm-up into a restart loop."><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png"><meta property="article:published_time" content="2026-05-25T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-25T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="probes"><meta property="article:tag" content="readiness"><meta property="article:tag" content="liveness"><meta property="article:tag" content="startup"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready | LemonKAI","headline":"KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready | LemonKAI","description":"A Service gives a stable entry point, but Kubernetes still needs to know which Pods can safely receive traffic. This chapter separates readiness, liveness, and startup probes so a workload does not turn a slow warm-up into a restart loop.","url":"https://lemonkai.github.io/blog/en/kai-k8s-road-04-probe/","inLanguage":"en","image":"https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready","description":"A Service gives a stable entry point, but Kubernetes still needs to know which Pods can safely receive traffic. This chapter separates readiness, liveness, and startup probes so a workload does not turn a slow warm-up into a restart loop.","datePublished":"2026-05-25T00:00:00.000Z","dateModified":"2026-05-25T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, probes, readiness, liveness, startup, series","articleSection":"KAI Road of Kubernetes","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/kai-k8s-road-04-probe/","image":"https://lemonkai.github.io/images/kai-k8s-road-04/probe-running-ready-note.png"}]</script><title>KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready | LemonKAI</title><link rel="stylesheet" href="/_astro/about.DV-ppW8l.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-04-probe/"> 中文 </a><a href="/blog/en/kai-k8s-road-04-probe/" data-active="true"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> Mainline </p> <h1>KAI Road of Kubernetes 04 — What Probes are, and why Running is not Ready</h1> <p class="post__lede">A Service gives a stable entry point, but Kubernetes still needs to know which Pods can safely receive traffic. This chapter separates readiness, liveness, and startup probes so a workload does not turn a slow warm-up into a restart loop.</p> <div class="post-card__topline post-card__topline--inline"> <span>EN</span> <span>Mainline</span> <span> Part 4 </span> </div> <div class="post__meta"> <time datetime="2026-05-25T00:00:00.000Z"> Published May 25, 2026 </time> <time datetime="2026-05-25T00:00:00.000Z"> Updated May 25, 2026 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/zh/kai-k8s-road-04-probe/"> 閱讀中文版 </a> </div> <section class="article-note" aria-label="Core idea"> <div> <span>Core idea</span> <p>Running only means the process is up. Ready means the Pod can safely receive traffic. Probes are the workload status signals Kubernetes acts on.</p> </div> <div> <span>Takeaway</span> <p>Keep probe responsibilities separate: readiness controls traffic, liveness controls restarts, and startup protects slow boot. Then inspect Events and EndpointSlices.</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/probes/"> Probe </a><a class="tag-pill" href="/tags/readiness/"> readiness </a><a class="tag-pill" href="/tags/liveness/"> liveness </a><a class="tag-pill" href="/tags/startup/"> startup </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </header> <div class="prose"> <p>The previous chapter made Service clear:</p>
+<p>Pods change, so the entry point should not drift.</p>
+<p>But a stable entry point does not mean every Pod behind it can actually serve traffic.</p>
+<p>This is one of the first traps in Kubernetes:</p>
+<p>The Service looks normal. DNS works. But requests still timeout, return 502, or fail randomly.</p>
+<p>The sentence I would keep is this:</p>
+<blockquote>
+<p><strong>Running only means the process is up. Ready means it can safely receive traffic. Probes are the status signals Kubernetes acts on.</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-04/probe-running-ready-note.png" alt="KAI notebook style diagram showing a Service sending traffic only to a Ready Pod while a Running but Not Ready Pod is blocked and a stuck Pod is restarted by liveness probe." loading="lazy" decoding="async">
+  <figcaption>A Service gives the entry point, but probes decide which Pods can stand behind it. Running means started. Ready means traffic-safe.</figcaption>
+</figure>
+<h2 id="do-not-treat-running-as-ready">Do not treat Running as Ready</h2>
+<p>When a Pod reaches <code>Running</code>, it means the container process has started.</p>
+<p>Your application may still be doing work:</p>
+<ul>
+<li>connecting to a database</li>
+<li>loading configuration</li>
+<li>warming caches</li>
+<li>waiting for a dependency to become usable</li>
+</ul>
+<p>So <code>Running</code> does not mean “stable enough to receive user traffic.”</p>
+<p>If the Service starts routing traffic too early, users do not experience “fast startup.” They experience unstable responses.</p>
+<h2 id="think-of-probes-like-opening-a-restaurant">Think of probes like opening a restaurant</h2>
+<p>I remember this chapter with a restaurant example.</p>
+<p>The lights are on, but that does not mean the restaurant is ready for customers.</p>
+<p>The kitchen may still be preparing ingredients. The POS terminal may not be connected. The staff may still be doing the morning setup.</p>
+<p>If the door says “open” too early, customers walk in and cannot actually order anything.</p>
+<p>Probes answer three different questions for Kubernetes:</p>
+<ul>
+<li><code>startupProbe</code>: am I still starting normally, so do not judge me too early?</li>
+<li><code>readinessProbe</code>: can I receive orders now, or should traffic stay away?</li>
+<li><code>livenessProbe</code>: am I stuck badly enough that I should be restarted?</li>
+</ul>
+<h2 id="the-three-probe-roles-should-not-be-mixed">The three probe roles should not be mixed</h2>
+<p>I compress the split like this:</p>
+<blockquote>
+<p><strong>readiness controls traffic, liveness controls restarts, and startup protects slow boot.</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-04/probe-roles-split-note.png" alt="KAI notebook style diagram showing startup, readiness, and liveness probes as separate roles around one Pod, with readiness controlling Service traffic and liveness restarting stuck containers." loading="lazy" decoding="async">
+  <figcaption>Keep the three probe roles separate: startup protects slow boot, readiness controls traffic admission, and liveness handles truly stuck containers.</figcaption>
+</figure>
+<p>Those probes can check the same endpoint, or they can check separate endpoints.</p>
+<p>The important part is not whether the endpoint string is identical.</p>
+<p>The important part is that the meaning does not fight itself.</p>
+<p>If readiness and liveness are treated as the same signal, the system can turn “temporarily not ready” into “restart this container.” That is how a small delay becomes an incident.</p>
+<h2 id="what-kubernetes-actually-does">What Kubernetes actually does</h2>
+<p>Here is the technically precise version without making it too heavy:</p>
+<ol>
+<li>The <code>kubelet</code> runs probes periodically, using mechanisms such as HTTP, TCP, exec, or gRPC.</li>
+<li>When <code>readinessProbe</code> fails, the Pod becomes not ready. EndpointSlices for matching Services remove that Pod from the ready backend set.</li>
+<li>When <code>livenessProbe</code> fails at least <code>failureThreshold</code> times, the kubelet treats the container as unhealthy and restarts that container.</li>
+<li>If <code>startupProbe</code> is configured, liveness and readiness probes do not run until the startup probe succeeds.</li>
+</ol>
+<p>These are defined Kubernetes behaviors, not just community convention.</p>
+<p>Reference: <a href="https://kubernetes.io/docs/concepts/workloads/pods/probes/">https://kubernetes.io/docs/concepts/workloads/pods/probes/</a></p>
+<h2 id="a-simplified-configuration-example">A simplified configuration example</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Pod</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">      image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ghcr.io/example/web:1.0.0</span></span>
+<span class="line"><span style="color:#7EE787">      ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">containerPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">      startupProbe</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        httpGet</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          path</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/healthz</span></span>
+<span class="line"><span style="color:#7EE787">          port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">        periodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">10</span></span>
+<span class="line"><span style="color:#7EE787">        failureThreshold</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">30</span></span>
+<span class="line"><span style="color:#7EE787">      readinessProbe</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        httpGet</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          path</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/ready</span></span>
+<span class="line"><span style="color:#7EE787">          port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">        periodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">5</span></span>
+<span class="line"><span style="color:#7EE787">        timeoutSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">2</span></span>
+<span class="line"><span style="color:#7EE787">        failureThreshold</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span>
+<span class="line"><span style="color:#7EE787">      livenessProbe</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        httpGet</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          path</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/healthz</span></span>
+<span class="line"><span style="color:#7EE787">          port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">8080</span></span>
+<span class="line"><span style="color:#7EE787">        periodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">10</span></span>
+<span class="line"><span style="color:#7EE787">        timeoutSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">2</span></span>
+<span class="line"><span style="color:#7EE787">        failureThreshold</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span></code></pre>
+<p>The exact numbers are not the main point.</p>
+<p>The responsibility split is the point:</p>
+<ul>
+<li><code>startupProbe</code> gives slow startup a protected window</li>
+<li><code>readinessProbe</code> controls whether the Pod joins the Service traffic pool</li>
+<li><code>livenessProbe</code> handles truly stuck states</li>
+</ul>
+<h2 id="common-beginner-mistakes">Common beginner mistakes</h2>
+<h3 id="1-treating-running-as-traffic-ready">1. Treating Running as traffic-ready</h3>
+<p>This is the most common wrong read.</p>
+<p>A Service having endpoints does not guarantee that those endpoints are stable enough to serve traffic.</p>
+<h3 id="2-using-liveness-to-solve-a-readiness-problem">2. Using liveness to solve a readiness problem</h3>
+<p>If a dependency has a short failure and liveness kills the container, the workload may become even less stable.</p>
+<p>Not ready should often mean “stop sending traffic for now,” not “restart immediately.”</p>
+<h3 id="3-making-readiness-too-heavy">3. Making readiness too heavy</h3>
+<p>If the probe endpoint itself is expensive, the health check can become part of the load problem.</p>
+<p>The probe should tell Kubernetes whether the app can serve. It should not become a mini production request.</p>
+<h3 id="4-giving-slow-starting-services-no-startupprobe">4. Giving slow-starting services no startupProbe</h3>
+<p>Without a startup probe, a slow boot path can be killed by liveness before it has a fair chance to become healthy.</p>
+<h2 id="how-i-would-inspect-this">How I would inspect this</h2>
+<p>If someone says “the Service is not working,” I check probes before blaming the network.</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pod</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> logs</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --previous</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> endpointslice</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -l</span><span style="color:#A5D6FF"> kubernetes.io/service-name=</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">svc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>I look for:</p>
+<ul>
+<li>whether the <code>READY</code> column stays at <code>0/1</code></li>
+<li>whether <code>RESTARTS</code> keeps increasing</li>
+<li>whether Events show readiness failures or liveness failures</li>
+<li>whether EndpointSlice still has ready backends</li>
+<li>whether probe path, port, timeout, or threshold is too aggressive</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-04/probe-debug-path-note.png" alt="KAI notebook style troubleshooting path for Kubernetes probes: check Probe, Ready state, Events, and EndpointSlice before blaming DNS." loading="lazy" decoding="async">
+  <figcaption>For Service issues, walk through Probe, Ready state, Events, and EndpointSlice before blaming DNS.</figcaption>
+</figure>
+<p>The short version:</p>
+<blockquote>
+<p><strong>When a Service does not work, ask whether the Pod is Ready before asking whether the network is broken.</strong></p>
+</blockquote>
+<h2 id="my-mental-model-for-probes">My mental model for probes</h2>
+<p>I do not like memorizing probes as just “health checks.”</p>
+<p>That is too empty.</p>
+<p>I treat probes as a contract:</p>
+<blockquote>
+<p><strong>A workload uses probes to tell Kubernetes when it can receive traffic, when it is only slow, and when it is truly stuck enough to restart.</strong></p>
+</blockquote>
+<p>When that contract is right, the platform helps the workload converge.</p>
+<p>When that contract is wrong, the platform can reliably manufacture failure.</p>
+<h2 id="three-takeaways">Three takeaways</h2>
+<ol>
+<li><code>Running</code> is not <code>Ready</code>; Ready is what makes a Pod traffic-safe.</li>
+<li><code>readiness</code> controls traffic, <code>liveness</code> controls restarts, and <code>startup</code> protects slow boot.</li>
+<li>Debug Service issues through <code>Probe -> Ready state -> EndpointSlice</code>; this is often more useful than blaming DNS first.</li>
+</ol>
+<p>Next in the series: <strong>ConfigMap / Secret: why configuration and keys should not be baked into the container image.</strong></p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
