@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="Probes let a workload report state, but the same application still needs different settings in different environments. This chapter separates container images, ConfigMaps, and Secrets so runtime configuration does not get baked into the image."><meta name="keywords" content="kubernetes, configmap, secret, configuration, security, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/en/kai-k8s-road-05-configmap-secret/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="zh-Hant" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-05-configmap-secret/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image | LemonKAI"><meta property="og:description" content="Probes let a workload report state, but the same application still needs different settings in different environments. This chapter separates container images, ConfigMaps, and Secrets so runtime configuration does not get baked into the image."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/kai-k8s-road-05-configmap-secret/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image | LemonKAI"><meta name="twitter:description" content="Probes let a workload report state, but the same application still needs different settings in different environments. This chapter separates container images, ConfigMaps, and Secrets so runtime configuration does not get baked into the image."><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png"><meta property="article:published_time" content="2026-05-31T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-31T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="configmap"><meta property="article:tag" content="secret"><meta property="article:tag" content="configuration"><meta property="article:tag" content="security"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image | LemonKAI","headline":"KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image | LemonKAI","description":"Probes let a workload report state, but the same application still needs different settings in different environments. This chapter separates container images, ConfigMaps, and Secrets so runtime configuration does not get baked into the image.","url":"https://lemonkai.github.io/blog/en/kai-k8s-road-05-configmap-secret/","inLanguage":"en","image":"https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image","description":"Probes let a workload report state, but the same application still needs different settings in different environments. This chapter separates container images, ConfigMaps, and Secrets so runtime configuration does not get baked into the image.","datePublished":"2026-05-31T00:00:00.000Z","dateModified":"2026-05-31T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, configmap, secret, configuration, security, series","articleSection":"KAI Road of Kubernetes","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/kai-k8s-road-05-configmap-secret/","image":"https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png"}]</script><title>KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image | LemonKAI</title><link rel="stylesheet" href="/_astro/about.DV-ppW8l.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-05-configmap-secret/"> 中文 </a><a href="/blog/en/kai-k8s-road-05-configmap-secret/" data-active="true"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> Mainline </p> <h1>KAI Road of Kubernetes 05 — ConfigMaps and Secrets: keep settings out of the image</h1> <p class="post__lede">Probes let a workload report state, but the same application still needs different settings in different environments. This chapter separates container images, ConfigMaps, and Secrets so runtime configuration does not get baked into the image.</p> <div class="post-card__topline post-card__topline--inline"> <span>EN</span> <span>Mainline</span> <span> Part 5 </span> </div> <div class="post__meta"> <time datetime="2026-05-31T00:00:00.000Z"> Published May 31, 2026 </time> <time datetime="2026-05-31T00:00:00.000Z"> Updated May 31, 2026 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/zh/kai-k8s-road-05-configmap-secret/"> 閱讀中文版 </a> </div> <section class="article-note" aria-label="Core idea"> <div> <span>Core idea</span> <p>An image should package the program, not the environment decision. ConfigMaps and Secrets let Kubernetes inject runtime data into Pods without rebuilding the image.</p> </div> <div> <span>Takeaway</span> <p>Use ConfigMaps for non-sensitive settings and Secrets for sensitive data. Inject them as env vars or files, remember env values do not live-update, and treat Secrets as an access-controlled delivery mechanism rather than a complete vault.</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/configmap/"> configmap </a><a class="tag-pill" href="/tags/secret/"> secret </a><a class="tag-pill" href="/tags/configuration/"> configuration </a><a class="tag-pill" href="/tags/security/"> security </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </header> <div class="prose"> <p>The previous chapter separated <code>Running</code> from <code>Ready</code>.</p>
+<p>A workload has to report its state clearly, so Kubernetes knows when to send traffic and when a restart is justified.</p>
+<p>But a workload needs more than state.</p>
+<p>The same program usually needs different settings in dev, staging, and production. It may need different endpoints, feature flags, and credentials.</p>
+<p>If every configuration change requires a new image build, the image is no longer just the program. It has become a box that mixes code, environment decisions, and sometimes secrets.</p>
+<p>The sentence I would keep is this:</p>
+<blockquote>
+<p><strong>An image should package the program, not the environment decision. ConfigMaps and Secrets let Kubernetes inject runtime data into Pods without rebuilding the image.</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-05/config-secret-boundary-note.png" alt="KAI notebook style diagram showing a clean container image receiving non-sensitive settings from ConfigMap and sensitive keys from Secret, with labels app code, normal config, and credentials." loading="lazy" decoding="async">
+  <figcaption>The image carries the program. ConfigMap carries normal settings. Secret carries sensitive data. Mixing these boundaries makes every deployment harder to inspect.</figcaption>
+</figure>
+<h2 id="do-not-treat-the-image-like-a-suitcase-for-everything">Do not treat the image like a suitcase for everything</h2>
+<p>A container image is good at carrying:</p>
+<ul>
+<li>application code</li>
+<li>runtime</li>
+<li>dependencies</li>
+<li>default files that do not identify an environment</li>
+</ul>
+<p>It is not a good place for:</p>
+<ul>
+<li>production API URLs</li>
+<li>live feature flag decisions</li>
+<li>database passwords</li>
+<li>tokens</li>
+<li>settings that differ per cluster</li>
+</ul>
+<p>If those values are baked into the image, the same program can no longer move cleanly across environments.</p>
+<p>A configuration change should feel like changing a runtime sheet.</p>
+<p>It should not require rebuilding the suitcase.</p>
+<h2 id="think-of-configmaps-and-secrets-like-checking-into-a-hotel">Think of ConfigMaps and Secrets like checking into a hotel</h2>
+<p>I remember this chapter with a hotel check-in example.</p>
+<p>Your suitcase is like the container image: it carries your clothes, charger, and normal tools.</p>
+<p>But the room number, Wi-Fi details, and room key should not be sewn into the suitcase.</p>
+<p>When you check in, the front desk gives you the runtime details for this stay:</p>
+<ul>
+<li>ordinary information: breakfast time, Wi-Fi name, floor notes</li>
+<li>sensitive access: room key and door permission</li>
+</ul>
+<p>A ConfigMap is like the ordinary check-in information.</p>
+<p>A Secret is like the room key.</p>
+<p>Neither is the suitcase itself. Both are runtime data handed to you when you arrive in that environment.</p>
+<h2 id="the-responsibility-split">The responsibility split</h2>
+<p>I do not like remembering ConfigMap as merely “some key-value pairs.”</p>
+<p>I remember it as:</p>
+<blockquote>
+<p><strong>ConfigMap is the normal configuration layer for a workload.</strong></p>
+</blockquote>
+<p>Examples:</p>
+<ul>
+<li><code>APP_MODE=production</code></li>
+<li><code>LOG_LEVEL=info</code></li>
+<li>feature flags</li>
+<li>non-sensitive endpoints</li>
+<li>small configuration files</li>
+</ul>
+<p>A Secret is:</p>
+<blockquote>
+<p><strong>Secret is the sensitive data layer for a workload, but it is not a full vault.</strong></p>
+</blockquote>
+<p>Examples:</p>
+<ul>
+<li>database passwords</li>
+<li>API tokens</li>
+<li>TLS keys</li>
+<li>private registry credentials</li>
+</ul>
+<p>They feel similar when consumed by a Pod: both can become environment variables, and both can be mounted as files.</p>
+<p>The meaning is different.</p>
+<p>ConfigMap tells the app how this environment behaves.</p>
+<p>Secret gives the app a specific key it is allowed to use.</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-05/config-injection-path-note.png" alt="KAI notebook style flow showing ConfigMap and Secret as Kubernetes API objects injected into a Pod through environment variables or mounted files, with a note that env values need restart while mounted files update eventually." loading="lazy" decoding="async">
+  <figcaption>ConfigMaps and Secrets are not baked into the image. The Pod spec references them, and Kubernetes injects them as environment variables or files.</figcaption>
+</figure>
+<h2 id="what-kubernetes-actually-does">What Kubernetes actually does</h2>
+<p>Here is the useful version:</p>
+<ol>
+<li>You create a <code>ConfigMap</code> or <code>Secret</code> Kubernetes API object.</li>
+<li>The Pod spec references those objects, using mechanisms such as <code>envFrom</code>, <code>valueFrom</code>, or a volume mount.</li>
+<li>The <code>kubelet</code> makes the data available to the container when it starts.</li>
+<li>The application reads environment variables or files. Kubernetes does not understand the application-level meaning of those values.</li>
+<li>If the ConfigMap or Secret changes later, existing environment variables do not live-update. Volume projections can eventually update, but the application still needs to reload or reread the file.</li>
+</ol>
+<p>The fifth point is where many people get surprised.</p>
+<p>“I changed the ConfigMap” does not automatically mean “my running process now sees new configuration.”</p>
+<p>If the value was injected as an environment variable, the Pod usually needs to restart.</p>
+<p>If the value was mounted as a file, the projected file may update eventually, but the app may still have read it only once at startup.</p>
+<h2 id="a-simplified-configuration-example">A simplified configuration example</h2>
+<p>Start with normal configuration:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ConfigMap</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-config</span></span>
+<span class="line"><span style="color:#7EE787">data</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  APP_MODE</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">production</span></span>
+<span class="line"><span style="color:#7EE787">  LOG_LEVEL</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">info</span></span>
+<span class="line"><span style="color:#7EE787">  FEATURE_CHECKOUT</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">"true"</span></span></code></pre>
+<p>Then sensitive data.</p>
+<p>This value is intentionally fake; real Secrets should not be committed to a public repository.</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Secret</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-credentials</span></span>
+<span class="line"><span style="color:#7EE787">type</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Opaque</span></span>
+<span class="line"><span style="color:#7EE787">stringData</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  DATABASE_PASSWORD</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">"example-only-do-not-commit-real-secret"</span></span></code></pre>
+<p>A Deployment can reference them like this:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">apps/v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Deployment</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ghcr.io/example/web:1.0.0</span></span>
+<span class="line"><span style="color:#7EE787">          envFrom</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">configMapRef</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">                name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-config</span></span>
+<span class="line"><span style="color:#7EE787">          env</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">DATABASE_PASSWORD</span></span>
+<span class="line"><span style="color:#7EE787">              valueFrom</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">                secretKeyRef</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">                  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-credentials</span></span>
+<span class="line"><span style="color:#7EE787">                  key</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">DATABASE_PASSWORD</span></span></code></pre>
+<p>The YAML syntax is not the main point.</p>
+<p>The responsibility split is:</p>
+<ul>
+<li>the image remains reusable</li>
+<li>ConfigMap carries normal environment settings</li>
+<li>Secret carries sensitive data references</li>
+<li>Deployment declares which runtime data this workload needs</li>
+</ul>
+<h2 id="secret-is-not-a-vault">Secret is not a vault</h2>
+<p>This part matters.</p>
+<p>Secret is better than putting credentials directly in a Pod spec or baking them into an image, but it does not mean “secure by default in every direction.”</p>
+<p>Kubernetes documentation calls out several important boundaries:</p>
+<ul>
+<li>Secrets can be stored unencrypted in the API server backing store unless encryption at rest is configured.</li>
+<li>Anyone with sufficient API access can retrieve or modify a Secret.</li>
+<li>Anyone who can create Pods in a namespace may be able to indirectly use Secrets in that namespace.</li>
+<li>When Secrets are mounted into Pods, the kubelet stores a local copy in memory-backed storage and removes it after the dependent Pod is deleted.</li>
+</ul>
+<p>So Secret safety is not only about <code>kind: Secret</code>.</p>
+<p>It also depends on:</p>
+<ul>
+<li>encryption at rest for etcd</li>
+<li>least-privilege RBAC</li>
+<li>not printing secret values into logs</li>
+<li>not committing real Secret YAML into source control</li>
+<li>using an external secret manager when the system needs one</li>
+</ul>
+<p>The short version:</p>
+<blockquote>
+<p><strong>Secret is Kubernetes’ type and delivery path for sensitive data. It is not the entire secret-management strategy.</strong></p>
+</blockquote>
+<h2 id="common-beginner-mistakes">Common beginner mistakes</h2>
+<h3 id="1-treating-secret-base64-as-encryption">1. Treating Secret base64 as encryption</h3>
+<p>Secret manifests often contain base64-looking values in the <code>data</code> field.</p>
+<p>Base64 is encoding, not encryption.</p>
+<p>Do not treat unreadable text as protected text.</p>
+<h3 id="2-expecting-env-injection-to-refresh-automatically">2. Expecting env injection to refresh automatically</h3>
+<p>Environment variables are fixed once the container starts.</p>
+<p>Changing a ConfigMap or Secret does not rewrite the environment of an already running process.</p>
+<h3 id="3-putting-sensitive-values-in-configmap">3. Putting sensitive values in ConfigMap</h3>
+<p>If a value grants access to a system, an external service, or user data, treat it as sensitive first.</p>
+<p>“It is only staging” is not a good reason to put it in a ConfigMap.</p>
+<h3 id="4-granting-rbac-that-is-too-broad">4. Granting RBAC that is too broad</h3>
+<p><code>list</code> or <code>watch</code> on Secrets is powerful.</p>
+<p>Sometimes a workload only needs one key, but the permission model accidentally gives it a whole namespace of keys.</p>
+<h3 id="5-forgetting-that-the-app-has-to-reload">5. Forgetting that the app has to reload</h3>
+<p>Even if a mounted file updates, the application may not reread it.</p>
+<p>Kubernetes can project data into the filesystem. It cannot guarantee your program understands that new data.</p>
+<h2 id="how-i-would-inspect-this">How I would inspect this</h2>
+<p>If someone says “I changed configuration but the service did not change,” I ask three questions first:</p>
+<ol>
+<li>Was the value injected as an env var or as a mounted file?</li>
+<li>Did the Pod actually restart or roll out after the change?</li>
+<li>Does the app read configuration once at startup, or can it watch and reload?</li>
+</ol>
+<p>I would check:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> configmap</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> secret</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> deploy</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> status</span><span style="color:#A5D6FF"> deploy/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>For Secrets, I avoid dumping values into a terminal, CI log, or chat.</p>
+<p>I only confirm:</p>
+<ul>
+<li>the Secret object exists</li>
+<li>Deployment or Pod references the correct name and key</li>
+<li>mount paths or env names match what the app expects</li>
+<li>the most recent rollout happened after the configuration change</li>
+<li>Events do not show missing keys, permission errors, or mount failures</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-05/config-debug-path-note.png" alt="KAI notebook style troubleshooting path for configuration changes: check ConfigMap or Secret object, Pod reference, env or volume injection, rollout, and app reload without printing secret values." loading="lazy" decoding="async">
+  <figcaption>When configuration does not take effect, do not rebuild the image first. Trace the object, reference, injection method, rollout, and application reload behavior.</figcaption>
+</figure>
+<p>The short version:</p>
+<blockquote>
+<p><strong>When configuration does not take effect, inspect the injection path before blaming the image.</strong></p>
+</blockquote>
+<h2 id="my-mental-model-for-configmaps-and-secrets">My mental model for ConfigMaps and Secrets</h2>
+<p>I do not remember this chapter as “Kubernetes has two resources for settings.”</p>
+<p>That is just vocabulary.</p>
+<p>I remember it like this:</p>
+<blockquote>
+<p><strong>ConfigMaps and Secrets are the slots between the image and the environment.</strong></p>
+</blockquote>
+<p>The image says what the program is.</p>
+<p>ConfigMap and Secret say how this deployment should run and which keys it is allowed to use.</p>
+<p>Once the slot is explicit, one image can move across multiple environments.</p>
+<p>If the slot is baked back into the image, Kubernetes becomes an overcomplicated packaging tool.</p>
+<h2 id="three-takeaways">Three takeaways</h2>
+<ol>
+<li>Put the program in the image, not environment decisions or secrets.</li>
+<li>Use ConfigMaps for normal settings and Secrets for sensitive data, but still enforce RBAC and encryption boundaries.</li>
+<li>Env injection usually needs a restart to change. Volume projection can eventually update, but the app must reload or reread.</li>
+</ol>
+<p>Next in the series: <strong>Volumes and PersistentVolumes: Pods can be replaced, but data should not disappear with them.</strong></p>
+<p>Technical references:</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/configmap/">https://kubernetes.io/docs/concepts/configuration/configmap/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/secret/">https://kubernetes.io/docs/concepts/configuration/secret/</a></li>
+</ul> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>

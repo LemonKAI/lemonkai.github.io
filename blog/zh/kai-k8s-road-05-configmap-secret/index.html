@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="zh-Hant"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="Probe 讓 workload 回報狀態，但同一份程式在不同環境會吃不同設定。這篇把 ConfigMap 和 Secret 拆成外部注入的設定層：image 放程式，ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 不是保險箱。"><meta name="keywords" content="kubernetes, configmap, secret, configuration, security, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-05-configmap-secret/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="en" href="https://lemonkai.github.io/blog/en/kai-k8s-road-05-configmap-secret/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image | LemonKAI"><meta property="og:description" content="Probe 讓 workload 回報狀態，但同一份程式在不同環境會吃不同設定。這篇把 ConfigMap 和 Secret 拆成外部注入的設定層：image 放程式，ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 不是保險箱。"><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/zh/kai-k8s-road-05-configmap-secret/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png"><meta property="og:locale" content="zh_HK"><meta property="og:locale:alternate" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image | LemonKAI"><meta name="twitter:description" content="Probe 讓 workload 回報狀態，但同一份程式在不同環境會吃不同設定。這篇把 ConfigMap 和 Secret 拆成外部注入的設定層：image 放程式，ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 不是保險箱。"><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png"><meta property="article:published_time" content="2026-05-31T00:00:00.000Z"><meta property="article:modified_time" content="2026-05-31T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="configmap"><meta property="article:tag" content="secret"><meta property="article:tag" content="configuration"><meta property="article:tag" content="security"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image | LemonKAI","headline":"KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image | LemonKAI","description":"Probe 讓 workload 回報狀態，但同一份程式在不同環境會吃不同設定。這篇把 ConfigMap 和 Secret 拆成外部注入的設定層：image 放程式，ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 不是保險箱。","url":"https://lemonkai.github.io/blog/zh/kai-k8s-road-05-configmap-secret/","inLanguage":"zh-Hant","image":"https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image","description":"Probe 讓 workload 回報狀態，但同一份程式在不同環境會吃不同設定。這篇把 ConfigMap 和 Secret 拆成外部注入的設定層：image 放程式，ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 不是保險箱。","datePublished":"2026-05-31T00:00:00.000Z","dateModified":"2026-05-31T00:00:00.000Z","inLanguage":"zh-Hant","keywords":"kubernetes, configmap, secret, configuration, security, series","articleSection":"KAI K8s之路","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/zh/kai-k8s-road-05-configmap-secret/","image":"https://lemonkai.github.io/images/kai-k8s-road-05/config-secret-boundary-note.png"}]</script><title>KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image | LemonKAI</title><link rel="stylesheet" href="/_astro/about.DV-ppW8l.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="主要導覽"> <ul class="site-nav"> <li> <a href="/"> <span>首頁</span> <small>起點</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>主線</span> <small>順序讀</small> </a> </li><li> <a href="/blog/#production"> <span>生產筆記</span> <small>排查</small> </a> </li><li> <a href="/blog/#concepts"> <span>概念筆記</span> <small>模型</small> </a> </li><li> <a href="/about/"> <span>關於</span> <small>網站</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="語言切換"> <a href="/blog/zh/kai-k8s-road-05-configmap-secret/" data-active="true"> 繁中 </a><a href="/blog/en/kai-k8s-road-05-configmap-secret/"> 英文 </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> 主線 </p> <h1>KAI K8s之路 05｜ConfigMap / Secret 是什麼？不要把配置和鑰匙烤進 image</h1> <p class="post__lede">Probe 讓 workload 回報狀態，但同一份程式在不同環境會吃不同設定。這篇把 ConfigMap 和 Secret 拆成外部注入的設定層：image 放程式，ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 不是保險箱。</p> <div class="post-card__topline post-card__topline--inline"> <span>中文</span> <span>主線</span> <span> 第 5 篇 </span> </div> <div class="post__meta"> <time datetime="2026-05-31T00:00:00.000Z"> 發布 2026年5月31日 </time> <time datetime="2026-05-31T00:00:00.000Z"> 更新 2026年5月31日 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/en/kai-k8s-road-05-configmap-secret/"> 閱讀英文版 </a> </div> <section class="article-note" aria-label="先抓住"> <div> <span>先抓住</span> <p>Image 應該裝程式，不應該裝環境決策。ConfigMap 和 Secret 是把配置從 image 拆出去、在 Pod 啟動時注入的 Kubernetes 物件。</p> </div> <div> <span>讀完帶走</span> <p>ConfigMap 放非敏感設定，Secret 放敏感資料；用 env 或 volume 注入，注意 env 不會跟著更新、Secret 也需要 RBAC 和加密邊界。</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/configmap/"> configmap </a><a class="tag-pill" href="/tags/secret/"> secret </a><a class="tag-pill" href="/tags/configuration/"> configuration </a><a class="tag-pill" href="/tags/security/"> security </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </header> <div class="prose"> <p>上一篇我們把 Probe 想清楚了：</p>
+<p><code>Running</code> 不等於 <code>Ready</code>，workload 要把狀態講清楚，Kubernetes 才知道什麼時候該送流量、什麼時候該重啟。</p>
+<p>但 workload 不只需要狀態。</p>
+<p>同一份程式，到了 dev、staging、production，通常會吃不同的設定、不同的 endpoint、不同的憑證。</p>
+<p>如果每次改設定都要重新 build image，那 image 就不只是程式包了，它變成一個混著環境決策和秘密的黑盒。</p>
+<p>我會先記這句：</p>
+<blockquote>
+<p><strong>Image 應該裝程式，不應該裝環境決策。ConfigMap 和 Secret 是把配置從 image 拆出去、在 Pod 啟動時注入的 Kubernetes 物件。</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-05/config-secret-boundary-note.png" alt="KAI notebook style diagram showing a clean container image receiving non-sensitive settings from ConfigMap and sensitive keys from Secret, with labels app code, normal config, and credentials." loading="lazy" decoding="async">
+  <figcaption>Image 放程式；ConfigMap 放普通設定；Secret 放敏感資料。三個東西混在一起，後面每一次部署都會變難查。</figcaption>
+</figure>
+<h2 id="先不要把-image-當成行李箱">先不要把 image 當成行李箱</h2>
+<p>container image 最適合放這些東西：</p>
+<ul>
+<li>app code</li>
+<li>runtime</li>
+<li>dependency</li>
+<li>預設但不帶環境身分的檔案</li>
+</ul>
+<p>它不適合放：</p>
+<ul>
+<li>production API URL</li>
+<li>feature flag 現場決策</li>
+<li>database password</li>
+<li>token</li>
+<li>每個 cluster 都不同的設定</li>
+</ul>
+<p>如果把這些東西烤進 image，就會出現一個很麻煩的結果：</p>
+<p>同一份程式不能自然跑在不同環境。</p>
+<p>配置變更本來應該是「換一張設定單」，最後變成「重新做一個行李箱」。</p>
+<p>這不是 Kubernetes 想要的工作方式。</p>
+<h2 id="用入住酒店想-configmap--secret">用入住酒店想 ConfigMap / Secret</h2>
+<p>我會用酒店入住來記這章。</p>
+<p>你的行李箱像 container image：衣服、充電器、常用工具都在裡面。</p>
+<p>但房號、Wi-Fi 資訊、房卡，不應該縫在行李箱上。</p>
+<p>你到前台辦入住時，前台會給你當次住宿需要的資訊：</p>
+<ul>
+<li>普通入住資訊：早餐時間、Wi-Fi 名稱、樓層提示</li>
+<li>敏感通行能力：房卡、門禁權限</li>
+</ul>
+<p>ConfigMap 像普通入住資訊。</p>
+<p>Secret 像房卡。</p>
+<p>兩者都不是你的行李箱本身，而是在你抵達那個環境時被交給你的 runtime 資料。</p>
+<h2 id="configmap-和-secret-的分工">ConfigMap 和 Secret 的分工</h2>
+<p>我不會把 ConfigMap 記成「一堆 key-value」這麼薄。</p>
+<p>我會把它記成：</p>
+<blockquote>
+<p><strong>ConfigMap 是 workload 的普通設定層。</strong></p>
+</blockquote>
+<p>例如：</p>
+<ul>
+<li><code>APP_MODE=production</code></li>
+<li><code>LOG_LEVEL=info</code></li>
+<li>feature flag</li>
+<li>非敏感 endpoint</li>
+<li>小型設定檔</li>
+</ul>
+<p>Secret 則是：</p>
+<blockquote>
+<p><strong>Secret 是 workload 的敏感資料層，但不是保險箱。</strong></p>
+</blockquote>
+<p>例如：</p>
+<ul>
+<li>database password</li>
+<li>API token</li>
+<li>TLS key</li>
+<li>private registry credential</li>
+</ul>
+<p>它們在使用方式上很像：都可以被 Pod 當成 environment variable，也可以被 mount 成檔案。</p>
+<p>但語義不同。</p>
+<p>ConfigMap 告訴 app「這個環境怎麼運作」。</p>
+<p>Secret 告訴 app「這個環境允許你拿哪把鑰匙」。</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-05/config-injection-path-note.png" alt="KAI notebook style flow showing ConfigMap and Secret as Kubernetes API objects injected into a Pod through environment variables or mounted files, with a note that env values need restart while mounted files update eventually." loading="lazy" decoding="async">
+  <figcaption>ConfigMap / Secret 不是塞進 image，而是由 Pod spec 引用，再由 Kubernetes 在啟動時注入成環境變數或檔案。</figcaption>
+</figure>
+<h2 id="kubernetes-實際在做什麼">Kubernetes 實際在做什麼</h2>
+<p>這裡給一個夠用的版本。</p>
+<ol>
+<li>你先建立 <code>ConfigMap</code> 或 <code>Secret</code> 這種 Kubernetes API object。</li>
+<li>Pod spec 裡引用它們，例如用 <code>envFrom</code>、<code>valueFrom</code>，或掛成 volume。</li>
+<li><code>kubelet</code> 在啟動 container 時，把這些資料注入到 container 裡。</li>
+<li>app 自己讀 environment variable 或檔案，Kubernetes 不會替 app 理解設定內容。</li>
+<li>如果後來更新 ConfigMap / Secret，environment variable 不會在既有 container 裡自動變；volume projection 會 eventually update，但 app 也要懂得重新讀。</li>
+</ol>
+<p>這裡最容易踩坑的是第 5 點。</p>
+<p>很多人以為「我改了 ConfigMap，Pod 就一定吃到新設定」。</p>
+<p>實際上要看你怎麼注入。</p>
+<p>用 environment variable 的話，通常要重新啟動 Pod。</p>
+<p>用 volume mount 的話，檔案內容可能會被更新，但不是瞬間，而且如果 app 啟動時只讀一次設定，它也不會自己 magically reload。</p>
+<h2 id="一個簡化設定範例">一個簡化設定範例</h2>
+<p>先看普通設定：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ConfigMap</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-config</span></span>
+<span class="line"><span style="color:#7EE787">data</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  APP_MODE</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">production</span></span>
+<span class="line"><span style="color:#7EE787">  LOG_LEVEL</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">info</span></span>
+<span class="line"><span style="color:#7EE787">  FEATURE_CHECKOUT</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">"true"</span></span></code></pre>
+<p>再看敏感資料。</p>
+<p>這裡只放示意值，真實 Secret 不應該提交到 public repo。</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Secret</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-credentials</span></span>
+<span class="line"><span style="color:#7EE787">type</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Opaque</span></span>
+<span class="line"><span style="color:#7EE787">stringData</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  DATABASE_PASSWORD</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">"example-only-do-not-commit-real-secret"</span></span></code></pre>
+<p>Deployment 可以這樣引用：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">apps/v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Deployment</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ghcr.io/example/web:1.0.0</span></span>
+<span class="line"><span style="color:#7EE787">          envFrom</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">configMapRef</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">                name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-config</span></span>
+<span class="line"><span style="color:#7EE787">          env</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">DATABASE_PASSWORD</span></span>
+<span class="line"><span style="color:#7EE787">              valueFrom</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">                secretKeyRef</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">                  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-credentials</span></span>
+<span class="line"><span style="color:#7EE787">                  key</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">DATABASE_PASSWORD</span></span></code></pre>
+<p>這段 YAML 的重點不是語法。</p>
+<p>重點是責任切分：</p>
+<ul>
+<li>image 保持可重用</li>
+<li>ConfigMap 承載普通環境設定</li>
+<li>Secret 承載敏感資料引用</li>
+<li>Deployment 描述這個 workload 需要哪些 runtime 資料</li>
+</ul>
+<h2 id="secret-不是保險箱">Secret 不是保險箱</h2>
+<p>這句一定要講清楚。</p>
+<p>Secret 比把密碼直接寫在 Pod spec 或 image 裡好，但它不是「放進去就安全」的保險箱。</p>
+<p>Kubernetes 官方文件提醒過幾個關鍵點：</p>
+<ul>
+<li>Secret 預設存在 API server 底層資料庫時不一定加密</li>
+<li>有 API 權限的人可能讀到 Secret</li>
+<li>有 namespace 內建立 Pod 權限的人，可能透過 Pod 間接使用 Secret</li>
+<li>Secret mount 到 node 時，kubelet 會把資料放在記憶體檔案系統，Pod 刪除後才清掉本地副本</li>
+</ul>
+<p>所以 Secret 的安全不是只靠 <code>kind: Secret</code>。</p>
+<p>還要靠：</p>
+<ul>
+<li>etcd encryption at rest</li>
+<li>RBAC 最小權限</li>
+<li>不把 Secret 值印進 log</li>
+<li>不把真實 Secret YAML commit 到 repo</li>
+<li>需要時接 external secret manager</li>
+</ul>
+<p>一句話：</p>
+<blockquote>
+<p><strong>Secret 是 Kubernetes 對敏感資料的型別和傳遞方式，不是完整的秘密管理策略。</strong></p>
+</blockquote>
+<h2 id="新手最常踩的坑">新手最常踩的坑</h2>
+<h3 id="1-把-secret-的-base64-當成加密">1) 把 Secret 的 base64 當成加密</h3>
+<p>很多 Secret manifest 看起來像一串亂碼，是因為 <code>data</code> 欄位使用 base64。</p>
+<p>base64 是編碼，不是加密。</p>
+<p>不要因為看不懂就覺得安全。</p>
+<h3 id="2-期待-env-注入會自動刷新">2) 期待 env 注入會自動刷新</h3>
+<p>用 environment variable 注入的設定，在 container 啟動後就固定了。</p>
+<p>改 ConfigMap / Secret 不代表既有 process 的 env 會變。</p>
+<h3 id="3-用-configmap-放敏感資料">3) 用 ConfigMap 放敏感資料</h3>
+<p>如果資料會讓人取得系統權限、外部服務權限、或用戶資料，先把它當 Secret 看。</p>
+<p>不要因為「只是測試環境」就塞進 ConfigMap。</p>
+<h3 id="4-對-secret-給太寬的-rbac">4) 對 Secret 給太寬的 RBAC</h3>
+<p>能 <code>list</code> 或 <code>watch</code> Secrets 的權限很敏感。</p>
+<p>有些人只想讓 workload 讀一把鑰匙，結果給了一整個 namespace 的鑰匙櫃。</p>
+<h3 id="5-忘記-app-需要-reload">5) 忘記 app 需要 reload</h3>
+<p>就算 volume 內的設定檔更新了，app 也不一定會重新讀。</p>
+<p>Kubernetes 能把資料送到檔案系統，但不能保證你的程式會重新理解它。</p>
+<h2 id="我會怎麼-inspect">我會怎麼 inspect</h2>
+<p>如果有人說「改了設定但服務沒變」，我會先問三件事：</p>
+<ol>
+<li>這個設定是 env 還是 volume？</li>
+<li>Pod 有沒有真的重啟或 rollout？</li>
+<li>app 是啟動時讀一次，還是會 watch / reload？</li>
+</ol>
+<p>我會查：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> configmap</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> secret</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> deploy</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> status</span><span style="color:#A5D6FF"> deploy/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">deploy-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span></code></pre>
+<p>如果要查 Secret，我會避免把值直接 dump 到 terminal、CI log、chat 裡。</p>
+<p>只確認：</p>
+<ul>
+<li>Secret object 存不存在</li>
+<li>Deployment / Pod 有沒有引用正確 name 和 key</li>
+<li>mount path 或 env name 是否和 app 期待一致</li>
+<li>最近一次 rollout 是否在設定變更之後</li>
+<li>Events 裡有沒有 missing key、permission、mount 失敗</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-05/config-debug-path-note.png" alt="KAI notebook style troubleshooting path for configuration changes: check ConfigMap or Secret object, Pod reference, env or volume injection, rollout, and app reload without printing secret values." loading="lazy" decoding="async">
+  <figcaption>排查設定沒生效時，不要急著重 build image。先查 object、引用、注入方式、rollout，以及 app 是否真的 reload。</figcaption>
+</figure>
+<p>一句話版本：</p>
+<blockquote>
+<p><strong>設定沒生效時，先查注入路徑，再查 image。</strong></p>
+</blockquote>
+<h2 id="我對-configmap--secret-的記法">我對 ConfigMap / Secret 的記法</h2>
+<p>我不會把這章記成「Kubernetes 有兩種放設定的資源」。</p>
+<p>那太像背名詞。</p>
+<p>我會這樣記：</p>
+<blockquote>
+<p><strong>ConfigMap / Secret 是 image 和環境之間的插槽。</strong></p>
+</blockquote>
+<p>image 代表「這個程式是什麼」。</p>
+<p>ConfigMap / Secret 代表「這次部署要怎麼跑、拿哪把鑰匙」。</p>
+<p>把插槽分出來，才會有同一份 image 跑多個環境的可能。</p>
+<p>把插槽混回 image，Kubernetes 就會退化成一個很複雜的打包器。</p>
+<h2 id="這篇先記住三件事">這篇先記住三件事</h2>
+<ol>
+<li>image 放程式，不放環境決策和秘密</li>
+<li>ConfigMap 放普通設定，Secret 放敏感資料，但 Secret 仍需要 RBAC 和加密邊界</li>
+<li>env 注入通常要重啟才會變；volume projection 會 eventually update，但 app 也要懂 reload</li>
+</ol>
+<p>下一篇會接著看：<strong>Volume / PersistentVolume 是什麼？Pod 會換，但資料不應該跟著消失。</strong></p>
+<p>技術校對參考：</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/configmap/">https://kubernetes.io/docs/concepts/configuration/configmap/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/secret/">https://kubernetes.io/docs/concepts/configuration/secret/</a></li>
+</ul> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
