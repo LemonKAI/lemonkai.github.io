@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="zh-Hant"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="很多團隊以為自己缺 CI/CD、監控或平台工程，其實更底層的問題是沒有分清瓶頸在等待，還是風險在失控。"><meta name="keywords" content="devops, delivery, operations, platform-engineering, observability"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/zh/devops-two-centers-of-gravity/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="你們缺的不是 DevOps，是先分清更怕慢還是更怕壞 | LemonKAI"><meta property="og:description" content="很多團隊以為自己缺 CI/CD、監控或平台工程，其實更底層的問題是沒有分清瓶頸在等待，還是風險在失控。"><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/zh/devops-two-centers-of-gravity/"><meta property="og:image" content="https://lemonkai.github.io/images/devops-two-centers-of-gravity/devops-two-centers-of-gravity-note.png"><meta property="og:locale" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="你們缺的不是 DevOps，是先分清更怕慢還是更怕壞 | LemonKAI"><meta name="twitter:description" content="很多團隊以為自己缺 CI/CD、監控或平台工程，其實更底層的問題是沒有分清瓶頸在等待，還是風險在失控。"><meta name="twitter:image" content="https://lemonkai.github.io/images/devops-two-centers-of-gravity/devops-two-centers-of-gravity-note.png"><meta property="article:published_time" content="2026-06-06T00:00:00.000Z"><meta property="article:modified_time" content="2026-06-06T00:00:00.000Z"><meta property="article:tag" content="devops"><meta property="article:tag" content="delivery"><meta property="article:tag" content="operations"><meta property="article:tag" content="platform-engineering"><meta property="article:tag" content="observability"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"你們缺的不是 DevOps，是先分清更怕慢還是更怕壞 | LemonKAI","headline":"你們缺的不是 DevOps，是先分清更怕慢還是更怕壞 | LemonKAI","description":"很多團隊以為自己缺 CI/CD、監控或平台工程，其實更底層的問題是沒有分清瓶頸在等待，還是風險在失控。","url":"https://lemonkai.github.io/blog/zh/devops-two-centers-of-gravity/","inLanguage":"zh-Hant","image":"https://lemonkai.github.io/images/devops-two-centers-of-gravity/devops-two-centers-of-gravity-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"你們缺的不是 DevOps，是先分清更怕慢還是更怕壞","description":"很多團隊以為自己缺 CI/CD、監控或平台工程，其實更底層的問題是沒有分清瓶頸在等待，還是風險在失控。","datePublished":"2026-06-06T00:00:00.000Z","dateModified":"2026-06-06T00:00:00.000Z","inLanguage":"zh-Hant","keywords":"devops, delivery, operations, platform-engineering, observability","articleSection":"概念","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/zh/devops-two-centers-of-gravity/","image":"https://lemonkai.github.io/images/devops-two-centers-of-gravity/devops-two-centers-of-gravity-note.png"}]</script><title>你們缺的不是 DevOps，是先分清更怕慢還是更怕壞 | LemonKAI</title><link rel="stylesheet" href="/_astro/about.DV-ppW8l.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="主要導覽"> <ul class="site-nav"> <li> <a href="/"> <span>首頁</span> <small>起點</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>主線</span> <small>順序讀</small> </a> </li><li> <a href="/blog/#production"> <span>生產筆記</span> <small>排查</small> </a> </li><li> <a href="/blog/#concepts"> <span>概念筆記</span> <small>模型</small> </a> </li><li> <a href="/about/"> <span>關於</span> <small>網站</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="語言切換"> <a href="/blog/zh/devops-two-centers-of-gravity/" data-active="true"> 繁中 </a><a href="/blog/en/"> 英文 </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <p class="eyebrow"> 概念介紹 </p> <h1>你們缺的不是 DevOps，是先分清更怕慢還是更怕壞</h1> <p class="post__lede">很多團隊以為自己缺 CI/CD、監控或平台工程，其實更底層的問題是沒有分清瓶頸在等待，還是風險在失控。</p> <div class="post-card__topline post-card__topline--inline"> <span>中文</span> <span>概念</span>  </div> <div class="post__meta"> <time datetime="2026-06-06T00:00:00.000Z"> 發布 2026年6月6日 </time> <time datetime="2026-06-06T00:00:00.000Z"> 更新 2026年6月6日 </time> </div>  <section class="article-note" aria-label="先抓住"> <div> <span>先抓住</span> <p>DevOps 不是工具清單，而是一套排序系統：怕慢，就先補交付速度；怕壞，就先補穩定性、可觀測性和可追溯性。</p> </div> <div> <span>讀完帶走</span> <p>Dev-led DevOps 解的是等待，Ops-led DevOps 解的是失控；成熟團隊最後兩邊都要，但一開始一定要先知道哪個痛點更貴。</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/devops/"> devops </a><a class="tag-pill" href="/tags/delivery/"> delivery </a><a class="tag-pill" href="/tags/operations/"> 維運 </a><a class="tag-pill" href="/tags/platform-engineering/"> platform-engineering </a><a class="tag-pill" href="/tags/observability/"> 可觀測性 </a> </div> </header> <div class="prose"> <p>很多團隊以為自己缺 DevOps。</p>
+<p>但我現在會先問另一個問題：</p>
+<p><strong>你們缺的是速度，還是控制力？</strong></p>
+<p>這兩件事看起來都叫 DevOps，但背後完全不是同一種重心。</p>
+<p>有些團隊真正痛的是慢。</p>
+<p>代碼寫完了，部署還要等人；hotfix 做好了，release 流程還卡在手動確認；一天明明可以驗證很多次，最後變成大家在群裡排隊、截圖、喊人、等窗口。</p>
+<p>這種團隊需要的 DevOps，更像交付加速器。</p>
+<p>也有些團隊真正痛的是壞。</p>
+<p>系統一出事，沒人知道誰改了什麼；告警很多，但有效訊號很少；dashboard 看起來很滿，真正排查時還是靠猜；回滾不是流程，而是一種心理建設。</p>
+<p>這種團隊需要的 DevOps，更像穩定性作業系統。</p>
+<p>所以我覺得，DevOps 最重要的問題不是：</p>
+<p>「你們有沒有 CI/CD？」</p>
+<p>也不是：</p>
+<p>「你們有沒有監控？」</p>
+<p>而是這句：</p>
+<blockquote>
+<p><strong>你們現在更怕慢，還是更怕壞？</strong></p>
+</blockquote>
+<p>這句問清楚，後面工具才有方向。</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/devops-two-centers-of-gravity/devops-two-centers-of-gravity-note.png" alt="KAI notebook style diagram splitting Dev-led DevOps as CI/CD and automation delivery flow, and Ops-led DevOps as observability, HA, audit, and rollback guardrails." loading="lazy" decoding="async">
+  <figcaption>同樣叫 DevOps，重心可能完全不同：左邊先解等待，右邊先解失控。不是誰更好，是此刻更怕慢還是更怕壞。</figcaption>
+</figure>
+<h2 id="dev-led-devops先把等待拿掉">Dev-led DevOps：先把等待拿掉</h2>
+<p>Dev 主導的 DevOps，通常先解一件事：</p>
+<p><strong>從寫完代碼到真正上線，中間到底浪費了多少時間？</strong></p>
+<p>它會很自然地把重心放在：</p>
+<ul>
+<li>CI/CD pipeline</li>
+<li>自動化測試</li>
+<li>build / release 流程</li>
+<li>部署腳本</li>
+<li>Ansible 這類自動化工具</li>
+<li>環境一致性</li>
+<li>開發到上線之間的摩擦</li>
+</ul>
+<p>這類 DevOps 的價值，不是讓工具看起來很先進。</p>
+<p>它真正解的是等待。</p>
+<p>功能寫完不用等人手動部署。</p>
+<p>hotfix 出來不用在群裡找誰有權限。</p>
+<p>一天迭代很多次，也不會因為 release 流程本身把團隊拖死。</p>
+<p>對產品探索期、內部平台、互聯網業務、頻繁 A/B test、快速試錯的 feature team 來說，慢本身就是成本。</p>
+<p>你慢一天，少一輪驗證。</p>
+<p>你慢一週，可能方向都變了。</p>
+<p>所以 Dev-led DevOps 的核心不是「我們很 Dev」。</p>
+<p>它的核心是：</p>
+<p><strong>把交付鏈路裡的等待，變成可重複、可自動化、可快速回饋的流程。</strong></p>
+<h2 id="ops-led-devops先把失控降下來">Ops-led DevOps：先把失控降下來</h2>
+<p>Ops 主導的 DevOps，第一個問題通常不是「能不能更快上線」。</p>
+<p>它會先問：</p>
+<p>上線之後穩不穩？</p>
+<p>出事能不能看見？</p>
+<p>查不查得到？</p>
+<p>回不回得去？</p>
+<p>所以它更自然會關注：</p>
+<ul>
+<li>infra 設計</li>
+<li>高可用</li>
+<li>容量和資源邊界</li>
+<li>monitoring</li>
+<li>logging</li>
+<li>tracing</li>
+<li>alerting</li>
+<li>權限和審計</li>
+<li>變更紀錄</li>
+<li>回滾策略</li>
+<li>incident response</li>
+</ul>
+<p>這類 DevOps 解的不是等待，而是失控。</p>
+<p>它不一定讓每一次變更都變得最快，但它會努力讓每一次變更都可觀測、可追溯、可恢復。</p>
+<p>當系統出問題時，團隊不應該靠猜。</p>
+<p>也不應該靠翻聊天紀錄。</p>
+<p>更不應該靠某個老同事的記憶。</p>
+<p>系統自己至少要能回答：</p>
+<ul>
+<li>誰改了什麼？</li>
+<li>什麼時候改的？</li>
+<li>影響了哪個環境？</li>
+<li>哪些指標開始異常？</li>
+<li>現在應該先止血、回滾，還是繼續觀察？</li>
+</ul>
+<p>對 SLA 壓力大、合規要求高、infra 複雜、多團隊共用平台、停機成本很高的系統來說，快不是唯一目標。</p>
+<p>快如果沒有邊界，會變成風險放大器。</p>
+<p>Ops-led DevOps 的核心不是「我們很保守」。</p>
+<p>它的核心是：</p>
+<p><strong>把系統裡的失控，變成可看見、可定位、可回滾的風險。</strong></p>
+<h2 id="這不是-dev-跟-ops-誰更高級">這不是 Dev 跟 Ops 誰更高級</h2>
+<p>這裡很容易吵歪。</p>
+<p>有人會說 Dev 主導比較現代，因為它靠自動化、CI/CD、平台能力提升效率。</p>
+<p>也有人會說 Ops 主導比較穩，因為它懂 infra、懂風險、懂生產事故的代價。</p>
+<p>但我覺得這種比較意義不大。</p>
+<p>真正的問題不是誰更高級。</p>
+<p>真正的問題是：</p>
+<p><strong>你的業務此刻付不起哪一種成本？</strong></p>
+<p>如果你付不起慢的成本，就先補交付速度。</p>
+<p>如果你付不起壞的成本，就先補穩定性和可追溯性。</p>
+<p>怕慢的團隊，最大的浪費是等待。</p>
+<p>怕壞的團隊，最大的風險是失控。</p>
+<p>這兩句比「我們要不要做 DevOps」更接近真問題。</p>
+<h2 id="一個更好懂的例子">一個更好懂的例子</h2>
+<p>可以把團隊想成一間餐廳。</p>
+<p>Dev-led DevOps 像是在優化出餐速度。</p>
+<p>點餐系統要順，廚房動線要短，常見菜式要有半成品，外送單不能卡在人工確認。</p>
+<p>重點是：客人點了，廚房可以快而穩地做出來。</p>
+<p>Ops-led DevOps 像是在確保餐廳不會失控。</p>
+<p>冰箱溫度要監控，食材來源要可追溯，燃氣和消防要有檢查，客訴要知道是哪一批食材、哪一個時段、哪一個操作出了問題。</p>
+<p>重點是：餐廳忙起來，也不能因為追速度把安全和品質丟掉。</p>
+<p>如果餐廳一天只出十單，最大問題可能是流程太慢，不是先搭一套超重的安全系統。</p>
+<p>如果餐廳每天出幾千單，最大問題可能就不是再快十秒，而是任何一次失控都會被放大。</p>
+<p>DevOps 也是一樣。</p>
+<p>你要先知道自己現在是哪一種痛。</p>
+<h2 id="不要把別人的最佳實踐當成自己的答案">不要把別人的最佳實踐當成自己的答案</h2>
+<p>很多團隊踩坑，是從模仿開始的。</p>
+<p>看到別人一天部署幾十次，就覺得自己也要立刻上全套 CI/CD。</p>
+<p>看到別人做可觀測性平台，就覺得自己也要馬上鋪一堆 dashboard。</p>
+<p>看到別人搞 internal developer platform，就覺得自己也缺一個平台工程團隊。</p>
+<p>但如果沒有先判斷自己的系統到底卡在哪裡，工具越多，流程可能越重。</p>
+<p>你以為自己在補能力。</p>
+<p>實際上可能只是在把別人的答案，搬到自己的錯題本上。</p>
+<p>所以我會先問：</p>
+<p><strong>你們現在最大的浪費，是等待，還是失控？</strong></p>
+<p>如果是等待，就先看：</p>
+<ul>
+<li>開發改完到部署是不是太慢</li>
+<li>release 是不是依賴人工</li>
+<li>測試和部署是不是不可重複</li>
+<li>環境差異是不是一直製造 bug</li>
+<li>每次上線是不是都像過關</li>
+</ul>
+<p>如果是失控，就先看：</p>
+<ul>
+<li>出事是不是不知道從哪裡查</li>
+<li>告警是不是噪音很多</li>
+<li>變更紀錄是不是不清楚</li>
+<li>infra 改動是不是不可追溯</li>
+<li>回滾是不是靠手感</li>
+<li>權限邊界是不是太鬆</li>
+</ul>
+<p>這比直接問「要不要上什麼工具」更有效。</p>
+<p>因為工具只能放大方向。</p>
+<p>方向錯了，工具越強，偏得越快。</p>
+<h2 id="成熟的-devops-最後一定兩邊都要">成熟的 DevOps 最後一定兩邊都要</h2>
+<p>這篇不是在說 Dev-led 和 Ops-led 要二選一。</p>
+<p>成熟團隊最後一定兩邊都要。</p>
+<p>交付要快，但快得有邊界。</p>
+<p>系統要穩，但穩得不阻塞變更。</p>
+<p>自動化要多，但每一步都能追溯。</p>
+<p>權限要收斂，但不能把團隊卡死。</p>
+<p>監控要完整，但告警不能變成噪音。</p>
+<p>真正成熟的 DevOps，不是高速公路，也不是安全護欄。</p>
+<p>而是高速公路旁邊真的有護欄，路況也真的看得見。</p>
+<p>只是大部分團隊一開始不要幻想一步到位。</p>
+<p>先找出最痛、最貴、最常拖住人的那一段。</p>
+<p>把它變成可重複、可驗證、可回滾的流程。</p>
+<p>這一步做對了，DevOps 才不是工具清單。</p>
+<p>它才會變成一套真正幫業務減少痛苦的工程系統。</p>
+<h2 id="我自己的判斷方式">我自己的判斷方式</h2>
+<p>如果要很快判斷一個團隊現在需要哪種 DevOps，我會看五件事。</p>
+<p>第一，看變更頻率。</p>
+<p>如果每天都有大量變更，但部署還靠人工，先處理交付速度。</p>
+<p>第二，看事故成本。</p>
+<p>如果一次錯誤上線就會造成明顯客戶影響、金錢損失或合規風險，先處理穩定性和追溯性。</p>
+<p>第三，看排查方式。</p>
+<p>如果每次出事都靠人問人、翻群組、猜是哪次改動，那不是缺一個 dashboard，而是缺一套可追溯的運行系統。</p>
+<p>第四，看回滾能力。</p>
+<p>如果團隊不敢頻繁部署，是因為回不去，那問題表面上是速度，底層其實是控制力不足。</p>
+<p>第五，看人肉比例。</p>
+<p>如果關鍵節點都靠某幾個人手動操作，那不管是 Dev 主導還是 Ops 主導，都應該先把這些操作變成可重複、可驗證、可審計的流程。</p>
+<p>最後我會把問題收回到一句話：</p>
+<p><strong>你不是在選 Dev 還是 Ops。你是在決定，先把哪一種痛苦降下來。</strong></p>
+<p>怕慢，就先把等待拿掉。</p>
+<p>怕壞，就先把失控降下來。</p>
+<p>兩個都怕，也不要一口吃成平台工程。</p>
+<p>先把最常阻塞交付、最容易造成事故、最依賴人工經驗的那一段抓出來。</p>
+<p>那裡，就是你們 DevOps 應該先站出來的地方。</p>
+<p>下一篇如果繼續寫，我會更具體拆一套診斷表：</p>
+<p>從部署頻率、lead time、變更失敗率、MTTR、告警質量、回滾能力、人工操作比例這幾個角度，看一個團隊現在到底該先補速度，還是先補控制力。</p> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
