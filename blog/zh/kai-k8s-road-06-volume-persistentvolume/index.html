@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="zh-Hant"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="ConfigMap 和 Secret 把設定從 image 拆出去，但 workload 還會產生資料。這篇把 Volume、PersistentVolume、PersistentVolumeClaim 和 StorageClass 串起來：Volume 是 Pod 的掛載位置，PV/PVC 是把需要留下的資料從 Pod 生命週期裡拆出來。"><meta name="keywords" content="kubernetes, volume, persistentvolume, pvc, storage, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-06-volume-persistentvolume/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="en" href="https://lemonkai.github.io/blog/en/kai-k8s-road-06-volume-persistentvolume/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失 | LemonKAI"><meta property="og:description" content="ConfigMap 和 Secret 把設定從 image 拆出去，但 workload 還會產生資料。這篇把 Volume、PersistentVolume、PersistentVolumeClaim 和 StorageClass 串起來：Volume 是 Pod 的掛載位置，PV/PVC 是把需要留下的資料從 Pod 生命週期裡拆出來。"><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/zh/kai-k8s-road-06-volume-persistentvolume/"><meta property="og:image" content="https://lemonkai.github.io/og-default.svg"><meta property="og:locale" content="zh_HK"><meta property="og:locale:alternate" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失 | LemonKAI"><meta name="twitter:description" content="ConfigMap 和 Secret 把設定從 image 拆出去，但 workload 還會產生資料。這篇把 Volume、PersistentVolume、PersistentVolumeClaim 和 StorageClass 串起來：Volume 是 Pod 的掛載位置，PV/PVC 是把需要留下的資料從 Pod 生命週期裡拆出來。"><meta name="twitter:image" content="https://lemonkai.github.io/og-default.svg"><meta property="article:published_time" content="2026-06-10T00:00:00.000Z"><meta property="article:modified_time" content="2026-06-10T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="volume"><meta property="article:tag" content="persistentvolume"><meta property="article:tag" content="pvc"><meta property="article:tag" content="storage"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失 | LemonKAI","headline":"KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失 | LemonKAI","description":"ConfigMap 和 Secret 把設定從 image 拆出去，但 workload 還會產生資料。這篇把 Volume、PersistentVolume、PersistentVolumeClaim 和 StorageClass 串起來：Volume 是 Pod 的掛載位置，PV/PVC 是把需要留下的資料從 Pod 生命週期裡拆出來。","url":"https://lemonkai.github.io/blog/zh/kai-k8s-road-06-volume-persistentvolume/","inLanguage":"zh-Hant","image":"https://lemonkai.github.io/og-default.svg","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失","description":"ConfigMap 和 Secret 把設定從 image 拆出去，但 workload 還會產生資料。這篇把 Volume、PersistentVolume、PersistentVolumeClaim 和 StorageClass 串起來：Volume 是 Pod 的掛載位置，PV/PVC 是把需要留下的資料從 Pod 生命週期裡拆出來。","datePublished":"2026-06-10T00:00:00.000Z","dateModified":"2026-06-10T00:00:00.000Z","inLanguage":"zh-Hant","keywords":"kubernetes, volume, persistentvolume, pvc, storage, series","articleSection":"KAI K8s之路","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/zh/kai-k8s-road-06-volume-persistentvolume/","image":"https://lemonkai.github.io/og-default.svg"}]</script><title>KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失 | LemonKAI</title><link rel="stylesheet" href="/_astro/about.Cnz1RqBa.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="主要導覽"> <ul class="site-nav"> <li> <a href="/"> <span>首頁</span> <small>起點</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>主線</span> <small>順序讀</small> </a> </li><li> <a href="/blog/#production"> <span>生產筆記</span> <small>排查</small> </a> </li><li> <a href="/blog/#concepts"> <span>概念筆記</span> <small>模型</small> </a> </li><li> <a href="/about/"> <span>關於</span> <small>網站</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="語言切換"> <a href="/blog/zh/kai-k8s-road-06-volume-persistentvolume/" data-active="true"> 繁中 </a><a href="/blog/en/kai-k8s-road-06-volume-persistentvolume/"> 英文 </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <div class="post__hero-grid"> <div class="post__intro"> <p class="eyebrow"> 主線 </p> <h1> KAI K8s之路 06｜Volume / PersistentVolume 是什麼？Pod 會換，但資料不能跟著消失 </h1> <p class="post__lede">ConfigMap 和 Secret 把設定從 image 拆出去，但 workload 還會產生資料。這篇把 Volume、PersistentVolume、PersistentVolumeClaim 和 StorageClass 串起來：Volume 是 Pod 的掛載位置，PV/PVC 是把需要留下的資料從 Pod 生命週期裡拆出來。</p> <div class="post-card__topline post-card__topline--inline"> <span>中文</span> <span>主線</span> <span> 第 6 篇 </span> </div> <div class="post__meta"> <time datetime="2026-06-10T00:00:00.000Z"> 發布 2026年6月10日 </time> <time datetime="2026-06-10T00:00:00.000Z"> 更新 2026年6月10日 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/en/kai-k8s-road-06-volume-persistentvolume/"> 閱讀英文版 </a> </div> </div>  <section class="article-note" aria-label="先抓住"> <div> <span>先抓住</span> <p>Volume 是 Pod 裡可掛載的資料位置；PV/PVC 是把需要長住的資料，從 Pod 生命週期裡拆出來。</p> </div> <div> <span>讀完帶走</span> <p>先分清 emptyDir 和 PersistentVolume：前者跟著 Pod 走，後者透過 PVC 被 workload 申請和掛載。排查時先看 PVC 是否 Bound，再看 StorageClass、access mode、Events 和 mount 錯誤。</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/volume/"> volume </a><a class="tag-pill" href="/tags/persistentvolume/"> persistentvolume </a><a class="tag-pill" href="/tags/pvc/"> pvc </a><a class="tag-pill" href="/tags/storage/"> storage </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </div> </header> <div class="prose"> <p>上一篇我們把 ConfigMap / Secret 想清楚了：</p>
+<p>image 應該裝程式，不應該裝環境決策和秘密。</p>
+<p>但 workload 不只會讀設定。</p>
+<p>它也可能會寫東西：</p>
+<ul>
+<li>上傳檔案</li>
+<li>cache</li>
+<li>log buffer</li>
+<li>queue checkpoint</li>
+<li>database data</li>
+</ul>
+<p>這時候問題就來了：</p>
+<p>Pod 會被重建，container 會被重啟，node 也可能會換。</p>
+<p>如果資料只是寫在 container 自己的 filesystem 裡，它跟這個 container 的命運綁得太死。</p>
+<p>我會先記這句：</p>
+<blockquote>
+<p><strong>Volume 是 Pod 裡可掛載的資料位置；PV/PVC 是把需要長住的資料，從 Pod 生命週期裡拆出來。</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-06/pod-data-lifetime-note.png" alt="KAI notebook style diagram showing that a Pod is temporary while data should have its own lifecycle through Volumes, PVs, and PVCs." loading="lazy" decoding="async">
+  <figcaption>Pod 會被重建，container 會重啟；真正有業務意義的資料，不應該只活在某個 container 的可寫層裡。</figcaption>
+</figure>
+<h2 id="先不要把-container-filesystem-當硬碟">先不要把 container filesystem 當硬碟</h2>
+<p>container image 給你一個乾淨的起點。</p>
+<p>process 跑起來之後，當然可以在 filesystem 裡寫檔。</p>
+<p>但這不代表你得到了一顆穩定硬碟。</p>
+<p>container crash 後重新拉起來，container 自己那層可寫狀態不應該被拿來當可靠資料層。</p>
+<p>Pod 被刪掉、搬走、重建時，更不能期待寫在原本位置的資料自然跟著回來。</p>
+<p>這也是為什麼 Kubernetes 要有 Volume。</p>
+<p>它先解決一個很基本的問題：</p>
+<blockquote>
+<p><strong>這個 Pod 裡的 container 要把資料寫到哪個被明確掛載的位置？</strong></p>
+</blockquote>
+<p>然後 PersistentVolume / PersistentVolumeClaim 再解決下一個問題：</p>
+<blockquote>
+<p><strong>如果 Pod 不在了，這份資料還要不要存在？由誰提供？由誰申請？</strong></p>
+</blockquote>
+<h2 id="用租倉庫想-volume--pv--pvc">用租倉庫想 Volume / PV / PVC</h2>
+<p>我會用租迷你倉來記這章。</p>
+<p>Pod 像一個臨時工作間。</p>
+<p>你今天進去工作，桌子、椅子、工具都在裡面；做完可能整個工作間會被清掉，明天換一間。</p>
+<p>如果你只是臨時放草稿紙，放在桌面就可以。</p>
+<p>這有點像 <code>emptyDir</code>：Pod 存在時可以用，container 重啟時還在，但 Pod 從 node 上被移走後，裡面的東西就沒了。</p>
+<p>如果你放的是重要材料，就不能只放臨時工作間。</p>
+<p>你會去租一格倉庫。</p>
+<p>倉庫本身像 <code>PersistentVolume</code>：cluster 裡真正存在的一塊儲存能力。</p>
+<p>租倉庫的申請單像 <code>PersistentVolumeClaim</code>：workload 不需要知道倉庫後面是什麼牌子的硬碟、哪個雲供應商、哪個儲存系統，它只說自己需要多少容量、什麼讀寫模式。</p>
+<p>倉庫套餐像 <code>StorageClass</code>：標準倉、快速倉、跨區倉，不同 class 背後有不同 provisioner 和策略。</p>
+<p>這個例子不要背太滿。</p>
+<p>只要記住一件事：</p>
+<blockquote>
+<p><strong>Pod 是工作間；PVC 是租倉庫的單；PV 是真的倉庫。</strong></p>
+</blockquote>
+<h2 id="volume-先是一個掛載位置">Volume 先是一個掛載位置</h2>
+<p>Kubernetes 的 Volume，不一定都是「永久硬碟」。</p>
+<p>它的第一層意思很樸素：</p>
+<blockquote>
+<p><strong>Volume 是 Pod spec 裡宣告的一份資料來源，container 再把它 mount 到自己的路徑。</strong></p>
+</blockquote>
+<p>所以一個 Pod 裡會看到兩個地方：</p>
+<ul>
+<li><code>.spec.volumes</code>：這個 Pod 有哪些 volume</li>
+<li><code>.spec.containers[*].volumeMounts</code>：每個 container 要把哪些 volume 掛到哪個路徑</li>
+</ul>
+<p>同一個 volume 可以被同一個 Pod 裡多個 container 使用。</p>
+<p>但每個 container 要不要掛、掛到哪裡，是各自宣告的。</p>
+<p>這點很重要。</p>
+<p>Volume 不是神秘背景設定。</p>
+<p>它是一個被 mount 進 container filesystem 的明確路徑。</p>
+<h2 id="emptydir-解決的是-pod-內臨時共享">emptyDir 解決的是 Pod 內臨時共享</h2>
+<p><code>emptyDir</code> 很適合拿來建立第一個直覺。</p>
+<p>它在 Pod 被分配到 node 時建立，一開始是空的。</p>
+<p>Pod 裡的 container 可以一起讀寫它。</p>
+<p>container crash 不會清掉 <code>emptyDir</code>，因為 Pod 還在。</p>
+<p>但 Pod 從 node 上被移除時，<code>emptyDir</code> 裡的資料會被永久刪掉。</p>
+<p>所以它適合：</p>
+<ul>
+<li>暫存檔</li>
+<li>cache</li>
+<li>container 之間共享一段工作資料</li>
+<li>可重算的中間結果</li>
+</ul>
+<p>它不適合：</p>
+<ul>
+<li>用戶上傳檔案的唯一副本</li>
+<li>database data</li>
+<li>不能重建的 queue 狀態</li>
+<li>任何你明天還需要的真資料</li>
+</ul>
+<p>一句話：</p>
+<blockquote>
+<p><strong>emptyDir 可以跨 container restart，不可以跨 Pod 消失。</strong></p>
+</blockquote>
+<h2 id="pv--pvc-解決的是資料生命週期">PV / PVC 解決的是資料生命週期</h2>
+<p>如果資料要比 Pod 活得久，就要進到 PersistentVolume 這層。</p>
+<p>我不會把 PV/PVC 記成兩個很像的縮寫。</p>
+<p>我會把它們分工記清楚：</p>
+<ul>
+<li><code>PersistentVolume</code>：cluster 裡的一塊儲存資源，可以是管理員預先建立，也可以由 StorageClass 動態建立</li>
+<li><code>PersistentVolumeClaim</code>：namespace 裡的申請，描述 workload 想要多少容量、哪種 access mode、哪個 storage class</li>
+<li><code>StorageClass</code>：儲存套餐和 provisioner，決定動態建立 PV 時用什麼後端和策略</li>
+</ul>
+<p>Pod 不會直接說：「我要那顆雲硬碟。」</p>
+<p>Pod 會說：「我要使用這個 PVC。」</p>
+<p>Kubernetes 再透過 PVC 找到已綁定的 PV，然後把它 mount 給 Pod。</p>
+<p>這個抽象很 Kubernetes：</p>
+<p>workload 描述需求。</p>
+<p>cluster 負責把需求綁到實際資源。</p>
+<h2 id="一個簡化-pvc-例子">一個簡化 PVC 例子</h2>
+<p>先看 PVC。</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">PersistentVolumeClaim</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  accessModes</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#A5D6FF">ReadWriteOnce</span></span>
+<span class="line"><span style="color:#7EE787">  storageClassName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">standard</span></span>
+<span class="line"><span style="color:#7EE787">  resources</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    requests</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      storage</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">10Gi</span></span></code></pre>
+<p>這段 YAML 的意思不是「建立一個資料夾」。</p>
+<p>它是在說：</p>
+<p>我需要一份 10Gi 的儲存，使用 <code>standard</code> 這個 StorageClass，讀寫模式是 <code>ReadWriteOnce</code>。</p>
+<p>然後 Pod 或 Deployment 可以引用這個 claim：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">apps/v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Deployment</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  replicas</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">1</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    matchLabels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ghcr.io/example/web:1.0.0</span></span>
+<span class="line"><span style="color:#7EE787">          volumeMounts</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span>
+<span class="line"><span style="color:#7EE787">              mountPath</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/var/lib/web</span></span>
+<span class="line"><span style="color:#7EE787">      volumes</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span>
+<span class="line"><span style="color:#7EE787">          persistentVolumeClaim</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">            claimName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span></code></pre>
+<p>這裡的重點是責任切分：</p>
+<ul>
+<li>PVC 描述要什麼 storage</li>
+<li>Deployment 描述 workload 要把它 mount 到哪裡</li>
+<li>app 只知道自己寫 <code>/var/lib/web</code></li>
+<li>storage 後面的細節交給 cluster 和 StorageClass</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-06/pvc-pv-binding-note.png" alt="KAI notebook style PVC, StorageClass, and PV binding flow: a workload requests storage with a PVC, the StorageClass provisions, and the PV becomes Bound and mounted." loading="lazy" decoding="async">
+  <figcaption>PVC 是申請單，StorageClass 是套餐，PV 是真的儲存能力。workload 描述需求，cluster 負責綁到實際資源。</figcaption>
+</figure>
+<h2 id="kubernetes-實際在做什麼">Kubernetes 實際在做什麼</h2>
+<p>這裡給一個夠用的版本。</p>
+<ol>
+<li>你建立 PVC，說明容量、access mode、StorageClass。</li>
+<li>control plane 會找符合條件的 PV，或透過 StorageClass 動態 provision 一個新的 PV。</li>
+<li>PVC 和 PV 綁定後，PVC 狀態會變成 <code>Bound</code>。</li>
+<li>Pod 引用 PVC 作為 volume。</li>
+<li>kubelet 在 Pod 被排到某個 node 後，請儲存後端把 volume attach / mount 到 container 指定路徑。</li>
+<li>Pod 消失後，PV 如何處理資料，取決於 reclaim policy、storage backend，以及你有沒有先做備份。</li>
+</ol>
+<p>這裡有幾個邊界要講清楚。</p>
+<p>第一，PVC <code>Bound</code> 不代表 app 一定能寫。</p>
+<p>後面還可能卡在 node topology、attach、mount permission、filesystem、driver、quota。</p>
+<p>第二，<code>ReadWriteOnce</code> 不是「只能一個 Pod 用」的萬能鎖。</p>
+<p>它的意思是 volume 可以被單一 node 以 read-write 掛載；如果你真的要限制成整個 cluster 只有一個 Pod 讀寫，要看 <code>ReadWriteOncePod</code> 以及 CSI driver 支援。</p>
+<p>第三，reclaim policy 不是備份策略。</p>
+<p>很多動態建立的 PV 會跟著 StorageClass 的 reclaim policy 走；常見預設可能是 <code>Delete</code>。</p>
+<p>刪 PVC 前，先知道背後資料會被保留還是被刪。</p>
+<h2 id="新手最常踩的坑">新手最常踩的坑</h2>
+<h3 id="1-以為用了-volume-就一定永久">1) 以為用了 Volume 就一定永久</h3>
+<p>Volume 是抽象，不是永久保證。</p>
+<p><code>emptyDir</code>、<code>configMap</code>、<code>secret</code>、PVC-backed volume，生命週期完全不同。</p>
+<p>先問 volume type，再談資料會不會留下來。</p>
+<h3 id="2-把-pvc-當成資料本身">2) 把 PVC 當成資料本身</h3>
+<p>PVC 是 claim，不是資料內容。</p>
+<p>它是 workload 對儲存資源的申請和引用點。</p>
+<p>真正的資料在背後的 PV / storage backend。</p>
+<h3 id="3-deployment-多副本共用同一份-rwo-pvc">3) Deployment 多副本共用同一份 RWO PVC</h3>
+<p>這很容易變成調度或 mount 問題。</p>
+<p>就算某些情況下多個 Pod 落在同一個 node 能碰到同一份 RWO volume，也不代表 app 層資料一致性就安全。</p>
+<p>如果每個副本都需要穩定身份和自己的資料，下一章就要看 StatefulSet。</p>
+<h3 id="4-只看-pod不看-pvc">4) 只看 Pod，不看 PVC</h3>
+<p>Pod 卡在 <code>ContainerCreating</code>，不一定是 image 問題。</p>
+<p>可能是 PVC 還在 <code>Pending</code>，或 volume attach / mount 失敗。</p>
+<h3 id="5-刪-pvc-前沒看-reclaim-policy">5) 刪 PVC 前沒看 reclaim policy</h3>
+<p>有些資料刪了就是真的刪了。</p>
+<p>Kubernetes 會幫你管理 storage object 的生命週期，但不會替你承擔備份策略。</p>
+<h2 id="我會怎麼-inspect">我會怎麼 inspect</h2>
+<p>如果有人說「Pod 起不來，好像卡住了」，而這個 workload 有 volume，我不會只看 logs。</p>
+<p>我會先查這幾層：</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pvc</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pvc</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pvc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pv</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pv</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pv-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> storageclass</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> events</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --sort-by=.lastTimestamp</span></span></code></pre>
+<p>我會重點看：</p>
+<ul>
+<li>PVC 是 <code>Pending</code> 還是 <code>Bound</code></li>
+<li>PVC request 的 capacity / access mode / StorageClass 是否合理</li>
+<li>PV 的 reclaim policy 是 <code>Delete</code> 還是 <code>Retain</code></li>
+<li>Pod Events 裡有沒有 attach / mount / permission 錯誤</li>
+<li>storage backend 是否有 topology 限制</li>
+<li>多副本 workload 是否共用了一份不適合共用的 PVC</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-06/storage-debug-path-note.png" alt="KAI notebook style Kubernetes storage troubleshooting path: check PVC, PV, StorageClass, Events, and Pod mount or attach errors." loading="lazy" decoding="async">
+  <figcaption>Pod 卡住時，不要先怪 image。先看 PVC 是否 Bound，再沿著 PV、StorageClass、Events 和 mount 錯誤走一圈。</figcaption>
+</figure>
+<p>一句話版本：</p>
+<blockquote>
+<p><strong>看到 storage 問題，不要只查 Pod；先沿著 PVC -> PV -> StorageClass -> Events 走一圈。</strong></p>
+</blockquote>
+<h2 id="我對-volume-的記法">我對 Volume 的記法</h2>
+<p>我不會把這章記成「Kubernetes 有很多種 volume type」。</p>
+<p>那樣會很快變成背清單。</p>
+<p>我會這樣記：</p>
+<blockquote>
+<p><strong>Volume 是 workload 和資料之間的接縫；PV/PVC 是把這條接縫從 Pod 壽命裡拆出來。</strong></p>
+</blockquote>
+<p>Pod 可以重建。</p>
+<p>container 可以重啟。</p>
+<p>node 可以替換。</p>
+<p>但資料如果有業務意義，就不能只是「剛好寫在某個 container 裡」。</p>
+<p>它要有自己的生命週期、申請方式、掛載位置、回收策略和備份邊界。</p>
+<p>這件事後面會反覆出現。</p>
+<p>因為只要你開始跑 stateful workload，就會發現 Kubernetes 最難的不是「起一個 process」。</p>
+<p>難的是：process 可以換，身份和資料不能亂。</p>
+<h2 id="這篇先記住三件事">這篇先記住三件事</h2>
+<ol>
+<li>Volume 是 Pod 內明確掛載的資料位置，不等於永久儲存</li>
+<li><code>emptyDir</code> 跟 Pod 走；PV/PVC 才是把資料生命週期從 Pod 裡拆出來</li>
+<li>排查 storage 問題時，先看 PVC 是否 <code>Bound</code>，再查 PV、StorageClass、Events 和 mount 錯誤</li>
+</ol>
+<p>下一篇會接著看：<strong>StatefulSet 是什麼？當每個 Pod 都需要穩定名字和自己的資料，Deployment 就不再是最舒服的工具。</strong></p>
+<p>技術校對參考：</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/storage/volumes/">https://kubernetes.io/docs/concepts/storage/volumes/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/storage/storage-classes/">https://kubernetes.io/docs/concepts/storage/storage-classes/</a></li>
+</ul> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>

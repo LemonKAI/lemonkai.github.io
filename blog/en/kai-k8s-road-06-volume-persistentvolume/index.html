@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="ConfigMaps and Secrets moved runtime configuration out of the image, but workloads also write data. This chapter connects Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses so storage has a clearer lifecycle than the Pod that happens to use it."><meta name="keywords" content="kubernetes, volume, persistentvolume, pvc, storage, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/en/kai-k8s-road-06-volume-persistentvolume/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="zh-Hant" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-06-volume-persistentvolume/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear | LemonKAI"><meta property="og:description" content="ConfigMaps and Secrets moved runtime configuration out of the image, but workloads also write data. This chapter connects Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses so storage has a clearer lifecycle than the Pod that happens to use it."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/kai-k8s-road-06-volume-persistentvolume/"><meta property="og:image" content="https://lemonkai.github.io/og-default.svg"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear | LemonKAI"><meta name="twitter:description" content="ConfigMaps and Secrets moved runtime configuration out of the image, but workloads also write data. This chapter connects Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses so storage has a clearer lifecycle than the Pod that happens to use it."><meta name="twitter:image" content="https://lemonkai.github.io/og-default.svg"><meta property="article:published_time" content="2026-06-10T00:00:00.000Z"><meta property="article:modified_time" content="2026-06-10T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="volume"><meta property="article:tag" content="persistentvolume"><meta property="article:tag" content="pvc"><meta property="article:tag" content="storage"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear | LemonKAI","headline":"KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear | LemonKAI","description":"ConfigMaps and Secrets moved runtime configuration out of the image, but workloads also write data. This chapter connects Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses so storage has a clearer lifecycle than the Pod that happens to use it.","url":"https://lemonkai.github.io/blog/en/kai-k8s-road-06-volume-persistentvolume/","inLanguage":"en","image":"https://lemonkai.github.io/og-default.svg","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear","description":"ConfigMaps and Secrets moved runtime configuration out of the image, but workloads also write data. This chapter connects Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses so storage has a clearer lifecycle than the Pod that happens to use it.","datePublished":"2026-06-10T00:00:00.000Z","dateModified":"2026-06-10T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, volume, persistentvolume, pvc, storage, series","articleSection":"KAI Road of Kubernetes","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/kai-k8s-road-06-volume-persistentvolume/","image":"https://lemonkai.github.io/og-default.svg"}]</script><title>KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear | LemonKAI</title><link rel="stylesheet" href="/_astro/about.Cnz1RqBa.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-06-volume-persistentvolume/"> 中文 </a><a href="/blog/en/kai-k8s-road-06-volume-persistentvolume/" data-active="true"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <div class="post__hero-grid"> <div class="post__intro"> <p class="eyebrow"> Mainline </p> <h1> KAI Road of Kubernetes 06 — Volumes and PersistentVolumes: Pods can move, data should not disappear </h1> <p class="post__lede">ConfigMaps and Secrets moved runtime configuration out of the image, but workloads also write data. This chapter connects Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses so storage has a clearer lifecycle than the Pod that happens to use it.</p> <div class="post-card__topline post-card__topline--inline"> <span>EN</span> <span>Mainline</span> <span> Part 6 </span> </div> <div class="post__meta"> <time datetime="2026-06-10T00:00:00.000Z"> Published Jun 10, 2026 </time> <time datetime="2026-06-10T00:00:00.000Z"> Updated Jun 10, 2026 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/zh/kai-k8s-road-06-volume-persistentvolume/"> 閱讀中文版 </a> </div> </div>  <section class="article-note" aria-label="Core idea"> <div> <span>Core idea</span> <p>A Volume is a mountable data location inside a Pod; PVs and PVCs move long-lived data out of the Pod lifecycle.</p> </div> <div> <span>Takeaway</span> <p>Separate temporary Pod storage from persistent storage. `emptyDir` follows the Pod; PVC-backed storage binds a workload request to a PV. Debug storage from PVC status outward: PVC, PV, StorageClass, Events, and mount errors.</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/volume/"> volume </a><a class="tag-pill" href="/tags/persistentvolume/"> persistentvolume </a><a class="tag-pill" href="/tags/pvc/"> pvc </a><a class="tag-pill" href="/tags/storage/"> storage </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </div> </header> <div class="prose"> <p>The previous chapter separated configuration from the image.</p>
+<p>An image should package the program, not the environment decision or the secret.</p>
+<p>But workloads do more than read configuration.</p>
+<p>They also write things:</p>
+<ul>
+<li>uploaded files</li>
+<li>cache</li>
+<li>log buffers</li>
+<li>queue checkpoints</li>
+<li>database data</li>
+</ul>
+<p>That creates the next problem.</p>
+<p>Pods can be recreated. Containers can restart. Nodes can change.</p>
+<p>If data only lives in the writable filesystem of one container, it is tied too tightly to the fate of that container.</p>
+<p>The sentence I would keep is this:</p>
+<blockquote>
+<p><strong>A Volume is a mountable data location inside a Pod; PVs and PVCs move long-lived data out of the Pod lifecycle.</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-06/pod-data-lifetime-note.png" alt="KAI notebook style diagram showing that a Pod is temporary while data should have its own lifecycle through Volumes, PVs, and PVCs." loading="lazy" decoding="async">
+  <figcaption>Pods can be recreated and containers can restart. Data with business meaning should not live only inside one container's writable layer.</figcaption>
+</figure>
+<h2 id="do-not-treat-the-container-filesystem-as-a-hard-drive">Do not treat the container filesystem as a hard drive</h2>
+<p>A container image gives the process a clean starting point.</p>
+<p>After the process starts, it can write files.</p>
+<p>That does not mean the container has become a reliable disk.</p>
+<p>When a container restarts, the writable layer of that container is not the place I want to trust for durable application data.</p>
+<p>When a Pod is deleted, moved, or recreated, I should not expect data written inside the old container filesystem to naturally come back.</p>
+<p>That is why Kubernetes has Volumes.</p>
+<p>The first question is simple:</p>
+<blockquote>
+<p><strong>Where should containers in this Pod write data through an explicit mount point?</strong></p>
+</blockquote>
+<p>PersistentVolume and PersistentVolumeClaim answer the next question:</p>
+<blockquote>
+<p><strong>If the Pod disappears, should this data still exist, who provides it, and who is allowed to claim it?</strong></p>
+</blockquote>
+<h2 id="think-of-volumes-pvs-and-pvcs-like-rented-storage">Think of Volumes, PVs, and PVCs like rented storage</h2>
+<p>I remember this chapter with a mini-storage example.</p>
+<p>A Pod is like a temporary workshop.</p>
+<p>You walk in, do work, use the desk, and maybe tomorrow the whole room is gone and you get a different one.</p>
+<p>If you only need temporary scratch paper, the desk is fine.</p>
+<p>That is close to <code>emptyDir</code>: it exists while the Pod exists, and it can survive container restarts, but when the Pod is removed from the node, the data is gone.</p>
+<p>If the material is important, you do not leave it only in the temporary room.</p>
+<p>You rent a storage unit.</p>
+<p>The storage unit is like a <code>PersistentVolume</code>: real storage capacity in the cluster.</p>
+<p>The rental form is like a <code>PersistentVolumeClaim</code>: the workload does not need to know the exact disk brand, cloud provider, or storage backend. It requests capacity, access mode, and storage class.</p>
+<p>The menu of storage plans is like a <code>StorageClass</code>: standard storage, faster storage, zone-aware storage, each backed by a different provisioner or policy.</p>
+<p>The only memory model I need is:</p>
+<blockquote>
+<p><strong>The Pod is the workshop. The PVC is the rental form. The PV is the actual storage unit.</strong></p>
+</blockquote>
+<h2 id="a-volume-is-first-a-mount-point">A Volume is first a mount point</h2>
+<p>A Kubernetes Volume is not always a permanent disk.</p>
+<p>The first meaning is more basic:</p>
+<blockquote>
+<p><strong>A Volume is a data source declared in the Pod spec, and each container mounts it at a path.</strong></p>
+</blockquote>
+<p>So the Pod spec has two important places:</p>
+<ul>
+<li><code>.spec.volumes</code>: which volumes exist for this Pod</li>
+<li><code>.spec.containers[*].volumeMounts</code>: which container mounts which volume at which path</li>
+</ul>
+<p>The same volume can be used by multiple containers in the same Pod.</p>
+<p>But each container declares whether it mounts that volume and where it appears.</p>
+<p>This matters.</p>
+<p>A Volume is not background magic.</p>
+<p>It is a specific path mounted into the container filesystem.</p>
+<h2 id="emptydir-is-temporary-storage-inside-a-pod">emptyDir is temporary storage inside a Pod</h2>
+<p><code>emptyDir</code> is the easiest way to build the first storage intuition.</p>
+<p>It is created when the Pod is assigned to a node, and it starts empty.</p>
+<p>Containers in the Pod can read and write it.</p>
+<p>A container crash does not delete the <code>emptyDir</code>, because the Pod still exists.</p>
+<p>But when the Pod is removed from that node, the data in the <code>emptyDir</code> is permanently deleted.</p>
+<p>So it is useful for:</p>
+<ul>
+<li>scratch files</li>
+<li>cache</li>
+<li>shared working data between containers</li>
+<li>recomputable intermediate results</li>
+</ul>
+<p>It is not the right place for:</p>
+<ul>
+<li>the only copy of user uploads</li>
+<li>database data</li>
+<li>non-rebuildable queue state</li>
+<li>anything the application still needs tomorrow</li>
+</ul>
+<p>The short version:</p>
+<blockquote>
+<p><strong>emptyDir can survive a container restart. It cannot survive the Pod going away.</strong></p>
+</blockquote>
+<h2 id="pv-and-pvc-are-about-data-lifecycle">PV and PVC are about data lifecycle</h2>
+<p>If data must live longer than the Pod, the design moves into PersistentVolume territory.</p>
+<p>I do not remember PV and PVC as two similar abbreviations.</p>
+<p>I remember the responsibility split:</p>
+<ul>
+<li><code>PersistentVolume</code>: a storage resource in the cluster, either created by an administrator or dynamically provisioned through a StorageClass</li>
+<li><code>PersistentVolumeClaim</code>: a namespaced request for storage, including capacity, access mode, and storage class</li>
+<li><code>StorageClass</code>: the storage plan and provisioner used when dynamically creating PVs</li>
+</ul>
+<p>A Pod usually does not say, “give me that exact cloud disk.”</p>
+<p>It says, “use this PVC.”</p>
+<p>Kubernetes uses the PVC to find the bound PV, then mounts that storage into the Pod.</p>
+<p>That abstraction feels very Kubernetes:</p>
+<p>the workload describes what it needs.</p>
+<p>the cluster binds that need to real infrastructure.</p>
+<h2 id="a-simplified-pvc-example">A simplified PVC example</h2>
+<p>Start with the claim:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">PersistentVolumeClaim</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  accessModes</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#A5D6FF">ReadWriteOnce</span></span>
+<span class="line"><span style="color:#7EE787">  storageClassName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">standard</span></span>
+<span class="line"><span style="color:#7EE787">  resources</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    requests</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      storage</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">10Gi</span></span></code></pre>
+<p>This does not mean “create a folder.”</p>
+<p>It means:</p>
+<p>I need 10Gi of storage from the <code>standard</code> StorageClass, mounted with <code>ReadWriteOnce</code> semantics.</p>
+<p>A Pod template can reference that claim:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">apps/v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Deployment</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  replicas</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">1</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    matchLabels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">ghcr.io/example/web:1.0.0</span></span>
+<span class="line"><span style="color:#7EE787">          volumeMounts</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span>
+<span class="line"><span style="color:#7EE787">              mountPath</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/var/lib/web</span></span>
+<span class="line"><span style="color:#7EE787">      volumes</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span>
+<span class="line"><span style="color:#7EE787">          persistentVolumeClaim</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">            claimName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web-data</span></span></code></pre>
+<p>The point is the responsibility split:</p>
+<ul>
+<li>the PVC describes the storage request</li>
+<li>the Deployment describes where the workload mounts it</li>
+<li>the application writes to <code>/var/lib/web</code></li>
+<li>the storage backend details stay behind the cluster abstraction</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-06/pvc-pv-binding-note.png" alt="KAI notebook style PVC, StorageClass, and PV binding flow: a workload requests storage with a PVC, the StorageClass provisions, and the PV becomes Bound and mounted." loading="lazy" decoding="async">
+  <figcaption>The PVC is the request, the StorageClass is the plan, and the PV is the real storage. The workload asks; the cluster binds.</figcaption>
+</figure>
+<h2 id="what-kubernetes-actually-does">What Kubernetes actually does</h2>
+<p>Here is the useful version:</p>
+<ol>
+<li>You create a PVC with capacity, access mode, and StorageClass.</li>
+<li>The control plane finds a matching PV, or dynamically provisions one through the StorageClass.</li>
+<li>Once the claim and volume bind, the PVC becomes <code>Bound</code>.</li>
+<li>A Pod references the PVC as a volume.</li>
+<li>After the Pod is scheduled to a node, the kubelet and storage driver attach and mount the volume at the requested path.</li>
+<li>When the Pod goes away, what happens to the underlying data depends on reclaim policy, the storage backend, and whether you have backups.</li>
+</ol>
+<p>There are a few boundaries worth keeping precise.</p>
+<p>First, PVC <code>Bound</code> does not guarantee that the application can write.</p>
+<p>The system can still fail later on topology, attach, mount permissions, filesystem, driver behavior, or quota.</p>
+<p>Second, <code>ReadWriteOnce</code> is not a universal “only one Pod” lock.</p>
+<p>It means the volume can be mounted read-write by a single node. If the design needs a cluster-wide single-Pod writer guarantee, look at <code>ReadWriteOncePod</code> and CSI driver support.</p>
+<p>Third, reclaim policy is not a backup strategy.</p>
+<p>Many dynamically provisioned PVs inherit the reclaim policy from their StorageClass; a common default is <code>Delete</code>.</p>
+<p>Before deleting a PVC, know whether the backing data will be retained or deleted.</p>
+<h2 id="common-beginner-mistakes">Common beginner mistakes</h2>
+<h3 id="1-thinking-every-volume-is-permanent">1. Thinking every Volume is permanent</h3>
+<p>Volume is an abstraction, not a durability promise.</p>
+<p><code>emptyDir</code>, <code>configMap</code>, <code>secret</code>, and PVC-backed volumes all have different lifecycles.</p>
+<p>Ask for the volume type before assuming the data survives.</p>
+<h3 id="2-treating-the-pvc-as-the-data-itself">2. Treating the PVC as the data itself</h3>
+<p>A PVC is a claim, not the stored content.</p>
+<p>It is the workload’s request and reference point for storage.</p>
+<p>The actual data lives behind the PV and storage backend.</p>
+<h3 id="3-sharing-one-rwo-pvc-across-multiple-deployment-replicas">3. Sharing one RWO PVC across multiple Deployment replicas</h3>
+<p>This often turns into a scheduling or mount problem.</p>
+<p>Even when multiple Pods on the same node can touch the same RWO volume, that does not make the application data model safe.</p>
+<p>If every replica needs stable identity and its own storage, the next chapter is StatefulSet.</p>
+<h3 id="4-looking-only-at-the-pod">4. Looking only at the Pod</h3>
+<p>A Pod stuck in <code>ContainerCreating</code> is not always an image problem.</p>
+<p>The PVC may still be <code>Pending</code>, or attach / mount may be failing.</p>
+<h3 id="5-deleting-pvcs-without-checking-reclaim-policy">5. Deleting PVCs without checking reclaim policy</h3>
+<p>Some data is really gone after deletion.</p>
+<p>Kubernetes can manage storage object lifecycles, but it does not replace your backup strategy.</p>
+<h2 id="how-i-would-inspect-it">How I would inspect it</h2>
+<p>If someone says “the Pod will not start” and the workload uses storage, I would not only read logs.</p>
+<p>I would walk these layers:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pvc</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pvc</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pvc-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pv</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pv</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pv-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> storageclass</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">pod-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> events</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --sort-by=.lastTimestamp</span></span></code></pre>
+<p>The signals I care about:</p>
+<ul>
+<li>whether the PVC is <code>Pending</code> or <code>Bound</code></li>
+<li>whether capacity, access mode, and StorageClass match the workload</li>
+<li>whether the PV reclaim policy is <code>Delete</code> or <code>Retain</code></li>
+<li>whether Pod Events mention attach, mount, or permission errors</li>
+<li>whether the storage backend has topology constraints</li>
+<li>whether multiple replicas are sharing a PVC that should not be shared</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-06/storage-debug-path-note.png" alt="KAI notebook style Kubernetes storage troubleshooting path: check PVC, PV, StorageClass, Events, and Pod mount or attach errors." loading="lazy" decoding="async">
+  <figcaption>When a Pod is stuck, do not blame the image first. Check whether the PVC is Bound, then walk PV, StorageClass, Events, and mount errors.</figcaption>
+</figure>
+<p>Short version:</p>
+<blockquote>
+<p><strong>When storage breaks, do not inspect only the Pod. Walk PVC -> PV -> StorageClass -> Events.</strong></p>
+</blockquote>
+<h2 id="how-i-remember-volumes">How I remember Volumes</h2>
+<p>I do not remember this chapter as “Kubernetes has many volume types.”</p>
+<p>That turns into a list too quickly.</p>
+<p>I remember it like this:</p>
+<blockquote>
+<p><strong>Volume is the join between a workload and data; PV/PVC moves that join out of the Pod’s lifetime.</strong></p>
+</blockquote>
+<p>Pods can be recreated.</p>
+<p>Containers can restart.</p>
+<p>Nodes can be replaced.</p>
+<p>But if data has business meaning, it cannot merely be “whatever happened to be written inside one container.”</p>
+<p>It needs its own lifecycle, request model, mount point, reclaim boundary, and backup boundary.</p>
+<p>This will keep coming back.</p>
+<p>Once you run stateful workloads, the hard part of Kubernetes is not starting a process.</p>
+<p>The hard part is that the process can change, but identity and data cannot be random.</p>
+<h2 id="three-things-to-keep">Three things to keep</h2>
+<ol>
+<li>A Volume is an explicit data mount inside a Pod; it is not automatically persistent storage.</li>
+<li><code>emptyDir</code> follows the Pod; PV/PVC move data lifecycle outside the Pod.</li>
+<li>Debug storage from PVC status first, then PV, StorageClass, Events, and mount errors.</li>
+</ol>
+<p>The next chapter should ask: <strong>What is a StatefulSet? When every Pod needs a stable name and its own data, Deployment stops being the most comfortable tool.</strong></p>
+<p>Technical references:</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/storage/volumes/">https://kubernetes.io/docs/concepts/storage/volumes/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/storage/storage-classes/">https://kubernetes.io/docs/concepts/storage/storage-classes/</a></li>
+</ul> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
