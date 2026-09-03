@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v5.18.1"><meta name="author" content="Kai Ning"><meta name="description" content="Deployments treat Pods as interchangeable replicas, but databases, brokers, and clustered systems often need stable names, dedicated storage, and controlled ordering. This chapter connects StatefulSets, Headless Services, ordinals, volumeClaimTemplates, and a practical debugging path."><meta name="keywords" content="kubernetes, statefulset, workload, persistentvolume, headless-service, series"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fbf4e6"><link rel="canonical" href="https://lemonkai.github.io/blog/en/kai-k8s-road-07-statefulset/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="LemonKAI" href="/rss.xml"><link rel="sitemap" href="/sitemap-index.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="alternate" hreflang="zh-Hant" href="https://lemonkai.github.io/blog/zh/kai-k8s-road-07-statefulset/"><meta property="og:site_name" content="LemonKAI"><meta property="og:title" content="KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable | LemonKAI"><meta property="og:description" content="Deployments treat Pods as interchangeable replicas, but databases, brokers, and clustered systems often need stable names, dedicated storage, and controlled ordering. This chapter connects StatefulSets, Headless Services, ordinals, volumeClaimTemplates, and a practical debugging path."><meta property="og:type" content="article"><meta property="og:url" content="https://lemonkai.github.io/blog/en/kai-k8s-road-07-statefulset/"><meta property="og:image" content="https://lemonkai.github.io/images/kai-k8s-road-07/stable-identity-note.png"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="zh_HK"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable | LemonKAI"><meta name="twitter:description" content="Deployments treat Pods as interchangeable replicas, but databases, brokers, and clustered systems often need stable names, dedicated storage, and controlled ordering. This chapter connects StatefulSets, Headless Services, ordinals, volumeClaimTemplates, and a practical debugging path."><meta name="twitter:image" content="https://lemonkai.github.io/images/kai-k8s-road-07/stable-identity-note.png"><meta property="article:published_time" content="2026-09-03T00:00:00.000Z"><meta property="article:modified_time" content="2026-09-03T00:00:00.000Z"><meta property="article:tag" content="kubernetes"><meta property="article:tag" content="statefulset"><meta property="article:tag" content="workload"><meta property="article:tag" content="persistentvolume"><meta property="article:tag" content="headless-service"><meta property="article:tag" content="series"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebPage","name":"KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable | LemonKAI","headline":"KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable | LemonKAI","description":"Deployments treat Pods as interchangeable replicas, but databases, brokers, and clustered systems often need stable names, dedicated storage, and controlled ordering. This chapter connects StatefulSets, Headless Services, ordinals, volumeClaimTemplates, and a practical debugging path.","url":"https://lemonkai.github.io/blog/en/kai-k8s-road-07-statefulset/","inLanguage":"en","image":"https://lemonkai.github.io/images/kai-k8s-road-07/stable-identity-note.png","author":{"@type":"Person","name":"Kai Ning"}},{"@context":"https://schema.org","@type":"BlogPosting","headline":"KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable","description":"Deployments treat Pods as interchangeable replicas, but databases, brokers, and clustered systems often need stable names, dedicated storage, and controlled ordering. This chapter connects StatefulSets, Headless Services, ordinals, volumeClaimTemplates, and a practical debugging path.","datePublished":"2026-09-03T00:00:00.000Z","dateModified":"2026-09-03T00:00:00.000Z","inLanguage":"en","keywords":"kubernetes, statefulset, workload, persistentvolume, headless-service, series","articleSection":"KAI Road of Kubernetes","author":{"@type":"Person","name":"Kai Ning"},"mainEntityOfPage":"https://lemonkai.github.io/blog/en/kai-k8s-road-07-statefulset/","image":"https://lemonkai.github.io/images/kai-k8s-road-07/stable-identity-note.png"}]</script><title>KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable | LemonKAI</title><link rel="stylesheet" href="/_astro/about.Cnz1RqBa.css"></head> <body> <div class="page-shell"> <header class="site-header"> <div class="shell site-header__inner"> <a class="site-brand" href="/" aria-label="LemonKAI home"> <span class="site-brand__mark">K</span> <span class="site-brand__copy"> <strong>LemonKAI</strong> <em>Kai Ning · Kubernetes 主線 · 生產筆記 · 概念筆記</em> </span> </a> <div class="site-header__cluster"> <nav aria-label="Primary navigation"> <ul class="site-nav"> <li> <a href="/"> <span>Home</span> <small>首頁</small> </a> </li><li> <a href="/series/kai-k8s-road/"> <span>Mainline</span> <small>主線</small> </a> </li><li> <a href="/blog/#production"> <span>Production</span> <small>生產</small> </a> </li><li> <a href="/blog/#concepts"> <span>Concepts</span> <small>概念</small> </a> </li><li> <a href="/about/"> <span>About</span> <small>關於</small> </a> </li> </ul> </nav> <div class="site-language-switch" aria-label="Language links"> <a href="/blog/zh/kai-k8s-road-07-statefulset/"> 中文 </a><a href="/blog/en/kai-k8s-road-07-statefulset/" data-active="true"> EN </a> </div> </div> </div> </header> <main class="shell page-content">  <article class="post"> <header class="post__header"> <div class="post__hero-grid"> <div class="post__intro"> <p class="eyebrow"> Mainline </p> <h1> KAI Road of Kubernetes 07 — StatefulSets: replicas are no longer interchangeable </h1> <p class="post__lede">Deployments treat Pods as interchangeable replicas, but databases, brokers, and clustered systems often need stable names, dedicated storage, and controlled ordering. This chapter connects StatefulSets, Headless Services, ordinals, volumeClaimTemplates, and a practical debugging path.</p> <div class="post-card__topline post-card__topline--inline"> <span>EN</span> <span>Mainline</span> <span> Part 7 </span> </div> <div class="post__meta"> <time datetime="2026-09-03T00:00:00.000Z"> Published Sep 3, 2026 </time> <time datetime="2026-09-03T00:00:00.000Z"> Updated Sep 3, 2026 </time> </div> <div class="translation-callout"> <a class="button" href="/blog/zh/kai-k8s-road-07-statefulset/"> 閱讀中文版 </a> </div> </div>  <section class="article-note" aria-label="Core idea"> <div> <span>Core idea</span> <p>A StatefulSet is not a Deployment with disks. It preserves a recognizable identity for each Pod so its name, network location, and dedicated storage can be matched again after replacement.</p> </div> <div> <span>Takeaway</span> <p>First decide whether replicas are truly interchangeable. Use StatefulSet when you need stable ordinals, stable DNS, per-replica PVCs, or ordered operations. Debug through the StatefulSet, Pod ordinal, Headless Service, PVCs, and Events.</p> </div> </section> <div class="tag-list"> <a class="tag-pill" href="/tags/kubernetes/"> Kubernetes </a><a class="tag-pill" href="/tags/statefulset/"> statefulset </a><a class="tag-pill" href="/tags/workload/"> Workload </a><a class="tag-pill" href="/tags/persistentvolume/"> persistentvolume </a><a class="tag-pill" href="/tags/headless-service/"> headless-service </a><a class="tag-pill" href="/tags/series/"> 主線 </a> </div> </div> </header> <div class="prose"> <p>The previous chapter separated a Pod’s lifetime from the lifetime of its data.</p>
+<p>Pods can move, but data with business meaning should not disappear with them.</p>
+<p>That only solves half of the problem.</p>
+<p>Imagine three replicas: one performs leader duties, one owns shard A, and one owns shard B.</p>
+<p>It is no longer enough to say: “just attach storage.”</p>
+<p>The next questions are: <strong>Which replacement Pod should recover which data? How do peers find that exact member? Does startup order matter?</strong></p>
+<p>The sentence I would keep is this:</p>
+<blockquote>
+<p><strong>A Deployment manages interchangeable replicas. A StatefulSet manages named members with stable positions and their own data.</strong></p>
+</blockquote>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-07/stable-identity-note.png" alt="KAI notebook diagram showing web-0, web-1, and web-2 keeping stable names, network identities, and dedicated PVCs after Pod replacement." loading="lazy" decoding="async">
+  <figcaption>A StatefulSet does not keep a Pod alive forever. It makes sure the replacement knows which position, name, and data it is recovering.</figcaption>
+</figure>
+<h2 id="a-statefulset-does-not-create-immortal-pods">A StatefulSet does not create immortal Pods</h2>
+<p>StatefulSet Pods still crash, get evicted, move to another node, and get recreated during updates.</p>
+<p>The controller does not make the process immortal. What it provides is a <strong>sticky identity</strong>.</p>
+<blockquote>
+<p><strong>The Pod can be replaced, but the member position it represents must remain recognizable.</strong></p>
+</blockquote>
+<p>If <code>web-0</code> fails, the controller creates another <code>web-0</code>.</p>
+<p>The new Pod may have a different IP and run on another node, but it can still use the name <code>web-0</code>, return to the same DNS identity, and mount the PVC assigned to <code>web-0</code>.</p>
+<p>StatefulSet is not mainly about preventing change. It is about <strong>matching identity again after change</strong>.</p>
+<h2 id="think-of-statefulset-as-numbered-dorm-rooms">Think of StatefulSet as numbered dorm rooms</h2>
+<p>A Deployment is like a team of event workers. Everyone wears the same uniform and performs the same job. If worker A leaves and worker B replaces them, clients normally do not care.</p>
+<p>A StatefulSet is closer to a row of numbered dorm rooms:</p>
+<ul>
+<li><code>web-0</code> is room 0</li>
+<li><code>web-1</code> is room 1</li>
+<li><code>web-2</code> is room 2</li>
+<li>every room has its own mailbox</li>
+<li>every room has its own storage locker</li>
+</ul>
+<p>The resident may change, but the room number cannot be shuffled.</p>
+<p>The next resident in room 0 must recover room 0’s mailbox and locker, not take the belongings from room 2.</p>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-07/dorm-room-identity-note.png" alt="KAI notebook dorm-room analogy: each StatefulSet ordinal has its own stable room number, DNS mailbox, and PVC storage locker." loading="lazy" decoding="async">
+  <figcaption>The Pod templates can match, but members are not interchangeable: the ordinal is the room number, DNS is the mailbox, and the PVC is the private locker.</figcaption>
+</figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Dorm</th><th>StatefulSet</th></tr></thead><tbody><tr><td>room number</td><td>Pod ordinal such as <code>web-0</code></td></tr><tr><td>mailbox address</td><td>stable Pod DNS</td></tr><tr><td>private locker</td><td>one PVC per Pod</td></tr><tr><td>move in by room order</td><td>ordered creation and scaling</td></tr><tr><td>move out in reverse</td><td>reverse ordered scale-down</td></tr></tbody></table>
+<p>The real design question is:</p>
+<blockquote>
+<p><strong>Are the replicas interchangeable, or must each member be addressed by identity?</strong></p>
+</blockquote>
+<h2 id="the-three-identities-statefulset-stabilizes">The three identities StatefulSet stabilizes</h2>
+<h3 id="1-stable-ordinals">1. Stable ordinals</h3>
+<p>With N replicas, Pods receive ordinals from <code>0</code> through <code>N-1</code> by default:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web-0</span></span>
+<span class="line"><span>web-1</span></span>
+<span class="line"><span>web-2</span></span></code></pre>
+<p>The names do not use random suffixes. That lets applications, monitoring, and operations refer to a specific member.</p>
+<p>Do not over-interpret the number: <code>web-0</code> does not automatically become the leader. The ordinal provides identity; leader election, replication, and quorum still belong to the application protocol.</p>
+<h3 id="2-stable-network-identity">2. Stable network identity</h3>
+<p>A StatefulSet uses a governing Headless Service:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Service</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  clusterIP</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">None</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">      port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span></code></pre>
+<p><code>clusterIP: None</code> means the Service does not provide the normal single virtual-IP load-balancing path.</p>
+<p>It acts more like a discoverable member directory. Clients can resolve individual Pods such as:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web-0.web.default.svc.cluster.local</span></span>
+<span class="line"><span>web-1.web.default.svc.cluster.local</span></span></code></pre>
+<p>A Headless Service is not a public traffic entry point, and StatefulSet does not create it for you. Its selector, name, and StatefulSet <code>serviceName</code> must agree.</p>
+<p>Pod-specific DNS can also be affected by readiness and DNS negative caching. If peers must discover members before they become Ready, review <code>publishNotReadyAddresses</code> deliberately rather than assuming immediate discovery.</p>
+<h3 id="3-stable-dedicated-storage">3. Stable dedicated storage</h3>
+<p><code>volumeClaimTemplates</code> creates a PVC for each Pod:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">volumeClaimTemplates</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">  - </span><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">data</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      accessModes</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#A5D6FF">ReadWriteOncePod</span></span>
+<span class="line"><span style="color:#7EE787">      storageClassName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">fast</span></span>
+<span class="line"><span style="color:#7EE787">      resources</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        requests</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          storage</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">10Gi</span></span></code></pre>
+<p>With three replicas, the conceptual result is:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>data-web-0 -> PVC/PV for web-0</span></span>
+<span class="line"><span>data-web-1 -> PVC/PV for web-1</span></span>
+<span class="line"><span>data-web-2 -> PVC/PV for web-2</span></span></code></pre>
+<p>When <code>web-0</code> is recreated, it references <code>data-web-0</code> again. That is how identity and data line up after replacement.</p>
+<p>By default, deleting a Pod, scaling down, or deleting the StatefulSet does not automatically purge the associated PVCs.</p>
+<p>Recent Kubernetes versions support <code>.spec.persistentVolumeClaimRetentionPolicy</code> for choosing whether PVCs are retained or deleted when a StatefulSet is deleted or scaled down. Review the cluster version, data-retention requirement, and PV reclaim policy before enabling deletion behavior.</p>
+<h2 id="a-useful-statefulset-example">A useful StatefulSet example</h2>
+<p>This is not a production database manifest. It only connects the pieces:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">Service</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  clusterIP</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">None</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">      port</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#79C0FF">---</span></span>
+<span class="line"><span style="color:#7EE787">apiVersion</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">apps/v1</span></span>
+<span class="line"><span style="color:#7EE787">kind</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">StatefulSet</span></span>
+<span class="line"><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">  serviceName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  replicas</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">3</span></span>
+<span class="line"><span style="color:#7EE787">  selector</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    matchLabels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">  template</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">    metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      labels</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        app</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">    spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">      terminationGracePeriodSeconds</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">30</span></span>
+<span class="line"><span style="color:#7EE787">      containers</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">        - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">web</span></span>
+<span class="line"><span style="color:#7EE787">          image</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">nginx:1.27</span></span>
+<span class="line"><span style="color:#7EE787">          ports</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">http</span></span>
+<span class="line"><span style="color:#7EE787">              containerPort</span><span style="color:#E6EDF3">: </span><span style="color:#79C0FF">80</span></span>
+<span class="line"><span style="color:#7EE787">          volumeMounts</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">            - </span><span style="color:#7EE787">name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">data</span></span>
+<span class="line"><span style="color:#7EE787">              mountPath</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">/usr/share/nginx/html</span></span>
+<span class="line"><span style="color:#7EE787">  volumeClaimTemplates</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">    - </span><span style="color:#7EE787">metadata</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        name</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">data</span></span>
+<span class="line"><span style="color:#7EE787">      spec</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">        accessModes</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#E6EDF3">          - </span><span style="color:#A5D6FF">ReadWriteOncePod</span></span>
+<span class="line"><span style="color:#7EE787">        storageClassName</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">fast</span></span>
+<span class="line"><span style="color:#7EE787">        resources</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">          requests</span><span style="color:#E6EDF3">:</span></span>
+<span class="line"><span style="color:#7EE787">            storage</span><span style="color:#E6EDF3">: </span><span style="color:#A5D6FF">10Gi</span></span></code></pre>
+<p>The responsibility split is:</p>
+<ul>
+<li>the Headless Service controls the member network domain</li>
+<li><code>serviceName</code> connects the StatefulSet to that domain</li>
+<li>the ordinal gives each Pod a stable name</li>
+<li><code>volumeClaimTemplates</code> gives each Pod its own claim</li>
+<li>the StorageClass and PV provisioner supply real storage</li>
+<li>the application handles replication, leadership, quorum, and data consistency</li>
+</ul>
+<blockquote>
+<p><strong>StatefulSet manages identity and orchestration. It does not invent a distributed-systems protocol for the application.</strong></p>
+</blockquote>
+<h2 id="ordering-is-not-decoration">Ordering is not decoration</h2>
+<p>The default <code>podManagementPolicy</code> is <code>OrderedReady</code>.</p>
+<p>Creation normally progresses in order:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web-0 Ready</span></span>
+<span class="line"><span>  -> web-1 Ready</span></span>
+<span class="line"><span>    -> web-2 Ready</span></span></code></pre>
+<p>Normal scale-down proceeds in reverse:</p>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>web-2</span></span>
+<span class="line"><span>  -> web-1</span></span>
+<span class="line"><span>    -> web-0</span></span></code></pre>
+<p>RollingUpdate also works from the highest ordinal toward the lowest, waiting for the updated Pod to become Running and Ready before continuing.</p>
+<p>That is useful for workloads with bootstrap dependencies, but it has a cost:</p>
+<blockquote>
+<p><strong>If an earlier member is not Ready, later operations can queue behind it.</strong></p>
+</blockquote>
+<p>When rollout stalls, find the ordinal blocking the line.</p>
+<p>If strict scaling order is unnecessary, <code>podManagementPolicy: Parallel</code> can relax creation and scale waits. Parallel does not make identities interchangeable.</p>
+<p>One important boundary: directly deleting a StatefulSet does not guarantee ordered Pod termination. If ordered graceful shutdown matters, scale to zero first and verify the application state before deleting the object.</p>
+<h2 id="deployment-or-statefulset">Deployment or StatefulSet?</h2>
+<p>Start with one question:</p>
+<blockquote>
+<p><strong>If one Pod disappears, can any new replica replace it without knowing which member it used to be?</strong></p>
+</blockquote>
+<p>If yes, start with Deployment.</p>
+<p>If no—because the replacement needs its identity, dedicated data, or stable peer address—consider StatefulSet.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Decision</th><th>Deployment</th><th>StatefulSet</th></tr></thead><tbody><tr><td>replicas interchangeable</td><td>usually yes</td><td>usually no</td></tr><tr><td>Pod name</td><td>random suffix</td><td>stable ordinal</td></tr><tr><td>individual Pod DNS</td><td>usually irrelevant</td><td>often part of the design</td></tr><tr><td>dedicated PVC per replica</td><td>requires extra design</td><td>native through <code>volumeClaimTemplates</code></td></tr><tr><td>creation and scale order</td><td>not emphasized</td><td>ordered by default</td></tr><tr><td>typical workload</td><td>web/API, stateless worker</td><td>database, broker, identity-aware cluster</td></tr></tbody></table>
+<p>Having a PVC is not enough reason to select StatefulSet. A single-replica application can mount a PVC from Deployment.</p>
+<p>StatefulSet is also not a magic safety wrapper for databases. It does not automatically provide backups, replication, correct failover, data consistency, quorum, or disaster recovery.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<h3 id="1-assuming-statefulset-pods-are-never-recreated">1. Assuming StatefulSet Pods are never recreated</h3>
+<p>They are. Identity is stable; Pod UID, IP, node, and process are not.</p>
+<h3 id="2-assuming-web-0-automatically-becomes-leader">2. Assuming <code>web-0</code> automatically becomes leader</h3>
+<p>It does not. Leadership still comes from configuration, an operator, or an election protocol.</p>
+<h3 id="3-forgetting-the-headless-service">3. Forgetting the Headless Service</h3>
+<p>Without the governing Headless Service, the stable Pod DNS design is incomplete. Check <code>serviceName</code>, Service name, namespace, selector, and Pod labels.</p>
+<h3 id="4-assuming-statefulset-deletion-cleans-all-storage">4. Assuming StatefulSet deletion cleans all storage</h3>
+<p>Associated PVCs are retained by default. Before cleanup, inspect PVC retention policy, PV reclaim policy, backups, and the actual storage backend.</p>
+<h3 id="5-force-deleting-a-stuck-pod-too-early">5. Force-deleting a stuck Pod too early</h3>
+<p>A StatefulSet identity must remain unique. If the old node state is unknown, force deletion can let two instances with the same identity run and create split-brain risk.</p>
+<p>Confirm the old instance cannot return before force deletion.</p>
+<h3 id="6-treating-orderedready-as-application-readiness">6. Treating OrderedReady as application readiness</h3>
+<p>Kubernetes sees probes and Pod state. If readiness does not represent replication recovery or quorum safety, a Ready Pod may still be unsafe at the data layer.</p>
+<h2 id="how-i-inspect-it">How I inspect it</h2>
+<pre class="astro-code github-dark-default" style="background-color:#0d1117;color:#e6edf3; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> statefulset</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> statefulset</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> rollout</span><span style="color:#A5D6FF"> status</span><span style="color:#A5D6FF"> statefulset/</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pods</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -l</span><span style="color:#A5D6FF"> app=</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">labe</span><span style="color:#E6EDF3">l</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -o</span><span style="color:#A5D6FF"> wide</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pod</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#A5D6FF">-</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">ordina</span><span style="color:#E6EDF3">l</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> service</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">headless-servic</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -o</span><span style="color:#A5D6FF"> yaml</span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> endpointslice</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -l</span><span style="color:#A5D6FF"> kubernetes.io/service-name=</span><span style="color:#FF7B72">&#x3C;</span><span style="color:#A5D6FF">headless-servic</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> pvc</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> describe</span><span style="color:#A5D6FF"> pvc</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">claim-nam</span><span style="color:#E6EDF3">e</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span></span>
+<span class="line"><span style="color:#FFA657">kubectl</span><span style="color:#A5D6FF"> get</span><span style="color:#A5D6FF"> events</span><span style="color:#79C0FF"> -n</span><span style="color:#FF7B72"> &#x3C;</span><span style="color:#A5D6FF">n</span><span style="color:#E6EDF3">s</span><span style="color:#FF7B72">></span><span style="color:#79C0FF"> --sort-by=.lastTimestamp</span></span></code></pre>
+<p>The signals I care about are:</p>
+<ul>
+<li>whether <code>READY</code>, <code>CURRENT</code>, and <code>UPDATED</code> replicas agree</li>
+<li>which ordinal first fails to become Ready</li>
+<li>whether Pod names, owner references, and labels match expectations</li>
+<li>whether the Headless Service has <code>clusterIP: None</code></li>
+<li>whether <code>serviceName</code>, Service selectors, and Pod labels agree</li>
+<li>whether every ordinal received its own PVC and whether it is <code>Bound</code></li>
+<li>whether Events show scheduling, attach, mount, probe, or termination failures</li>
+<li>whether update strategy, partition, or pod management policy is blocking progress</li>
+</ul>
+<figure class="visual-explainer visual-explainer--notebook">
+  <img src="/images/kai-k8s-road-07/statefulset-debug-path-note.png" alt="KAI notebook StatefulSet debugging path: find the blocked ordinal, then inspect the Headless Service, matching PVC, Pod Events, and rollout policy." loading="lazy" decoding="async">
+  <figcaption>When a StatefulSet stalls, find the first ordinal that is not Ready. Then inspect identity, DNS, PVCs, and Events instead of repeatedly applying the YAML.</figcaption>
+</figure>
+<p>Short version:</p>
+<blockquote>
+<p><strong>Find the member that fell behind, then check whether its name, address, and data were matched again.</strong></p>
+</blockquote>
+<h2 id="how-i-remember-statefulset">How I remember StatefulSet</h2>
+<p>I do not remember StatefulSet as “the Kubernetes object for running databases.” That makes the object sound safer than it is.</p>
+<p>I remember it like this:</p>
+<blockquote>
+<p><strong>A StatefulSet is a fixed seating chart: people can change, but seat numbers, contact addresses, and storage lockers cannot be shuffled.</strong></p>
+</blockquote>
+<p>Deployment aims for: one replica is missing, so create any replica that can do the job.</p>
+<p>StatefulSet aims for: member 1 is missing, so recreate member 1 with its identity and data.</p>
+<p>That difference is the boundary between a stateless replica and a stateful member.</p>
+<h2 id="keep-these-three-things">Keep these three things</h2>
+<ol>
+<li>StatefulSet preserves sticky identity; it does not make Pods immortal</li>
+<li>Ordinals, a Headless Service, and <code>volumeClaimTemplates</code> connect names, network identities, and dedicated storage</li>
+<li>StatefulSet owns Kubernetes-level identity and ordering; replication, leadership, quorum, and backups remain application responsibilities</li>
+</ol>
+<p>The next chapter asks a different lifecycle question: <strong>What are Jobs and CronJobs? Not every workload should stay alive forever; some work should finish and formally stop.</strong></p>
+<p>Technical references:</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/services-networking/service/#headless-services">https://kubernetes.io/docs/concepts/services-networking/service/#headless-services</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></li>
+</ul> </div> </article>  </main> <footer class="site-footer"> <div class="shell site-footer__inner"> <div class="site-footer__copy"> <p class="eyebrow">Kubernetes · 主線 · 生產筆記 · 概念筆記</p> <p> <strong>LemonKAI</strong> 是 KAI 的技術筆記：主線建立 Kubernetes 邊界，生產筆記記錄環境問題，概念筆記整理可重用的模型。
+</p> </div> <div class="site-footer__links"> <a href="/series/kai-k8s-road/">主線</a> <a href="/blog/#production">生產筆記</a> <a href="/blog/#concepts">概念筆記</a> <a href="/rss.xml">RSS</a> <a href="/sitemap-index.xml">網站地圖</a> </div> <small>© 2026 Kai Ning. 使用 Astro 建置，部署在 GitHub Pages。</small> </div> </footer> </div> </body></html>
